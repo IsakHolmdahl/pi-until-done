@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { Type } from "typebox";
 import { makeTask } from "../helpers/factories";
 import {
 	createTestRuntime,
@@ -66,4 +67,157 @@ describe("until_done_plan", () => {
 		});
 		expect(rt.store.state.tasks).toHaveLength(0);
 	});
+
+	test("when status is planning, shows approval dialog and activates on approve", async () => {
+		rt = await createTestRuntime({
+			withUi: true,
+			uiPolicy: { confirm: () => true },
+		});
+		rt.store.state = {
+			...rt.store.state,
+			status: "planning",
+			id: "ud-test",
+			goal: "ship X",
+			northStar: {
+				goal: "ship X",
+				doneCriteria: "ok",
+				goalType: "ticket",
+				askBefore: [],
+				decisionStyle: "",
+				surfaces: [],
+			},
+			maxTurns: 100,
+		};
+		await driveToolCall(rt, "until_done_plan", {
+			tasks: [makeTask({ id: "T-001" })],
+		});
+		expect(rt.store.state.status as string).toBe("active");
+		expect(rt.store.state.confirmedByUser).toBe(true);
+		expect(rt.ui.confirms.some((c) => c.title.includes("approve plan"))).toBe(
+			true,
+		);
+	});
+
+	test("when status is planning, rejection clears the goal", async () => {
+		rt = await createTestRuntime({
+			withUi: true,
+			uiPolicy: { confirm: () => false },
+		});
+		rt.store.state = {
+			...rt.store.state,
+			status: "planning",
+			id: "ud-test",
+			goal: "ship X",
+			northStar: {
+				goal: "ship X",
+				doneCriteria: "ok",
+				goalType: "ticket",
+				askBefore: [],
+				decisionStyle: "",
+				surfaces: [],
+			},
+			maxTurns: 100,
+		};
+		await driveToolCall(rt, "until_done_plan", {
+			tasks: [makeTask({ id: "T-001" })],
+		});
+		expect(rt.store.state.status).toBe("setup");
+		expect(rt.store.state.goal).toBe("");
+		expect(rt.store.state.confirmedByUser).toBe(false);
+	});
+
+	test("when plannotator is installed and approves, plan activates without dialog", async () => {
+		rt = await createTestRuntime({ withUi: true });
+		installFakePlannotator(rt, { approved: true });
+		rt.store.state = {
+			...rt.store.state,
+			status: "planning",
+			id: "ud-test",
+			goal: "ship X",
+			northStar: {
+				goal: "ship X",
+				doneCriteria: "ok",
+				goalType: "ticket",
+				askBefore: [],
+				decisionStyle: "",
+				surfaces: [],
+			},
+			maxTurns: 100,
+		};
+		await driveToolCall(rt, "until_done_plan", {
+			tasks: [makeTask({ id: "T-001" })],
+		});
+		expect(rt.store.state.status).toBe("active");
+		expect(rt.store.state.confirmedByUser).toBe(true);
+		expect(rt.ui.confirms).toHaveLength(0);
+	});
+
+	test("when plannotator is installed and rejects, refusal includes feedback", async () => {
+		rt = await createTestRuntime({ withUi: true });
+		installFakePlannotator(rt, {
+			approved: false,
+			feedback: "split the first task into two",
+		});
+		rt.store.state = {
+			...rt.store.state,
+			status: "planning",
+			id: "ud-test",
+			goal: "ship X",
+			northStar: {
+				goal: "ship X",
+				doneCriteria: "ok",
+				goalType: "ticket",
+				askBefore: [],
+				decisionStyle: "",
+				surfaces: [],
+			},
+			maxTurns: 100,
+		};
+		await driveToolCall(rt, "until_done_plan", {
+			tasks: [makeTask({ id: "T-001" })],
+		});
+		expect(rt.store.state.status).toBe("setup");
+		expect(rt.store.state.goal).toBe("");
+		expect(rt.store.state.confirmedByUser).toBe(false);
+		expect(rt.store.state.tasks).toHaveLength(0);
+	});
 });
+
+const installFakePlannotator = (
+	rt: TestRuntime,
+	decision: { approved: boolean; feedback?: string },
+): void => {
+	rt.pi.registerTool({
+		name: "plannotator_submit_plan",
+		label: "Submit Plan",
+		description: "fake plannotator tool",
+		parameters: Type.Object({}),
+		async execute() {
+			return {
+				content: [{ type: "text" as const, text: "ok" }],
+				details: undefined,
+			};
+		},
+	});
+
+	rt.pi.events.on("plannotator:request", (data) => {
+		const request = data as {
+			requestId: string;
+			action: string;
+			payload: { planContent: string };
+			respond: (response: unknown) => void;
+		};
+		if (request.action !== "plan-review") return;
+		request.respond({
+			status: "handled",
+			result: { status: "pending", reviewId: "rev-fake" },
+		});
+		setTimeout(() => {
+			rt.pi.events.emit("plannotator:review-result", {
+				reviewId: "rev-fake",
+				approved: decision.approved,
+				feedback: decision.feedback,
+			});
+		}, 5);
+	});
+};

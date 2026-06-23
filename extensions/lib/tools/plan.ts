@@ -3,15 +3,26 @@ import type {
 	ExtensionContext,
 } from "@mariozechner/pi-coding-agent";
 import type { Static } from "typebox";
+import { SETUP_CONFIRM_TIMEOUT_MS } from "../constants";
+import { initialState } from "../initial-state";
+import {
+	isPlannotatorInstalled,
+	type PlannotatorDecision,
+	requestPlannotatorPlanReview,
+} from "../plannotator";
 import { PlanParams } from "../schemas/plan";
 import { persist, type Store } from "../store";
 import {
+	DIALOGS,
+	NOTIFY,
 	REFUSAL,
 	TOOL_DESCRIPTIONS,
 	TOOL_LABELS,
 	TOOL_RESULTS,
 } from "../strings";
 import type { Task } from "../types";
+import { refreshStatus } from "../ui/status-line";
+import { refreshWidget } from "../ui/widget";
 import { writeTasksYaml } from "../yaml-writer";
 import { ok, refused } from "./result";
 
@@ -27,10 +38,117 @@ const validateDeps = (tasks: Task[]): string | undefined => {
 	return undefined;
 };
 
+const grantPlanApproval = (
+	pi: ExtensionAPI,
+	store: Store,
+	ctx: ExtensionContext,
+	note: string,
+): void => {
+	store.state.confirmedByUser = true;
+	persist(
+		pi,
+		store,
+		"confirm",
+		{ confirmedByUser: true, status: "active" },
+		note,
+	);
+	ctx.ui.notify(NOTIFY.planApproved, "info");
+	pi.sendUserMessage("Approved. Begin work on the first task.");
+};
+
+const rejectPlan = (
+	pi: ExtensionAPI,
+	store: Store,
+	ctx: ExtensionContext,
+	note: string,
+	feedback?: string,
+): PlannotatorDecision => {
+	persist(pi, store, "cancel", initialState(), note);
+	ctx.ui.notify(NOTIFY.planRejected, "info");
+	refreshStatus(store, ctx);
+	refreshWidget(store, ctx, true);
+	return { approved: false, feedback };
+};
+
+const tryPlannotatorApproval = async (
+	pi: ExtensionAPI,
+	store: Store,
+	ctx: ExtensionContext,
+	signal: AbortSignal | undefined,
+): Promise<PlannotatorDecision | undefined> => {
+	if (!isPlannotatorInstalled(pi)) return undefined;
+	const decision = await requestPlannotatorPlanReview(
+		pi,
+		store.state.tasks,
+		signal,
+	);
+	if (!decision) return undefined;
+	if (decision.approved) {
+		grantPlanApproval(pi, store, ctx, "plannotator approved");
+		return { approved: true };
+	}
+	return rejectPlan(
+		pi,
+		store,
+		ctx,
+		"plannotator rejected plan",
+		decision.feedback,
+	);
+};
+
+const awaitPlanApproval = async (
+	pi: ExtensionAPI,
+	store: Store,
+	ctx: ExtensionContext,
+	signal: AbortSignal | undefined,
+): Promise<PlannotatorDecision> => {
+	if (store.autopilotEnabled) {
+		grantPlanApproval(pi, store, ctx, "autopilot");
+		return { approved: true };
+	}
+	if (!ctx.hasUI) {
+		grantPlanApproval(pi, store, ctx, "no ui; auto-approved");
+		return { approved: true };
+	}
+	const plannotator = await tryPlannotatorApproval(pi, store, ctx, signal);
+	if (plannotator) return plannotator;
+	const confirmed = await ctx.ui.confirm(
+		DIALOGS.approveTitle,
+		DIALOGS.approveMessage,
+		{ timeout: SETUP_CONFIRM_TIMEOUT_MS },
+	);
+	if (confirmed) {
+		grantPlanApproval(pi, store, ctx, "user approved plan");
+		return { approved: true };
+	}
+	return rejectPlan(pi, store, ctx, "user rejected plan");
+};
+
+const persistPlan = (
+	pi: ExtensionAPI,
+	store: Store,
+	tasks: Task[],
+	first: Task | undefined,
+): void => {
+	persist(
+		pi,
+		store,
+		"plan",
+		{
+			tasks,
+			currentTaskId: first?.id,
+			planComplete: true,
+			phase: first?.phase ?? store.state.phase,
+		},
+		`plan with ${tasks.length} tasks`,
+	);
+};
+
 const executePlan = async (
 	pi: ExtensionAPI,
 	store: Store,
 	params: PlanInput,
+	signal: AbortSignal | undefined,
 	ctx: ExtensionContext,
 ) => {
 	const s = store.state;
@@ -40,19 +158,17 @@ const executePlan = async (
 	const err = validateDeps(params.tasks);
 	if (err) return refused(err, "unknown_dep");
 	const first = params.tasks.find((t) => t.dependencies.length === 0);
-	persist(
-		pi,
-		store,
-		"plan",
-		{
-			tasks: params.tasks,
-			currentTaskId: first?.id,
-			planComplete: true,
-			phase: first?.phase ?? s.phase,
-		},
-		`plan with ${params.tasks.length} tasks`,
-	);
+	persistPlan(pi, store, params.tasks, first);
 	writeTasksYaml(ctx.cwd, store.state);
+	if (s.status === "planning") {
+		const decision = await awaitPlanApproval(pi, store, ctx, signal);
+		if (!decision.approved) {
+			return refused(
+				decision.feedback ?? REFUSAL.planRejected,
+				"plan_rejected",
+			);
+		}
+	}
 	return ok(
 		TOOL_RESULTS.planAccepted(params.tasks.length, first?.id ?? "(none)"),
 		{ count: params.tasks.length, currentTaskId: first?.id },
@@ -65,8 +181,8 @@ export const registerPlanTool = (pi: ExtensionAPI, store: Store): void => {
 		label: TOOL_LABELS.plan,
 		description: TOOL_DESCRIPTIONS.plan,
 		parameters: PlanParams,
-		async execute(_id, params, _signal, _onUpdate, ctx) {
-			return executePlan(pi, store, params, ctx);
+		async execute(_id, params, signal, _onUpdate, ctx) {
+			return executePlan(pi, store, params, signal, ctx);
 		},
 	});
 };
