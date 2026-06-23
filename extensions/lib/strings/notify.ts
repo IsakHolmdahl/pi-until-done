@@ -4,8 +4,8 @@ const LIFECYCLE = {
 		"Note: @qhn/pi-goal is also installed. /until-done and /goal coexist — pick one per session.",
 	setupStarted: (intent: string) =>
 		`/until-done · setup started for "${intent}"`,
-	contractApproved: "/until-done · contract approved. Pi will activate now.",
-	contractRejected: "/until-done · contract rejected. Goal cleared.",
+	planApproved: "/until-done · plan approved. Pi will activate now.",
+	planRejected: "/until-done · plan rejected. Goal cleared.",
 	paused: "/until-done paused.",
 	resumed: (g: string) => `/until-done resumed (budget reset). Goal: ${g}`,
 	cancelled: "/until-done cancelled.",
@@ -13,15 +13,15 @@ const LIFECYCLE = {
 	nothingToResume: "Nothing to resume.",
 	nothingToPause: (status: string) => `Nothing to pause (status=${status}).`,
 	autopilotEnabled:
-		"/until-done · autopilot ON. Future setups will skip the contract confirmation dialog.",
+		"/until-done · autopilot ON. Future setups will skip the plan confirmation dialog.",
 	autopilotDisabled:
-		"/until-done · autopilot OFF. Future setups will require the contract confirmation dialog.",
+		"/until-done · autopilot OFF. Future setups will require the plan confirmation dialog.",
 };
 
 const INSPECTION = {
 	noActiveGoal: "No active /until-done goal.",
 	noTasksYet:
-		"No tasks yet. After /until-done <intent> is approved, Pi will call `until_done_plan` to generate the list.",
+		"No tasks yet. After /until-done <intent> is set, Pi will call `until_done_plan` to generate the list.",
 	noPlanYet: "No plan written yet. Pi must call until_done_plan first.",
 	livePlanAt: (p: string) => `Live task list: ${p}`,
 	noNorthStar: "No active goal. Run /until-done <intent> first.",

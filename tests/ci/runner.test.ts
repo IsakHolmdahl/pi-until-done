@@ -57,10 +57,7 @@ describe("runOne against real subprocesses", () => {
 	});
 
 	test("durationMs is recorded and ≥ 0", async () => {
-		const r = await runOne(
-			check("test", ["sh", "-c", "sleep 0.05"]),
-			tmpdir(),
-		);
+		const r = await runOne(check("test", ["sh", "-c", "sleep 0.05"]), tmpdir());
 		expect(r.durationMs).toBeGreaterThanOrEqual(40);
 	});
 

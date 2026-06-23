@@ -1,15 +1,15 @@
-import { miseExec } from "../factories";
+import { direct } from "../factories";
 import type { LanguageProfile } from "./types";
 
 export const ELIXIR: LanguageProfile = {
 	id: "elixir",
 	markers: ["mix.exs"],
 	checks: [
-		miseExec("typecheck", ["mix", "dialyzer", "--quiet"]),
-		miseExec("lint", ["mix", "credo", "--strict"]),
-		miseExec("format", ["mix", "format", "--check-formatted"]),
-		miseExec("compile", ["mix", "compile", "--warnings-as-errors"]),
-		miseExec("test", ["mix", "test"]),
+		direct("typecheck", ["mix", "dialyzer", "--quiet"]),
+		direct("lint", ["mix", "credo", "--strict"]),
+		direct("format", ["mix", "format", "--check-formatted"]),
+		direct("compile", ["mix", "compile", "--warnings-as-errors"]),
+		direct("test", ["mix", "test"]),
 	],
 };
 
@@ -17,8 +17,8 @@ export const ERLANG: LanguageProfile = {
 	id: "erlang",
 	markers: ["rebar.config", "rebar.lock"],
 	checks: [
-		miseExec("compile", ["rebar3", "compile"]),
-		miseExec("typecheck", ["rebar3", "dialyzer"]),
-		miseExec("test", ["rebar3", "eunit"]),
+		direct("compile", ["rebar3", "compile"]),
+		direct("typecheck", ["rebar3", "dialyzer"]),
+		direct("test", ["rebar3", "eunit"]),
 	],
 };

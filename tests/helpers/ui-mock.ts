@@ -13,10 +13,7 @@ export interface UiTrace {
 }
 
 export interface UiPolicy {
-	confirm?: (
-		title: string,
-		message: string,
-	) => boolean | Promise<boolean>;
+	confirm?: (title: string, message: string) => boolean | Promise<boolean>;
 	select?: (
 		title: string,
 		options: string[],
@@ -42,9 +39,7 @@ export const buildUi = (
 ): ExtensionUIContext => ({
 	confirm: async (title, message) => {
 		trace.confirms.push({ title, message });
-		const answer = policy.confirm
-			? await policy.confirm(title, message)
-			: true;
+		const answer = policy.confirm ? await policy.confirm(title, message) : true;
 		trace.confirmAnswers.push(answer);
 		return answer;
 	},

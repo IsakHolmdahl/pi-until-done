@@ -12,8 +12,7 @@ export const REFUSAL = {
 	taskNotFound: (id: string) => `No task with id ${id}.`,
 	goalExists: (status: string) =>
 		`a goal is already ${status}. Cancel it with /until-done cancel first.`,
-	notConfirmed:
-		"setup contract has not been confirmed by the user. Run /until-done <intent> and confirm via the dialog first.",
+	planRejected: "plan rejected by user. Goal cleared.",
 	noActiveGoal: (status: string) =>
 		`Refused: no active goal (status=${status}).`,
 	noActiveBlock: (status: string) =>

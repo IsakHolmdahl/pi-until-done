@@ -16,9 +16,9 @@ describe("DENO profile", () => {
 		);
 	});
 
-	test("every check is routed through mise exec --", () => {
+	test("every check is a direct command", () => {
 		for (const c of DENO.checks) {
-			expect(c.argv.slice(0, 3)).toEqual(["mise", "exec", "--"]);
+			expect(c.argv).not.toContain("mise");
 		}
 	});
 
@@ -28,19 +28,12 @@ describe("DENO profile", () => {
 		expect(typecheck?.argv).toContain("check");
 
 		const lint = DENO.checks.find((c) => c.verb === "lint");
-		expect(lint?.argv).toEqual(["mise", "exec", "--", "deno", "lint"]);
+		expect(lint?.argv).toEqual(["deno", "lint"]);
 
 		const format = DENO.checks.find((c) => c.verb === "format");
-		expect(format?.argv).toEqual([
-			"mise",
-			"exec",
-			"--",
-			"deno",
-			"fmt",
-			"--check",
-		]);
+		expect(format?.argv).toEqual(["deno", "fmt", "--check"]);
 
 		const t = DENO.checks.find((c) => c.verb === "test");
-		expect(t?.argv).toEqual(["mise", "exec", "--", "deno", "test", "--quiet"]);
+		expect(t?.argv).toEqual(["deno", "test", "--quiet"]);
 	});
 });

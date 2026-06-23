@@ -21,7 +21,7 @@ export const makeTask = (overrides: Partial<Task> = {}): Task => ({
 export const makeNorthStar = () => ({
 	goal: "ship X",
 	doneCriteria: "all green",
-	verifyCommand: "mise run ci",
+	verifyCommand: "bun test",
 	askBefore: ["rm -rf"],
 	decisionStyle: "fast and decisive",
 	goalType: "ticket" as const,

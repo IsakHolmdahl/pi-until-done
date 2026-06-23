@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { fauxAssistantMessage } from "@mariozechner/pi-ai";
-import { writeFile } from "node:fs/promises";
 import { mkdirSync } from "node:fs";
+import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { fauxAssistantMessage } from "@mariozechner/pi-ai";
 import { makeNorthStar, makeTask } from "../helpers/factories";
 import {
 	createTestRuntime,
@@ -48,7 +48,7 @@ describe("/until-done tasks", () => {
 		await rt.prompt("/until-done tasks");
 		const dump = rt.ui.notifies.find((n) => n.message.includes("T-001"));
 		expect(dump).toBeDefined();
-		expect(dump!.message).toContain("T-002");
+		expect(dump?.message).toContain("T-002");
 	});
 });
 
@@ -57,9 +57,7 @@ describe("/until-done northstar", () => {
 		rt = await createTestRuntime({ withUi: true });
 		await rt.prompt("/until-done northstar");
 		expect(
-			rt.ui.notifies.some((n) =>
-				n.message.startsWith("No active goal."),
-			),
+			rt.ui.notifies.some((n) => n.message.startsWith("No active goal.")),
 		).toBe(true);
 	});
 
@@ -69,7 +67,7 @@ describe("/until-done northstar", () => {
 		await rt.prompt("/until-done northstar");
 		const dump = rt.ui.notifies.find((n) => n.message.includes("northStar:"));
 		expect(dump).toBeDefined();
-		expect(dump!.message).toContain("ship X");
+		expect(dump?.message).toContain("ship X");
 	});
 });
 
@@ -78,7 +76,11 @@ describe("/until-done plan", () => {
 		rt = await createTestRuntime({ withUi: true });
 		await rt.prompt("/until-done plan");
 		expect(
-			rt.ui.notifies.some((n) => n.message === "No plan written yet. Pi must call until_done_plan first."),
+			rt.ui.notifies.some(
+				(n) =>
+					n.message ===
+					"No plan written yet. Pi must call until_done_plan first.",
+			),
 		).toBe(true);
 	});
 
@@ -88,9 +90,7 @@ describe("/until-done plan", () => {
 		await writeFile(join(rt.cwd, ".until-done", "tasks.yaml"), "tasks: []\n");
 		await rt.prompt("/until-done plan");
 		const path = join(rt.cwd, ".until-done", "tasks.yaml");
-		expect(
-			rt.ui.notifies.some((n) => n.message.includes(path)),
-		).toBe(true);
+		expect(rt.ui.notifies.some((n) => n.message.includes(path))).toBe(true);
 	});
 });
 
@@ -106,13 +106,21 @@ describe("/until-done replan-log", () => {
 	test("with replans: prints each entry", async () => {
 		rt = await createTestRuntime({ withUi: true });
 		rt.store.state.replanLog = [
-			{ at: Date.parse("2026-01-15T10:00:00Z"), reason: "discovered X", opsCount: 2 },
-			{ at: Date.parse("2026-01-15T11:00:00Z"), reason: "merged tasks", opsCount: 1 },
+			{
+				at: Date.parse("2026-01-15T10:00:00Z"),
+				reason: "discovered X",
+				opsCount: 2,
+			},
+			{
+				at: Date.parse("2026-01-15T11:00:00Z"),
+				reason: "merged tasks",
+				opsCount: 1,
+			},
 		];
 		await rt.prompt("/until-done replan-log");
 		const dump = rt.ui.notifies.find((n) => n.message.includes("discovered X"));
 		expect(dump).toBeDefined();
-		expect(dump!.message).toContain("merged tasks");
+		expect(dump?.message).toContain("merged tasks");
 	});
 });
 

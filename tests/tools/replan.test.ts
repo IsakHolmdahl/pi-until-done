@@ -56,9 +56,7 @@ describe("until_done_replan", () => {
 		];
 		await driveToolCall(rt, "until_done_replan", {
 			reason: "cycle",
-			operations: [
-				{ op: "reorder", taskId: "T-001", dependencies: ["T-002"] },
-			],
+			operations: [{ op: "reorder", taskId: "T-001", dependencies: ["T-002"] }],
 		});
 		expect(rt.store.state.replanLog).toHaveLength(0);
 		expect(rt.store.state.tasks[0].dependencies).toEqual([]);

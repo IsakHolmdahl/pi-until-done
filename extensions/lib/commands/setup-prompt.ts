@@ -1,8 +1,4 @@
-import {
-	MISE_CLI_BLOCK,
-	PI_CONFIG_PRINCIPLES,
-	VERIFIABILITY_BLOCK,
-} from "../strings";
+import { VERIFIABILITY_BLOCK } from "../strings";
 import { STRUCTURAL_CONSTRAINTS_BLOCK } from "../structural-constraints";
 
 const PHASE_0 = [
@@ -51,10 +47,9 @@ const PHASE_2 = [
 
 const PHASE_3 = [
 	"PHASE 3 — ACTIVATION",
-	"6. After the user confirms:",
-	"   a. Call `until_done_set` with the contract fields (including goalType, surfaces, AND the judge-mode field — judgeModel or sameModelJudge — chosen in PHASE 1).",
-	"   b. Call `until_done_plan` with the full tasks array.",
-	"7. Begin work on the first task with no dependencies.",
+	"6. Call `until_done_set` with the contract fields (including goalType, surfaces, AND the judge-mode field — judgeModel or sameModelJudge — chosen in PHASE 1). This moves the goal to 'planning'.",
+	"7. Call `until_done_plan` with the full tasks array. This triggers the user approval dialog (or auto-approves if autopilot is on).",
+	"8. After the user approves, begin work on the first task with no dependencies.",
 ];
 
 const PHASE_4 = [
@@ -79,10 +74,6 @@ export const setupPrompt = (intent: string): string =>
 		"",
 		VERIFIABILITY_BLOCK,
 		"",
-		PI_CONFIG_PRINCIPLES,
-		"",
-		MISE_CLI_BLOCK,
-		"",
 		STRUCTURAL_CONSTRAINTS_BLOCK,
 		"",
 		...PHASE_0,
@@ -95,5 +86,5 @@ export const setupPrompt = (intent: string): string =>
 		"",
 		...PHASE_4,
 		"",
-		"DO NOT call any until_done_* tool until the user confirms in PHASE 2.",
+		"DO NOT call `until_done_set` or `until_done_plan` until you have drafted the contract and task plan in PHASES 1 and 2.",
 	].join("\n");

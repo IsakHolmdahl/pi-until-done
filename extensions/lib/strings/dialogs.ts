@@ -8,9 +8,9 @@ export const DIALOGS = {
 	forkChoiceCancel: "Cancel fork",
 	cancelTitle: "/until-done · cancel?",
 	cancelMessage: (g: string) => `Cancel goal: ${g}`,
-	approveTitle: "/until-done · approve contract?",
+	approveTitle: "/until-done · approve plan?",
 	approveMessage:
-		"Pi has drafted the contract. Approve to let Pi call `until_done_set` and begin pursuit.",
+		"Pi has drafted the contract and task plan. Approve to begin pursuit.",
 	askBeforeTitle: "/until-done · ask-before",
 	askBeforeMessage: (kind: string, command: string | undefined) =>
 		`Pi wants to run a "${kind}" command:\n\n${command ?? ""}\n\nAllow?`,

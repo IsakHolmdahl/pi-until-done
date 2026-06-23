@@ -13,47 +13,31 @@ afterEach(async () => {
 });
 
 describe("/until-done <intent> setup flow", () => {
-	test("user approves contract: status enters setup, confirmedByUser flips, setup-prompt sent to agent", async () => {
+	test("setup enters planning state; no approval dialog yet", async () => {
 		rt = await createTestRuntime({
 			withUi: true,
 			uiPolicy: { confirm: () => true },
 		});
 		rt.setLLM([fauxAssistantMessage("ack", { stopReason: "stop" })]);
 		await rt.prompt("/until-done implement auth");
-		expect(rt.store.state.confirmedByUser).toBe(true);
+		expect(rt.store.state.confirmedByUser).toBe(false);
 		expect(rt.store.state.status).toBe("setup");
 		expect(rt.store.state.goal).toBe("implement auth");
-		// The contract approval dialog appeared
-		expect(
-			rt.ui.confirms.some((c) => c.title.includes("approve contract")),
-		).toBe(true);
+		// No approval dialog during setup
+		expect(rt.ui.confirms.some((c) => c.title.includes("approve"))).toBe(false);
 	});
 
-	test("user rejects contract: state cleared back to initial", async () => {
+	test("autopilot does not affect setup; confirmation waits for plan", async () => {
 		rt = await createTestRuntime({
 			withUi: true,
 			uiPolicy: { confirm: () => false },
 		});
+		await rt.prompt("/until-done autopilot");
+		expect(rt.store.autopilotEnabled).toBe(true);
 		rt.setLLM([fauxAssistantMessage("ack", { stopReason: "stop" })]);
 		await rt.prompt("/until-done implement auth");
 		expect(rt.store.state.confirmedByUser).toBe(false);
-		expect(rt.store.state.goal).toBe("");
-	});
-
-	test("autopilot=true skips the contract dialog (#4 fix)", async () => {
-		rt = await createTestRuntime({
-			withUi: true,
-			uiPolicy: { confirm: () => false }, // would reject if shown
-		});
-		// Toggle autopilot on first
-		await rt.prompt("/until-done autopilot");
-		expect(rt.store.autopilotEnabled).toBe(true);
-		// Now setup — confirm dialog should NOT appear
-		const beforeConfirms = rt.ui.confirms.length;
-		rt.setLLM([fauxAssistantMessage("ack", { stopReason: "stop" })]);
-		await rt.prompt("/until-done implement auth");
-		expect(rt.ui.confirms.length).toBe(beforeConfirms);
-		expect(rt.store.state.confirmedByUser).toBe(true);
+		expect(rt.store.state.status).toBe("setup");
 		expect(rt.store.state.goal).toBe("implement auth");
 	});
 
@@ -77,9 +61,9 @@ describe("/until-done <intent> setup flow", () => {
 		rt.setLLM([fauxAssistantMessage("ack", { stopReason: "stop" })]);
 		await rt.prompt("/until-done new goal");
 		// The replace-goal selector appeared
-		expect(rt.ui.selects.some((s) => s.title.includes("already has a goal"))).toBe(
-			true,
-		);
+		expect(
+			rt.ui.selects.some((s) => s.title.includes("already has a goal")),
+		).toBe(true);
 		// The new goal entered setup mode (then was cleared by reject confirm)
 		const kinds = rt.getStateEntries().map((e) => e.kind);
 		expect(kinds).toContain("cancel"); // old goal cancelled

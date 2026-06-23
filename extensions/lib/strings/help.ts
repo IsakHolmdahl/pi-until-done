@@ -13,7 +13,7 @@ export const HELP_TEXT = [
 	"/until-done northstar         — print the locked goal contract",
 	"/until-done replan-log        — show every replan and its reason",
 	"/until-done ask <question>    — side question (does not preempt the loop)",
-	"/until-done autopilot         — toggle skipping the contract dialog",
+	"/until-done autopilot         — toggle skipping the plan dialog",
 	"/until-done help              — this message",
 ].join("\n");
 
@@ -26,7 +26,7 @@ export const FLAG_DESCRIPTION =
 	"Set a standing goal at startup and pursue it autonomously.";
 
 export const TOOL_PROMPT_SNIPPET =
-	"until_done_set: lock in a /until-done goal contract once the user has approved it.";
+	"until_done_set: draft the /until-done goal contract; approval happens after until_done_plan.";
 
 export const WORKING_MESSAGE_PREFIX = "pursuing: ";
 

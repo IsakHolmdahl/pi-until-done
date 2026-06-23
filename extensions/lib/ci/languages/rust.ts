@@ -1,12 +1,12 @@
-import { miseExec } from "../factories";
+import { direct } from "../factories";
 import type { LanguageProfile } from "./types";
 
 export const RUST: LanguageProfile = {
 	id: "rust",
 	markers: ["Cargo.toml"],
 	checks: [
-		miseExec("typecheck", ["cargo", "check", "--quiet", "--all-targets"]),
-		miseExec("lint", [
+		direct("typecheck", ["cargo", "check", "--quiet", "--all-targets"]),
+		direct("lint", [
 			"cargo",
 			"clippy",
 			"--quiet",
@@ -15,9 +15,9 @@ export const RUST: LanguageProfile = {
 			"-D",
 			"warnings",
 		]),
-		miseExec("format", ["cargo", "fmt", "--check"]),
-		miseExec("compile", ["cargo", "check", "--quiet"]),
-		miseExec("test", ["cargo", "test", "--quiet"]),
-		miseExec("build", ["cargo", "build", "--quiet", "--release"]),
+		direct("format", ["cargo", "fmt", "--check"]),
+		direct("compile", ["cargo", "check", "--quiet"]),
+		direct("test", ["cargo", "test", "--quiet"]),
+		direct("build", ["cargo", "build", "--quiet", "--release"]),
 	],
 };

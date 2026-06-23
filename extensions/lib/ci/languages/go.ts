@@ -1,15 +1,15 @@
-import { miseExec } from "../factories";
+import { direct } from "../factories";
 import type { LanguageProfile } from "./types";
 
 export const GO: LanguageProfile = {
 	id: "go",
 	markers: ["go.mod"],
 	checks: [
-		miseExec("typecheck", ["go", "vet", "./..."]),
-		miseExec("lint", ["golangci-lint", "run", "./..."]),
-		miseExec("format", ["gofmt", "-l", "."]),
-		miseExec("compile", ["go", "build", "-o", "/dev/null", "./..."]),
-		miseExec("test", ["go", "test", "-count=1", "./..."]),
-		miseExec("build", ["go", "build", "./..."]),
+		direct("typecheck", ["go", "vet", "./..."]),
+		direct("lint", ["golangci-lint", "run", "./..."]),
+		direct("format", ["gofmt", "-l", "."]),
+		direct("compile", ["go", "build", "-o", "/dev/null", "./..."]),
+		direct("test", ["go", "test", "-count=1", "./..."]),
+		direct("build", ["go", "build", "./..."]),
 	],
 };

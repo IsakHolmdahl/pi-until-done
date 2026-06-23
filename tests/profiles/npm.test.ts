@@ -14,9 +14,9 @@ describe("NODE_NPM profile", () => {
 		);
 	});
 
-	test("every check is routed through mise exec --", () => {
+	test("every check is a direct command", () => {
 		for (const c of NODE_NPM.checks) {
-			expect(c.argv.slice(0, 3)).toEqual(["mise", "exec", "--"]);
+			expect(c.argv).not.toContain("mise");
 		}
 	});
 
@@ -34,14 +34,6 @@ describe("NODE_NPM profile", () => {
 
 	test("uses npm run build for the build verb", () => {
 		const b = NODE_NPM.checks.find((c) => c.verb === "build");
-		expect(b?.argv).toEqual([
-			"mise",
-			"exec",
-			"--",
-			"npm",
-			"run",
-			"build",
-			"--silent",
-		]);
+		expect(b?.argv).toEqual(["npm", "run", "build", "--silent"]);
 	});
 });

@@ -1,4 +1,4 @@
-import { miseExec } from "../factories";
+import { direct } from "../factories";
 import type { LanguageProfile } from "./types";
 
 export const PYTHON: LanguageProfile = {
@@ -11,10 +11,10 @@ export const PYTHON: LanguageProfile = {
 		"requirements.txt",
 	],
 	checks: [
-		miseExec("typecheck", ["mypy", "--pretty", "."]),
-		miseExec("lint", ["ruff", "check", "."]),
-		miseExec("format", ["ruff", "format", "--check", "."]),
-		miseExec("test", ["pytest", "-q"]),
+		direct("typecheck", ["mypy", "--pretty", "."]),
+		direct("lint", ["ruff", "check", "."]),
+		direct("format", ["ruff", "format", "--check", "."]),
+		direct("test", ["pytest", "-q"]),
 	],
 };
 
@@ -22,9 +22,9 @@ export const PYTHON_UV: LanguageProfile = {
 	id: "python-uv",
 	markers: ["uv.lock"],
 	checks: [
-		miseExec("typecheck", ["uv", "run", "mypy", "."]),
-		miseExec("lint", ["uv", "run", "ruff", "check", "."]),
-		miseExec("format", ["uv", "run", "ruff", "format", "--check", "."]),
-		miseExec("test", ["uv", "run", "pytest", "-q"]),
+		direct("typecheck", ["uv", "run", "mypy", "."]),
+		direct("lint", ["uv", "run", "ruff", "check", "."]),
+		direct("format", ["uv", "run", "ruff", "format", "--check", "."]),
+		direct("test", ["uv", "run", "pytest", "-q"]),
 	],
 };

@@ -2,7 +2,6 @@ import type {
 	ExtensionAPI,
 	ExtensionCommandContext,
 } from "@mariozechner/pi-coding-agent";
-import { SETUP_CONFIRM_TIMEOUT_MS } from "../constants";
 import { initialState } from "../initial-state";
 import { persist, type Store } from "../store";
 import { DIALOGS, NOTIFY } from "../strings";
@@ -47,46 +46,6 @@ const initSetupState = (
 	);
 };
 
-const grantContractApproval = (
-	pi: ExtensionAPI,
-	store: Store,
-	ctx: ExtensionCommandContext,
-	note: string,
-): void => {
-	store.state.confirmedByUser = true;
-	persist(pi, store, "confirm", { confirmedByUser: true }, note);
-	ctx.ui.notify(NOTIFY.contractApproved, "info");
-	pi.sendUserMessage("Approved. Call `until_done_set` now and begin work.");
-};
-
-const awaitContractConfirmation = async (
-	pi: ExtensionAPI,
-	store: Store,
-	ctx: ExtensionCommandContext,
-): Promise<void> => {
-	if (store.autopilotEnabled) {
-		grantContractApproval(pi, store, ctx, "autopilot");
-		refreshStatus(store, ctx);
-		refreshWidget(store, ctx, true);
-		return;
-	}
-	if (!ctx.hasUI) return;
-	await ctx.waitForIdle();
-	const confirmed = await ctx.ui.confirm(
-		DIALOGS.approveTitle,
-		DIALOGS.approveMessage,
-		{ timeout: SETUP_CONFIRM_TIMEOUT_MS },
-	);
-	if (confirmed) {
-		grantContractApproval(pi, store, ctx, "user approved contract");
-	} else {
-		persist(pi, store, "cancel", initialState(), "user rejected contract");
-		ctx.ui.notify(NOTIFY.contractRejected, "info");
-	}
-	refreshStatus(store, ctx);
-	refreshWidget(store, ctx, true);
-};
-
 export const cmdSetup = async (
 	pi: ExtensionAPI,
 	store: Store,
@@ -103,5 +62,4 @@ export const cmdSetup = async (
 	ctx.ui.notify(NOTIFY.setupStarted(intent), "info");
 	refreshStatus(store, ctx);
 	refreshWidget(store, ctx, true);
-	await awaitContractConfirmation(pi, store, ctx);
 };

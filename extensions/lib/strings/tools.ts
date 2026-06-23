@@ -1,10 +1,10 @@
 export const TOOL_DESCRIPTIONS = {
-	plan: "Provide the comprehensive TDD-first task list for the active /until-done goal. Each task must declare dependencies, blocks, prerequisites, ordered validation steps, ci/cd commands, styleguide rules, guardrails, learnings (initially []), gotchas, and context references. Call once after `until_done_set`. The list is written to `.until-done/tasks.yaml` for human review.",
+	plan: "Provide the comprehensive TDD-first task list for the active /until-done goal. Each task must declare dependencies, blocks, prerequisites, ordered validation steps, ci/cd commands, styleguide rules, guardrails, learnings (initially []), gotchas, and context references. Call once after `until_done_set`; this triggers the user approval dialog. The list is written to `.until-done/tasks.yaml` for human review.",
 	replan:
 		"Modify the task list mid-execution: insert / remove / replace / split / merge / reorder. The North Star (goal, doneCriteria, verifyCommand, askBefore) is LOCKED — call `/until-done cancel` if you need to change those. `done` tasks are immutable. Every call must include a `reason` (one short sentence) which is appended to affected tasks' learnings.",
 	taskUpdate:
 		"Patch a single task in the live plan. Use to mark status transitions, append learnings, append gotchas, add context references, refine validation steps, or update guardrails. The .until-done/tasks.yaml file is rewritten after each call.",
-	set: "Activate a /until-done goal contract after the user has approved it. The model fills in goal, doneCriteria, askBefore[], and decisionStyle from the conversation, then calls this tool; until then the goal stays in 'setup' and no continuation runs.",
+	set: "Draft the /until-done goal contract. The model fills in goal, doneCriteria, askBefore[], and decisionStyle from the conversation, then calls this tool. The goal moves from 'setup' to 'planning'; approval happens after `until_done_plan`.",
 	complete:
 		"Declare the standing /until-done goal complete. Only call this after producing externally verifiable evidence the done-criteria are satisfied.",
 	block:
@@ -30,7 +30,8 @@ export const TOOL_RESULTS = {
 		`↻ replan applied (${ops} ops): ${reason}`,
 	taskUpdated: (id: string, currentTail: string) =>
 		`✓ Task ${id} updated.${currentTail}`,
-	setActivated: "✓ /until-done activated. Pi will continue autonomously.",
+	setActivated:
+		"✓ /until-done contract drafted. Pi will generate the task plan next.",
 	completeMarked: (text: string) => `✓ Goal marked complete.\n${text}`,
 	blocked: (q: string) => `? Blocked. Question for user:\n${q}`,
 	progressNoted: (note: string) => `· progress noted: ${note}`,

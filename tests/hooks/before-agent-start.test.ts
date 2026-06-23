@@ -22,9 +22,7 @@ const seedActiveWithPlan = (runtime: TestRuntime) => {
 		northStar: makeNorthStar(),
 		confirmedByUser: true,
 		maxTurns: 100,
-		tasks: [
-			makeTask({ id: "T-001", title: "first", status: "in_progress" }),
-		],
+		tasks: [makeTask({ id: "T-001", title: "first", status: "in_progress" })],
 		currentTaskId: "T-001",
 	};
 };
@@ -60,6 +58,6 @@ describe("before_agent_start (real runtime)", () => {
 		await rt.prompt("ping");
 		await rt.awaitIdle();
 		expect(rt.session.systemPrompt).toContain("Verify:");
-		expect(rt.session.systemPrompt).toContain("mise");
+		expect(rt.session.systemPrompt).toContain("bun test");
 	});
 });

@@ -35,9 +35,12 @@ describe("tool_call hook — ask-before policy gate", () => {
 		rt = await createTestRuntime({ withUi: false });
 		seedActiveWithAskBefore(rt);
 		rt.setLLM([
-			fauxAssistantMessage([fauxToolCall("bash", { command: "rm -rf /tmp/x" })], {
-				stopReason: "toolUse",
-			}),
+			fauxAssistantMessage(
+				[fauxToolCall("bash", { command: "rm -rf /tmp/x" })],
+				{
+					stopReason: "toolUse",
+				},
+			),
 			fauxAssistantMessage("done", { stopReason: "stop" }),
 		]);
 		await rt.prompt("run a destructive bash");
@@ -57,17 +60,22 @@ describe("tool_call hook — ask-before policy gate", () => {
 		});
 		seedActiveWithAskBefore(rt);
 		rt.setLLM([
-			fauxAssistantMessage([fauxToolCall("bash", { command: "rm -rf /tmp/x" })], {
-				stopReason: "toolUse",
-			}),
+			fauxAssistantMessage(
+				[fauxToolCall("bash", { command: "rm -rf /tmp/x" })],
+				{
+					stopReason: "toolUse",
+				},
+			),
 			fauxAssistantMessage("done", { stopReason: "stop" }),
 		]);
 		await rt.prompt("run a destructive bash");
-		expect(
-			rt.ui.confirms.some((c) => c.title.includes("ask-before")),
-		).toBe(true);
+		expect(rt.ui.confirms.some((c) => c.title.includes("ask-before"))).toBe(
+			true,
+		);
 		const branch = rt.session.sessionManager.getBranch();
-		const denied = branch.some((e) => JSON.stringify(e).includes("user denied"));
+		const denied = branch.some((e) =>
+			JSON.stringify(e).includes("user denied"),
+		);
 		expect(denied).toBe(true);
 	});
 
@@ -79,9 +87,12 @@ describe("tool_call hook — ask-before policy gate", () => {
 		seedActiveWithAskBefore(rt);
 		const before = rt.store.progressSignalsThisTurn;
 		rt.setLLM([
-			fauxAssistantMessage([fauxToolCall("bash", { command: "rm -rf /tmp/x" })], {
-				stopReason: "toolUse",
-			}),
+			fauxAssistantMessage(
+				[fauxToolCall("bash", { command: "rm -rf /tmp/x" })],
+				{
+					stopReason: "toolUse",
+				},
+			),
 			fauxAssistantMessage("done", { stopReason: "stop" }),
 		]);
 		await rt.prompt("ok");

@@ -58,7 +58,9 @@ describe("session_compact re-anchor (#2 fix)", () => {
 		// session_compact fires after the compaction LLM call.
 		// The faux provider serves the compaction's summarizer call too;
 		// queue an extra message for it.
-		rt.appendLLM([fauxAssistantMessage("compaction summary", { stopReason: "stop" })]);
+		rt.appendLLM([
+			fauxAssistantMessage("compaction summary", { stopReason: "stop" }),
+		]);
 		const ctx = rt.session.extensionRunner.createContext();
 		ctx.compact();
 		// Wait for compaction to complete (it's async). Poll for the custom_message entry.
@@ -90,7 +92,9 @@ describe("session_compact re-anchor (#2 fix)", () => {
 		rt.setLLM([fauxAssistantMessage("ack", { stopReason: "stop" })]);
 		await rt.prompt("hi");
 		await rt.awaitIdle();
-		rt.appendLLM([fauxAssistantMessage("compaction summary", { stopReason: "stop" })]);
+		rt.appendLLM([
+			fauxAssistantMessage("compaction summary", { stopReason: "stop" }),
+		]);
 		const ctx = rt.session.extensionRunner.createContext();
 		ctx.compact();
 		// Wait briefly and assert NO compaction-context entry appears.

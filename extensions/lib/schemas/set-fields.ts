@@ -53,7 +53,7 @@ export const CoreSetFields = {
 	verifyCommand: Type.Optional(
 		Type.String({
 			description:
-				"Single shell command that proves done-criteria are met (e.g. 'bun test', 'mise run check'). Required for production-code goals; omit for research/doc goals.",
+				"Single shell command that proves done-criteria are met (e.g. 'bun test', 'npm test'). Required for production-code goals; omit for research/doc goals.",
 		}),
 	),
 	askBefore: Type.Array(Type.String(), {

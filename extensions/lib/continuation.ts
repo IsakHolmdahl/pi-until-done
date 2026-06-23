@@ -1,4 +1,4 @@
-import { MISE_CLI_BLOCK, VERIFIABILITY_BLOCK } from "./strings";
+import { VERIFIABILITY_BLOCK } from "./strings";
 import { STRUCTURAL_CONSTRAINTS_BLOCK } from "./structural-constraints";
 import type { Phase } from "./types";
 
@@ -10,8 +10,6 @@ const tddBlock = [
 	"  • REFACTOR: structure/perf without behavior change.",
 	"",
 	VERIFIABILITY_BLOCK,
-	"",
-	MISE_CLI_BLOCK,
 	"",
 	STRUCTURAL_CONSTRAINTS_BLOCK,
 	"",

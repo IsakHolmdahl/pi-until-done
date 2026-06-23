@@ -1,10 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import {
-	mkdirSync,
-	mkdtempSync,
-	rmSync,
-	writeFileSync,
-} from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -65,8 +60,7 @@ describe("discoverChecks against real fs", () => {
 	test("Kotlin Gradle (kotlin('jvm') in build script) → KOTLIN_GRADLE wins (#7 fix)", async () => {
 		const cwd = tmp();
 		seed(cwd, {
-			"build.gradle.kts":
-				'plugins {\n  kotlin("jvm") version "2.0.0"\n}\n',
+			"build.gradle.kts": 'plugins {\n  kotlin("jvm") version "2.0.0"\n}\n',
 		});
 		const argv = await argvForVerb(cwd, "compile");
 		expect(argv).toContain("compileKotlin");
@@ -77,7 +71,7 @@ describe("discoverChecks against real fs", () => {
 		const cwd = tmp();
 		seed(cwd, {
 			"pom.xml":
-				'<project><groupId>foo</groupId><artifactId>bar</artifactId></project>\n',
+				"<project><groupId>foo</groupId><artifactId>bar</artifactId></project>\n",
 		});
 		const verbs = await verbsFor(cwd);
 		expect(verbs).toContain("lint"); // JAVA_MAVEN provides lint, KOTLIN_MAVEN does
@@ -87,7 +81,7 @@ describe("discoverChecks against real fs", () => {
 		const cwd = tmp();
 		seed(cwd, {
 			"pom.xml":
-				'<project><dependencies><dependency><groupId>org.jetbrains.kotlin</groupId><artifactId>kotlin-stdlib</artifactId></dependency></dependencies></project>\n',
+				"<project><dependencies><dependency><groupId>org.jetbrains.kotlin</groupId><artifactId>kotlin-stdlib</artifactId></dependency></dependencies></project>\n",
 		});
 		const verbs = await verbsFor(cwd);
 		expect(verbs).toContain("compile");
@@ -101,7 +95,7 @@ describe("discoverChecks against real fs", () => {
 			"uv.lock": "version = 1\n",
 		});
 		const argv = await argvForVerb(cwd, "typecheck");
-		expect(argv).toEqual(["mise", "exec", "--", "uv", "run", "mypy", "."]);
+		expect(argv).toEqual(["uv", "run", "mypy", "."]);
 	});
 
 	test("pure-Python (pyproject.toml only) → PYTHON profile (no uv prefix)", async () => {
@@ -110,7 +104,7 @@ describe("discoverChecks against real fs", () => {
 			"pyproject.toml": "[project]\nname = 'x'\n",
 		});
 		const argv = await argvForVerb(cwd, "typecheck");
-		expect(argv).toEqual(["mise", "exec", "--", "mypy", "--pretty", "."]);
+		expect(argv).toEqual(["mypy", "--pretty", "."]);
 	});
 
 	test("Roblox project (default.project.json) → ROBLOX wins, NOT LUAU (#12 fix)", async () => {
@@ -138,13 +132,13 @@ describe("discoverChecks against real fs", () => {
 		expect(verbs).not.toContain("build");
 	});
 
-	test("every check has a positive timeout and starts with 'mise'", async () => {
+	test("every check has a positive timeout and is a direct command", async () => {
 		const cwd = tmp();
 		seed(cwd, { "package-lock.json": "{}\n" });
 		const checks = await discoverChecks(cwd);
 		for (const c of checks) {
 			expect(c.timeoutMs).toBeGreaterThan(0);
-			expect(c.argv[0]).toBe("mise");
+			expect(c.argv).not.toContain("mise");
 		}
 	});
 

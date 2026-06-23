@@ -14,9 +14,9 @@ describe("NODE_PNPM profile", () => {
 		);
 	});
 
-	test("every check is routed through mise exec --", () => {
+	test("every check is a direct command", () => {
 		for (const c of NODE_PNPM.checks) {
-			expect(c.argv.slice(0, 3)).toEqual(["mise", "exec", "--"]);
+			expect(c.argv).not.toContain("mise");
 		}
 	});
 
@@ -29,11 +29,11 @@ describe("NODE_PNPM profile", () => {
 
 	test("uses pnpm test for the test verb", () => {
 		const t = NODE_PNPM.checks.find((c) => c.verb === "test");
-		expect(t?.argv).toEqual(["mise", "exec", "--", "pnpm", "test"]);
+		expect(t?.argv).toEqual(["pnpm", "test"]);
 	});
 
 	test("uses pnpm run build for the build verb", () => {
 		const b = NODE_PNPM.checks.find((c) => c.verb === "build");
-		expect(b?.argv).toEqual(["mise", "exec", "--", "pnpm", "run", "build"]);
+		expect(b?.argv).toEqual(["pnpm", "run", "build"]);
 	});
 });

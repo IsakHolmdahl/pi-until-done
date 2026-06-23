@@ -57,7 +57,9 @@ describe("/until-done judge <provider>/<modelId>", () => {
 		});
 		expect(
 			rt.ui.notifies.some(
-				(n) => n.type === "warning" && n.message.includes("not found in current model registry"),
+				(n) =>
+					n.type === "warning" &&
+					n.message.includes("not found in current model registry"),
 			),
 		).toBe(true);
 	});
@@ -91,23 +93,21 @@ describe("judgeDefault feeds into until_done_set", () => {
 	test("with same-model default set, until_done_set succeeds without explicit args", async () => {
 		rt = await createTestRuntime({ withUi: true });
 		await rt.prompt("/until-done judge same");
-		// Force store into setup mode and confirmedByUser so until_done_set can proceed
+		// Force store into setup mode so until_done_set can proceed
 		rt.store.state.status = "setup";
 		rt.store.state.id = "ud-test";
-		rt.store.state.confirmedByUser = true;
 		// Strip the test-default sameModelJudge so the LLM submits no judge mode
 		const params = { ...makeSetParams() };
 		// @ts-expect-error — testing the no-judge-args path explicitly
 		params.sameModelJudge = undefined;
 		rt.setLLM([
-			fauxAssistantMessage(
-				[fauxToolCall("until_done_set", params)],
-				{ stopReason: "toolUse" },
-			),
+			fauxAssistantMessage([fauxToolCall("until_done_set", params)], {
+				stopReason: "toolUse",
+			}),
 			fauxAssistantMessage("done", { stopReason: "stop" }),
 		]);
 		await rt.prompt("trigger");
-		expect(rt.store.state.status).toBe("active");
+		expect(rt.store.state.status as string).toBe("planning");
 		expect(rt.store.state.northStar?.sameModelJudge).toBe(true);
 	});
 
@@ -116,19 +116,17 @@ describe("judgeDefault feeds into until_done_set", () => {
 		await rt.prompt("/until-done judge faux-judge/faux-1");
 		rt.store.state.status = "setup";
 		rt.store.state.id = "ud-test";
-		rt.store.state.confirmedByUser = true;
 		const params = { ...makeSetParams() };
 		// @ts-expect-error — testing fill-in
 		params.sameModelJudge = undefined;
 		rt.setLLM([
-			fauxAssistantMessage(
-				[fauxToolCall("until_done_set", params)],
-				{ stopReason: "toolUse" },
-			),
+			fauxAssistantMessage([fauxToolCall("until_done_set", params)], {
+				stopReason: "toolUse",
+			}),
 			fauxAssistantMessage("done", { stopReason: "stop" }),
 		]);
 		await rt.prompt("trigger");
-		expect(rt.store.state.status).toBe("active");
+		expect(rt.store.state.status as string).toBe("planning");
 		expect(rt.store.state.northStar?.judgeModel).toEqual({
 			provider: "faux-judge",
 			modelId: "faux-1",
@@ -140,13 +138,11 @@ describe("judgeDefault feeds into until_done_set", () => {
 		await rt.prompt("/until-done judge faux-judge/faux-1");
 		rt.store.state.status = "setup";
 		rt.store.state.id = "ud-test";
-		rt.store.state.confirmedByUser = true;
 		const params = { ...makeSetParams(), sameModelJudge: true };
 		rt.setLLM([
-			fauxAssistantMessage(
-				[fauxToolCall("until_done_set", params)],
-				{ stopReason: "toolUse" },
-			),
+			fauxAssistantMessage([fauxToolCall("until_done_set", params)], {
+				stopReason: "toolUse",
+			}),
 			fauxAssistantMessage("done", { stopReason: "stop" }),
 		]);
 		await rt.prompt("trigger");

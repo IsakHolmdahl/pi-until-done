@@ -2,19 +2,19 @@ import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
-	fauxAssistantMessage,
 	type FauxResponseStep,
+	fauxAssistantMessage,
 	registerFauxProvider,
 } from "@mariozechner/pi-ai";
 import {
 	AuthStorage,
-	createAgentSessionFromServices,
+	type createAgentSessionFromServices,
 	createAgentSessionRuntime,
 	type ExtensionAPI,
 	SessionManager,
 } from "@mariozechner/pi-coding-agent";
-import untilDoneExtension from "../../extensions/until-done";
 import type { Store } from "../../extensions/lib/store";
+import untilDoneExtension from "../../extensions/until-done";
 import {
 	buildRuntimeFactory,
 	registerJudgeWithRuntime,
@@ -38,7 +38,9 @@ export interface TestRuntime {
 	ui: UiTrace;
 	faux: ReturnType<typeof registerFauxProvider>;
 	judgeFaux: ReturnType<typeof registerFauxProvider> | undefined;
-	session: Awaited<ReturnType<typeof createAgentSessionFromServices>>["session"];
+	session: Awaited<
+		ReturnType<typeof createAgentSessionFromServices>
+	>["session"];
 	runtimeHost: Awaited<ReturnType<typeof createAgentSessionRuntime>>;
 	setLLM: (responses: FauxResponseStep[]) => void;
 	appendLLM: (responses: FauxResponseStep[]) => void;
@@ -46,7 +48,11 @@ export interface TestRuntime {
 	prompt: (text: string) => Promise<void>;
 	awaitIdle: () => Promise<void>;
 	getTaskTexts: () => string[];
-	getStateEntries: () => Array<{ kind: string; patch?: unknown; note?: string }>;
+	getStateEntries: () => Array<{
+		kind: string;
+		patch?: unknown;
+		note?: string;
+	}>;
 	dispose: () => Promise<void>;
 }
 
@@ -62,7 +68,8 @@ const collectStateEntries = (
 	const out: Array<{ kind: string; patch?: unknown; note?: string }> = [];
 	for (const e of branch) {
 		if (e.type !== "custom" || e.customType !== "until-done.state") continue;
-		if (e.data) out.push({ kind: e.data.kind, patch: e.data.patch, note: e.data.note });
+		if (e.data)
+			out.push({ kind: e.data.kind, patch: e.data.patch, note: e.data.note });
 	}
 	return out;
 };
@@ -85,7 +92,10 @@ export const createTestRuntime = async (
 		? registerFauxProvider({ provider: "faux-judge" })
 		: undefined;
 	if (judgeFaux)
-		authStorage.setRuntimeApiKey(judgeFaux.getModel().provider, "faux-judge-key");
+		authStorage.setRuntimeApiKey(
+			judgeFaux.getModel().provider,
+			"faux-judge-key",
+		);
 
 	const trace = createUiTrace();
 	let store: Store | undefined;

@@ -12,10 +12,10 @@ describe("language profile discovery is platform-independent", () => {
 		}
 	});
 
-	test("every check argv starts with mise (sole CLI entry point)", () => {
+	test("every check argv is a direct command (no mise wrapper)", () => {
 		for (const p of LANGUAGE_PROFILES) {
 			for (const c of p.checks) {
-				expect(c.argv[0]).toBe("mise");
+				expect(c.argv).not.toContain("mise");
 			}
 		}
 	});

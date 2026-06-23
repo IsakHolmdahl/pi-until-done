@@ -14,9 +14,9 @@ describe("NODE_YARN profile", () => {
 		);
 	});
 
-	test("every check is routed through mise exec --", () => {
+	test("every check is a direct command", () => {
 		for (const c of NODE_YARN.checks) {
-			expect(c.argv.slice(0, 3)).toEqual(["mise", "exec", "--"]);
+			expect(c.argv).not.toContain("mise");
 		}
 	});
 
@@ -35,6 +35,6 @@ describe("NODE_YARN profile", () => {
 
 	test("uses yarn build for the build verb", () => {
 		const b = NODE_YARN.checks.find((c) => c.verb === "build");
-		expect(b?.argv).toEqual(["mise", "exec", "--", "yarn", "build"]);
+		expect(b?.argv).toEqual(["yarn", "build"]);
 	});
 });

@@ -23,16 +23,15 @@ describe("end-to-end happy path: setup → set → plan → progress → complet
 			uiPolicy: { confirm: () => true },
 		});
 
-		// Step 1: user starts setup. Pi auto-confirms via the UI policy.
-		// Faux response acknowledges and stops.
+		// Step 1: user starts setup. No approval dialog yet.
 		rt.setLLM([fauxAssistantMessage("ack", { stopReason: "stop" })]);
 		await rt.prompt("/until-done implement /healthz endpoint");
 		await rt.awaitIdle();
-		expect(rt.store.state.confirmedByUser).toBe(true);
+		expect(rt.store.state.confirmedByUser).toBe(false);
 		expect(rt.store.state.status).toBe("setup");
 		expect(rt.store.state.goal).toBe("implement /healthz endpoint");
 
-		// Step 2: agent calls until_done_set. status: setup → active.
+		// Step 2: agent calls until_done_set. status: setup → planning.
 		// `sameModelJudge: true` opts into self-judge for this single-faux
 		// integration test; production contracts default to cross-model via
 		// the `judgeModel: { provider, modelId }` parameter.
@@ -57,13 +56,13 @@ describe("end-to-end happy path: setup → set → plan → progress → complet
 		]);
 		await rt.prompt("Set the contract.");
 		await rt.awaitIdle();
-		expect(rt.store.state.status).toBe("active");
-		expect(rt.store.state.northStar?.goal).toBe(
-			"implement /healthz endpoint",
-		);
+		expect(rt.store.state.status).toBe("planning");
+		expect(rt.store.state.northStar?.goal).toBe("implement /healthz endpoint");
 		expect(rt.store.state.maxTurns).toBe(50);
 
-		// Step 3: agent calls until_done_plan with two tasks.
+		// Step 3: agent calls until_done_plan with two tasks. This triggers the
+		// plan approval dialog; with confirm:true the user approves and the goal
+		// becomes active.
 		rt.setLLM([
 			fauxAssistantMessage(
 				[
@@ -85,6 +84,8 @@ describe("end-to-end happy path: setup → set → plan → progress → complet
 		]);
 		await rt.prompt("Lay out the plan.");
 		await rt.awaitIdle();
+		expect(rt.store.state.confirmedByUser).toBe(true);
+		expect(rt.store.state.status).toBe("active");
 		expect(rt.store.state.tasks).toHaveLength(2);
 		expect(rt.store.state.currentTaskId).toBe("T-001");
 		expect(rt.store.state.planComplete).toBe(true);

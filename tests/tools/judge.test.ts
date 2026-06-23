@@ -32,7 +32,6 @@ const driveToolCall = async (
 const seedSetup = (runtime: TestRuntime) => {
 	runtime.store.state.status = "setup";
 	runtime.store.state.id = "ud-test";
-	runtime.store.state.confirmedByUser = true;
 };
 
 const seedActiveWithJudge = (runtime: TestRuntime) => {
@@ -56,7 +55,7 @@ describe("until_done_set with judgeModel parameter", () => {
 			...makeSetParams(),
 			judgeModel: makeJudgeModel(),
 		});
-		expect(rt.store.state.status).toBe("active");
+		expect(rt.store.state.status as string).toBe("planning");
 		expect(rt.store.state.northStar?.judgeModel).toEqual(makeJudgeModel());
 	});
 
@@ -64,7 +63,7 @@ describe("until_done_set with judgeModel parameter", () => {
 		rt = await createTestRuntime();
 		seedSetup(rt);
 		await driveToolCall(rt, "until_done_set", makeSetParams());
-		expect(rt.store.state.status).toBe("active");
+		expect(rt.store.state.status as string).toBe("planning");
 		expect(rt.store.state.northStar?.judgeModel).toBeUndefined();
 	});
 });
@@ -126,9 +125,7 @@ describe("until_done_complete default behavior (judge ON, self-judge against exe
 		};
 		rt.setLLM([
 			fauxAssistantMessage(
-				[
-					fauxToolCall("until_done_complete", { evidence: "all green" }),
-				],
+				[fauxToolCall("until_done_complete", { evidence: "all green" })],
 				{ stopReason: "toolUse" },
 			),
 			fauxAssistantMessage(
@@ -169,7 +166,7 @@ describe("until_done_set requires an explicit judge mode", () => {
 			...makeSetParams(),
 			sameModelJudge: true,
 		});
-		expect(rt.store.state.status).toBe("active");
+		expect(rt.store.state.status as string).toBe("planning");
 		expect(rt.store.state.northStar?.sameModelJudge).toBe(true);
 		expect(rt.store.state.northStar?.judgeModel).toBeUndefined();
 	});

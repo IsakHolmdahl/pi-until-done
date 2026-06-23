@@ -15,9 +15,9 @@ describe("TYPESCRIPT_BUN profile", () => {
 		);
 	});
 
-	test("every check is routed through mise exec --", () => {
+	test("every check is a direct command", () => {
 		for (const c of TYPESCRIPT_BUN.checks) {
-			expect(c.argv.slice(0, 3)).toEqual(["mise", "exec", "--"]);
+			expect(c.argv).not.toContain("mise");
 		}
 	});
 
@@ -29,6 +29,6 @@ describe("TYPESCRIPT_BUN profile", () => {
 
 	test("uses bun's native test runner", () => {
 		const t = TYPESCRIPT_BUN.checks.find((c) => c.verb === "test");
-		expect(t?.argv).toEqual(["mise", "exec", "--", "bun", "test"]);
+		expect(t?.argv).toEqual(["bun", "test"]);
 	});
 });

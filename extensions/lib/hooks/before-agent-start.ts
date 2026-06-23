@@ -3,12 +3,7 @@ import type {
 	ExtensionAPI,
 } from "@mariozechner/pi-coding-agent";
 import type { Store } from "../store";
-import {
-	MISE_CLI_BLOCK,
-	PI_CONFIG_PRINCIPLES,
-	REMINDER,
-	VERIFIABILITY_BLOCK,
-} from "../strings";
+import { REMINDER, VERIFIABILITY_BLOCK } from "../strings";
 import { STRUCTURAL_CONSTRAINTS_BLOCK } from "../structural-constraints";
 import type { GoalState, NorthStar } from "../types";
 
@@ -45,10 +40,6 @@ const taskBlock = (s: GoalState): string => {
 const STATIC_REMINDER = [
 	REMINDER.tdd,
 	VERIFIABILITY_BLOCK,
-	"",
-	PI_CONFIG_PRINCIPLES,
-	"",
-	MISE_CLI_BLOCK,
 	"",
 	STRUCTURAL_CONSTRAINTS_BLOCK,
 	"",

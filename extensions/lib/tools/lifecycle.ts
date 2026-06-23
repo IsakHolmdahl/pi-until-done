@@ -1,7 +1,6 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import type { Static } from "typebox";
 import { HARD_BUDGET_CEILING } from "../constants";
-import { routeThroughMise } from "../mise";
 import {
 	BlockParams,
 	CompleteParams,
@@ -59,7 +58,7 @@ const setPatch = (
 	currentMaxTurns: number,
 	resolvedJudge: ReturnType<typeof resolveJudge>,
 ): Partial<GoalState> => {
-	const verify = routeThroughMise(params.verifyCommand);
+	const verify = params.verifyCommand;
 	return {
 		goal: params.goal,
 		doneCriteria: params.doneCriteria,
@@ -71,7 +70,6 @@ const setPatch = (
 		surfaces: params.surfaces ?? [],
 		phase: params.startPhase ?? "analysis",
 		maxTurns: Math.min(params.maxTurns ?? currentMaxTurns, HARD_BUDGET_CEILING),
-		status: "active",
 		createdAt: Date.now(),
 		turnsUsed: 0,
 	};
@@ -82,7 +80,6 @@ const executeSet = async (pi: ExtensionAPI, store: Store, params: SetInput) => {
 	if (s.status !== "setup") {
 		return refused(REFUSAL.goalExists(s.status), "goal_exists");
 	}
-	if (!s.confirmedByUser) return refused(REFUSAL.notConfirmed, "not_confirmed");
 	const judge = resolveJudge(params, store);
 	if (!judge.judgeModel && !judge.sameModelJudge) {
 		return refused(REFUSAL.judgeUnspecified, "judge_unspecified");
@@ -91,8 +88,8 @@ const executeSet = async (pi: ExtensionAPI, store: Store, params: SetInput) => {
 		pi,
 		store,
 		"set",
-		setPatch(params, s.maxTurns, judge),
-		"contract activated; north star locked",
+		{ ...setPatch(params, s.maxTurns, judge), status: "planning" },
+		"contract drafted; awaiting plan approval",
 	);
 	return ok(TOOL_RESULTS.setActivated, { status: store.state.status });
 };

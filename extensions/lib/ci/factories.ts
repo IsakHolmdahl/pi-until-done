@@ -11,14 +11,8 @@ export const TIMEOUTS: Record<CiVerb, number> = {
 	build: 180 * SECOND,
 };
 
-export const miseRun = (verb: CiVerb): CiCheck => ({
+export const direct = (verb: CiVerb, cmd: readonly string[]): CiCheck => ({
 	verb,
-	argv: ["mise", "run", verb],
-	timeoutMs: TIMEOUTS[verb],
-});
-
-export const miseExec = (verb: CiVerb, cmd: readonly string[]): CiCheck => ({
-	verb,
-	argv: ["mise", "exec", "--", ...cmd],
+	argv: [...cmd],
 	timeoutMs: TIMEOUTS[verb],
 });

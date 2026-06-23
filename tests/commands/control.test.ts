@@ -68,7 +68,9 @@ describe("/until-done resume", () => {
 		rt.setLLM([fauxAssistantMessage("ack", { stopReason: "stop" })]);
 		await rt.prompt("/until-done resume");
 		expect(rt.store.state.status).toBe("active");
-		expect(rt.ui.confirms.some((c) => c.title.includes("challenge"))).toBe(true);
+		expect(rt.ui.confirms.some((c) => c.title.includes("challenge"))).toBe(
+			true,
+		);
 	});
 
 	test("from done with confirm=false: no transition", async () => {
@@ -85,9 +87,9 @@ describe("/until-done resume", () => {
 	test("from cleared: refuses with 'nothing to resume'", async () => {
 		rt = await createTestRuntime({ withUi: true });
 		await rt.prompt("/until-done resume");
-		expect(
-			rt.ui.notifies.some((n) => n.message === "Nothing to resume."),
-		).toBe(true);
+		expect(rt.ui.notifies.some((n) => n.message === "Nothing to resume.")).toBe(
+			true,
+		);
 	});
 });
 
@@ -117,9 +119,9 @@ describe("/until-done cancel", () => {
 	test("noops when no goal", async () => {
 		rt = await createTestRuntime({ withUi: true });
 		await rt.prompt("/until-done cancel");
-		expect(
-			rt.ui.notifies.some((n) => n.message === "No goal to cancel."),
-		).toBe(true);
+		expect(rt.ui.notifies.some((n) => n.message === "No goal to cancel.")).toBe(
+			true,
+		);
 	});
 });
 
@@ -130,7 +132,9 @@ describe("/until-done budget", () => {
 		await rt.prompt("/until-done budget 0");
 		expect(rt.store.state.maxTurns).toBe(before);
 		expect(
-			rt.ui.notifies.some((n) => n.message.includes("Budget must be an integer")),
+			rt.ui.notifies.some((n) =>
+				n.message.includes("Budget must be an integer"),
+			),
 		).toBe(true);
 	});
 

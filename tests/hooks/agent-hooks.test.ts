@@ -13,7 +13,10 @@ afterEach(async () => {
 	rt = undefined;
 });
 
-const seedActive = (runtime: TestRuntime, overrides: Partial<typeof runtime.store.state> = {}) => {
+const seedActive = (
+	runtime: TestRuntime,
+	overrides: Partial<typeof runtime.store.state> = {},
+) => {
 	runtime.store.state = {
 		...runtime.store.state,
 		status: "active",
@@ -34,9 +37,12 @@ describe("agent_start / agent_end (real runtime)", () => {
 		rt.store.codeEditsThisTurn = 7;
 		rt.store.userMessagedThisTurn = false;
 		rt.setLLM([
-			fauxAssistantMessage([fauxToolCall("until_done_progress", { note: "x" })], {
-				stopReason: "toolUse",
-			}),
+			fauxAssistantMessage(
+				[fauxToolCall("until_done_progress", { note: "x" })],
+				{
+					stopReason: "toolUse",
+				},
+			),
 			fauxAssistantMessage("done", { stopReason: "stop" }),
 		]);
 		await rt.prompt("ping");
@@ -51,9 +57,12 @@ describe("agent_start / agent_end (real runtime)", () => {
 		rt = await createTestRuntime({ withUi: true });
 		seedActive(rt);
 		rt.setLLM([
-			fauxAssistantMessage([fauxToolCall("until_done_progress", { note: "real work" })], {
-				stopReason: "toolUse",
-			}),
+			fauxAssistantMessage(
+				[fauxToolCall("until_done_progress", { note: "real work" })],
+				{
+					stopReason: "toolUse",
+				},
+			),
 			fauxAssistantMessage("done", { stopReason: "stop" }),
 		]);
 		await rt.prompt("hi");
@@ -64,9 +73,9 @@ describe("agent_start / agent_end (real runtime)", () => {
 			.getStateEntries()
 			.filter((e) => e.kind === "verdict")
 			.map((e) => e.patch as { lastReason?: string });
-		expect(verdictPatches.some((p) => p.lastReason === "user-driven turn")).toBe(
-			true,
-		);
+		expect(
+			verdictPatches.some((p) => p.lastReason === "user-driven turn"),
+		).toBe(true);
 		expect(rt.store.userMessagedThisTurn).toBe(false);
 	});
 
@@ -74,9 +83,12 @@ describe("agent_start / agent_end (real runtime)", () => {
 		rt = await createTestRuntime({ withUi: true });
 		seedActive(rt, { maxTurns: 1, turnsUsed: 0 });
 		rt.setLLM([
-			fauxAssistantMessage([fauxToolCall("until_done_progress", { note: "1" })], {
-				stopReason: "toolUse",
-			}),
+			fauxAssistantMessage(
+				[fauxToolCall("until_done_progress", { note: "1" })],
+				{
+					stopReason: "toolUse",
+				},
+			),
 			fauxAssistantMessage("done", { stopReason: "stop" }),
 		]);
 		await rt.prompt("first");

@@ -25,10 +25,9 @@ const driveToolCall = async (
 	await runtime.prompt("run the tool");
 };
 
-const seedSetup = (runtime: TestRuntime, confirmed = true): void => {
+const seedSetup = (runtime: TestRuntime): void => {
 	runtime.store.state.status = "setup";
 	runtime.store.state.id = "ud-test";
-	runtime.store.state.confirmedByUser = confirmed;
 };
 
 const seedActive = (runtime: TestRuntime): void => {
@@ -44,15 +43,15 @@ const seedActive = (runtime: TestRuntime): void => {
 };
 
 describe("until_done_set", () => {
-	test("activates the goal and locks the North Star (status: setup → active)", async () => {
+	test("drafts the contract and moves to planning (status: setup → planning)", async () => {
 		rt = await createTestRuntime();
 		seedSetup(rt);
 		await driveToolCall(rt, "until_done_set", makeSetParams());
-		expect(rt.store.state.status).toBe("active");
+		expect(rt.store.state.status).toBe("planning");
 		expect(rt.store.state.northStar?.goal).toBe("ship X");
 		expect(rt.store.state.northStar?.doneCriteria).toBe("all green");
-		// verifyCommand auto-routed through mise exec
-		expect(rt.store.state.verifyCommand).toContain("mise");
+		// verifyCommand is stored as-is
+		expect(rt.store.state.verifyCommand).toBe("bun test");
 	});
 
 	test("rejects when status is anything other than 'setup' (closes README #22 hole)", async () => {
@@ -62,14 +61,6 @@ describe("until_done_set", () => {
 		expect(rt.store.state.status).toBe("active");
 		// Original North Star unchanged
 		expect(rt.store.state.northStar?.goal).toBe("ship X");
-	});
-
-	test("rejects when confirmedByUser=false", async () => {
-		rt = await createTestRuntime();
-		seedSetup(rt, false);
-		await driveToolCall(rt, "until_done_set", makeSetParams());
-		expect(rt.store.state.status).toBe("setup");
-		expect(rt.store.state.northStar).toBeUndefined();
 	});
 
 	test("rejects when status=done", async () => {
