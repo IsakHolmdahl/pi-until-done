@@ -17,6 +17,10 @@ export const REFUSAL = {
 		`Refused: no active goal (status=${status}).`,
 	noActiveBlock: (status: string) =>
 		`No active goal to block (status=${status}).`,
+	notBlocked: (status: string) =>
+		`goal is not blocked (status=${status}); no unblock needed.`,
+	blockedTaskUpdate: (status: string) =>
+		`cannot advance tasks while goal is ${status}. Call until_done_unblock or wait for user approval first.`,
 	userDenied: (kind: string) => `user denied "${kind}"`,
 	noUiAskBefore: (kind: string) =>
 		`ask-before pattern "${kind}" matched but no interactive UI is available to confirm. Run interactively to approve, or remove the pattern from askBefore.`,

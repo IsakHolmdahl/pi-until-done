@@ -29,6 +29,15 @@ export const BlockParams = Type.Object({
 	}),
 });
 
+export const UnblockParams = Type.Object({
+	reason: Type.Optional(
+		Type.String({
+			description:
+				"Why the block is being cleared (e.g. 'user approved deletion').",
+		}),
+	),
+});
+
 export const ProgressParams = Type.Object({
 	note: Type.String({
 		description:

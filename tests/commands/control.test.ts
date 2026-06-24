@@ -125,6 +125,30 @@ describe("/until-done cancel", () => {
 	});
 });
 
+describe("/until-done unblock", () => {
+	test("transitions blocked → active", async () => {
+		rt = await createTestRuntime({ withUi: true });
+		seedActiveGoal(rt);
+		rt.store.state.status = "blocked";
+		rt.store.state.pausedReason = "ask-before";
+		await rt.prompt("/until-done unblock");
+		expect(rt.store.state.status).toBe("active");
+		expect(
+			rt.ui.notifies.some((n) => n.message.includes("block cleared")),
+		).toBe(true);
+	});
+
+	test("declines when not blocked", async () => {
+		rt = await createTestRuntime({ withUi: true });
+		seedActiveGoal(rt);
+		await rt.prompt("/until-done unblock");
+		expect(rt.store.state.status).toBe("active");
+		expect(
+			rt.ui.notifies.some((n) => n.message.includes("Nothing to unblock")),
+		).toBe(true);
+	});
+});
+
 describe("/until-done budget", () => {
 	test("rejects out-of-range values", async () => {
 		rt = await createTestRuntime({ withUi: true });

@@ -136,6 +136,7 @@ export type StateEventKind =
 	| "cancel"
 	| "complete"
 	| "block"
+	| "unblock"
 	| "progress"
 	| "budget"
 	| "verdict"

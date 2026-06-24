@@ -12,6 +12,9 @@ const LIFECYCLE = {
 	noGoalToCancel: "No goal to cancel.",
 	nothingToResume: "Nothing to resume.",
 	nothingToPause: (status: string) => `Nothing to pause (status=${status}).`,
+	nothingToUnblock: (status: string) =>
+		`Nothing to unblock (status=${status}).`,
+	unblocked: "/until-done · block cleared. Resuming work.",
 	autopilotEnabled:
 		"/until-done · autopilot ON. Future setups will skip the plan confirmation dialog.",
 	autopilotDisabled:

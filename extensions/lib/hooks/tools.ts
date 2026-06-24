@@ -5,7 +5,7 @@ import type {
 	ToolCallEventResult,
 } from "@mariozechner/pi-coding-agent";
 import { isToolCallEventType } from "@mariozechner/pi-coding-agent";
-import { ASK_BEFORE_TIMEOUT_MS } from "../constants";
+
 import type { Store } from "../store";
 import { DIALOGS, REFUSAL } from "../strings";
 
@@ -32,7 +32,6 @@ const handleBash = async (
 		const ok = await ctx.ui.confirm(
 			DIALOGS.askBeforeTitle,
 			DIALOGS.askBeforeMessage(hit, event.input.command),
-			{ timeout: ASK_BEFORE_TIMEOUT_MS },
 		);
 		if (!ok) return { block: true, reason: REFUSAL.userDenied(hit) };
 	}

@@ -11,6 +11,7 @@ import {
 	cmdCancel,
 	cmdPause,
 	cmdResume,
+	cmdUnblock,
 } from "./control";
 import {
 	cmdDetail,
@@ -29,6 +30,7 @@ export const subcommands = [
 	"pause",
 	"resume",
 	"cancel",
+	"unblock",
 	"budget",
 	"detail",
 	"plan",
@@ -46,6 +48,7 @@ const ZERO_ARG_SUBCOMMANDS = new Set([
 	"pause",
 	"resume",
 	"cancel",
+	"unblock",
 	"detail",
 	"tasks",
 	"plan",
@@ -84,6 +87,7 @@ const dispatch = async (
 		if (head === "northstar") return cmdNorthStar(store, ctx);
 		if (head === "replan-log") return cmdReplanLog(store, ctx);
 		if (head === "autopilot") return cmdAutopilot(pi, store, ctx);
+		if (head === "unblock") return cmdUnblock(pi, store, ctx);
 	}
 	if (head === "budget" && rest.length === 1 && isPositiveInteger(rest[0])) {
 		return cmdBudget(pi, store, ctx, rest[0]);

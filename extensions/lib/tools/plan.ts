@@ -3,7 +3,7 @@ import type {
 	ExtensionContext,
 } from "@mariozechner/pi-coding-agent";
 import type { Static } from "typebox";
-import { SETUP_CONFIRM_TIMEOUT_MS } from "../constants";
+
 import { initialState } from "../initial-state";
 import {
 	isPlannotatorInstalled,
@@ -115,7 +115,6 @@ const awaitPlanApproval = async (
 	const confirmed = await ctx.ui.confirm(
 		DIALOGS.approveTitle,
 		DIALOGS.approveMessage,
-		{ timeout: SETUP_CONFIRM_TIMEOUT_MS },
 	);
 	if (confirmed) {
 		grantPlanApproval(pi, store, ctx, "user approved plan");

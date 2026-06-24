@@ -27,6 +27,45 @@ describe("until_done_task_update", () => {
 		expect(rt.store.state.tasks).toHaveLength(0);
 	});
 
+	test("rejects marking done while goal is blocked", async () => {
+		rt = await createTestRuntime();
+		seedActive(rt);
+		rt.store.state.status = "blocked";
+		rt.store.state.tasks = [makeTask({ id: "T-001", status: "in_progress" })];
+		rt.store.state.currentTaskId = "T-001";
+		await driveToolCall(rt, "until_done_task_update", {
+			id: "T-001",
+			patch: { status: "done" },
+		});
+		expect(rt.store.state.tasks[0].status).toBe("in_progress");
+	});
+
+	test("rejects marking in_progress while goal is blocked", async () => {
+		rt = await createTestRuntime();
+		seedActive(rt);
+		rt.store.state.status = "blocked";
+		rt.store.state.tasks = [makeTask({ id: "T-001", status: "pending" })];
+		await driveToolCall(rt, "until_done_task_update", {
+			id: "T-001",
+			patch: { status: "in_progress" },
+		});
+		expect(rt.store.state.tasks[0].status).toBe("pending");
+	});
+
+	test("allows non-status patches while goal is blocked", async () => {
+		rt = await createTestRuntime();
+		seedActive(rt);
+		rt.store.state.status = "blocked";
+		rt.store.state.tasks = [
+			makeTask({ id: "T-001", status: "in_progress", learnings: ["a"] }),
+		];
+		await driveToolCall(rt, "until_done_task_update", {
+			id: "T-001",
+			patch: { addLearning: "b" },
+		});
+		expect(rt.store.state.tasks[0].learnings).toEqual(["a", "b"]);
+	});
+
 	test("marking a task done advances cursor to next ready task; phase follows", async () => {
 		rt = await createTestRuntime();
 		seedActive(rt);

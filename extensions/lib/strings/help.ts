@@ -14,6 +14,7 @@ export const HELP_TEXT = [
 	"/until-done replan-log        — show every replan and its reason",
 	"/until-done ask <question>    — side question (does not preempt the loop)",
 	"/until-done autopilot         — toggle skipping the plan dialog",
+	"/until-done unblock          — clear a blocked goal after approval",
 	"/until-done help              — this message",
 ].join("\n");
 

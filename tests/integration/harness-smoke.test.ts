@@ -18,13 +18,14 @@ describe("runtime harness smoke", () => {
 		expect(runtime.store.autopilotEnabled).toBe(false);
 	});
 
-	test("registers all 8 until_done_* tools", async () => {
+	test("registers all 9 until_done_* tools", async () => {
 		runtime = await createTestRuntime();
 		const tools = runtime.session.getAllTools().map((t) => t.name);
 		const required = [
 			"until_done_set",
 			"until_done_complete",
 			"until_done_block",
+			"until_done_unblock",
 			"until_done_progress",
 			"until_done_plan",
 			"until_done_replan",

@@ -155,6 +155,63 @@ describe("until_done_block", () => {
 	});
 });
 
+describe("until_done_unblock", () => {
+	test("transitions blocked → active and records reason", async () => {
+		rt = await createTestRuntime();
+		seedActive(rt);
+		rt.store.state.status = "blocked";
+		rt.store.state.pausedReason = "ask-before";
+		await driveToolCall(rt, "until_done_unblock", {
+			reason: "user approved deletion",
+		});
+		expect(rt.store.state.status).toBe("active");
+		expect(rt.store.state.lastVerdict).toBe("continue");
+		const unblock = rt.getStateEntries().find((e) => e.kind === "unblock");
+		expect(unblock?.note).toBe("user approved deletion");
+	});
+
+	test("rejects when not blocked", async () => {
+		rt = await createTestRuntime();
+		seedActive(rt);
+		await driveToolCall(rt, "until_done_unblock", {});
+		expect(rt.store.state.status).toBe("active");
+	});
+
+	test("block → unblock → complete flow succeeds", async () => {
+		rt = await createTestRuntime();
+		seedActive(rt);
+		rt.store.state.evidence = ["prior"];
+		await driveToolCall(rt, "until_done_block", {
+			question: "delete legacy files?",
+			reason: "ask-before matched rm -rf",
+		});
+		expect(rt.store.state.status).toBe("blocked");
+		await driveToolCall(rt, "until_done_unblock", {
+			reason: "user approved deletion",
+		});
+		expect(rt.store.state.status).toBe("active");
+		rt.setLLM([
+			fauxAssistantMessage(
+				[
+					fauxToolCall("until_done_complete", {
+						evidence: "tests pass: 42 / 0 fail",
+						summary: "shipped",
+					}),
+				],
+				{ stopReason: "toolUse" },
+			),
+			fauxAssistantMessage(
+				JSON.stringify({ verdict: "done", reason: "criteria met" }),
+				{ stopReason: "stop" },
+			),
+			fauxAssistantMessage("ack", { stopReason: "stop" }),
+		]);
+		await rt.prompt("complete it");
+		expect(rt.store.state.status).toBe("done");
+		expect(rt.store.state.evidence).toContain("tests pass: 42 / 0 fail");
+	});
+});
+
 describe("until_done_progress", () => {
 	test("appends note to evidence; phase is optional", async () => {
 		rt = await createTestRuntime();

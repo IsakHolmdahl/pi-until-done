@@ -6,6 +6,7 @@ import {
 	CompleteParams,
 	ProgressParams,
 	SetParams,
+	UnblockParams,
 } from "../schemas/lifecycle";
 import { persist, type Store } from "../store";
 import {
@@ -21,6 +22,7 @@ import { failed, ok, refused } from "./result";
 
 type SetInput = Static<typeof SetParams>;
 type BlockInput = Static<typeof BlockParams>;
+type UnblockInput = Static<typeof UnblockParams>;
 type ProgressInput = Static<typeof ProgressParams>;
 
 const buildNorthStar = (
@@ -117,6 +119,28 @@ const executeBlock = async (
 	return ok(TOOL_RESULTS.blocked(params.question), { status: "blocked" });
 };
 
+const executeUnblock = async (
+	pi: ExtensionAPI,
+	store: Store,
+	params: UnblockInput,
+) => {
+	const s = store.state;
+	if (s.status !== "blocked")
+		return failed(REFUSAL.notBlocked(s.status), "not_blocked");
+	persist(
+		pi,
+		store,
+		"unblock",
+		{
+			status: "active",
+			lastVerdict: "continue",
+			lastReason: params.reason,
+		},
+		params.reason ?? "block cleared",
+	);
+	return ok(TOOL_RESULTS.unblocked(params.reason), { status: "active" });
+};
+
 const executeProgress = async (
 	pi: ExtensionAPI,
 	store: Store,
@@ -182,6 +206,18 @@ const registerProgress = (pi: ExtensionAPI, store: Store) => {
 	});
 };
 
+const registerUnblock = (pi: ExtensionAPI, store: Store) => {
+	pi.registerTool({
+		name: "until_done_unblock",
+		label: TOOL_LABELS.unblock,
+		description: TOOL_DESCRIPTIONS.unblock,
+		parameters: UnblockParams,
+		async execute(_id, params) {
+			return executeUnblock(pi, store, params);
+		},
+	});
+};
+
 export const registerLifecycleTools = (
 	pi: ExtensionAPI,
 	store: Store,
@@ -189,5 +225,6 @@ export const registerLifecycleTools = (
 	registerSet(pi, store);
 	registerComplete(pi, store);
 	registerBlock(pi, store);
+	registerUnblock(pi, store);
 	registerProgress(pi, store);
 };

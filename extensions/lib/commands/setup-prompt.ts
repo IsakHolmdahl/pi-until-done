@@ -54,16 +54,17 @@ const PHASE_3 = [
 
 const PHASE_4 = [
 	"PHASE 4 — EXECUTION",
-	"8. For each task:",
+	"9. For each task:",
 	"   - Call `until_done_task_update` with status='in_progress' before starting.",
 	"   - Apply phase discipline: RED before GREEN, GREEN before REFACTOR, REFACTOR before CLEANUP.",
 	"   - Append learnings (`addLearning`) and gotchas (`addGotcha`) as you discover them — these feed `until_done_distill` at the end.",
 	"   - Add files/URLs you needed via `addContext`.",
 	"   - Run validationSteps and ciCommands.",
 	"   - When done, `until_done_task_update` with status='done'.",
-	"9. When ALL tasks are done AND verifyCommand passes (with quoted output), call `until_done_complete`. The cross-model judge runs inside that call: it sees only the goal, done-criteria, verifyCommand, and your cited evidence — nothing else from this conversation. Cite evidence the judge can verify literally (paste command output, reference file paths). Don't paraphrase. If the judge returns 'continue', re-read its reason, address the specific gap, then call `until_done_complete` again with stronger evidence — re-running with the same evidence will be rejected again.",
-	"10. After complete, call `until_done_distill` to compile the journey into a PRD-shaped summary the user can act on.",
-	"11. If blocked at any point, call `until_done_block`.",
+	"10. When ALL tasks are done AND verifyCommand passes (with quoted output), call `until_done_complete`. The cross-model judge runs inside that call: it sees only the goal, done-criteria, verifyCommand, and your cited evidence — nothing else from this conversation. Cite evidence the judge can verify literally (paste command output, reference file paths). Don't paraphrase. If the judge returns 'continue', re-read its reason, address the specific gap, then call `until_done_complete` again with stronger evidence — re-running with the same evidence will be rejected again.",
+	"11. After complete, call `until_done_distill` to compile the journey into a PRD-shaped summary the user can act on.",
+	"12. If you hit an ask-before boundary, the loop is paused until the user approves. IMMEDIATELY upon approval, call `until_done_unblock` to clear the blocked state before resuming work. Until you do this, `until_done_task_update` with status='in_progress' or status='done' will be refused.",
+	"13. If blocked for any other reason, call `until_done_block` and wait for the user.",
 ];
 
 export const setupPrompt = (intent: string): string =>

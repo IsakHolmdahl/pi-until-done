@@ -58,6 +58,8 @@ const computePointers = (
 		args.patch.status,
 	);
 
+const ADVANCE_STATUSES: Task["status"][] = ["in_progress", "done"];
+
 const executeTaskUpdate = async (
 	pi: ExtensionAPI,
 	store: Store,
@@ -66,6 +68,16 @@ const executeTaskUpdate = async (
 ) => {
 	const original = store.state.tasks.find((t) => t.id === args.id);
 	if (!original) return failed(REFUSAL.taskNotFound(args.id), "not_found");
+	if (
+		store.state.status === "blocked" &&
+		args.patch.status &&
+		ADVANCE_STATUSES.includes(args.patch.status)
+	) {
+		return failed(
+			REFUSAL.blockedTaskUpdate(store.state.status),
+			"blocked_task_update",
+		);
+	}
 	const next = applyTaskPatch(original, args.patch);
 	const tasks = store.state.tasks.map((t) => (t === original ? next : t));
 	const ptrs = computePointers(store, args, tasks, next);

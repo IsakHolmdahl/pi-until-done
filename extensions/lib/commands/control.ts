@@ -134,3 +134,28 @@ export const cmdAutopilot = async (
 		"warning",
 	);
 };
+
+export const cmdUnblock = async (
+	pi: ExtensionAPI,
+	store: Store,
+	ctx: ExtensionCommandContext,
+): Promise<void> => {
+	if (store.state.status !== "blocked") {
+		ctx.ui.notify(NOTIFY.nothingToUnblock(store.state.status), "warning");
+		return;
+	}
+	persist(
+		pi,
+		store,
+		"unblock",
+		{
+			status: "active",
+			lastVerdict: "continue",
+			lastReason: "user unblocked via /until-done unblock",
+		},
+		"user unblocked",
+	);
+	ctx.ui.notify(NOTIFY.unblocked, "info");
+	refreshStatus(store, ctx);
+	refreshWidget(store, ctx, true);
+};

@@ -9,6 +9,8 @@ export const TOOL_DESCRIPTIONS = {
 		"Declare the standing /until-done goal complete. Only call this after producing externally verifiable evidence the done-criteria are satisfied.",
 	block:
 		"Pause the /until-done loop because user input is needed. Use when ask-before is triggered, when ambiguity blocks progress, or when an external dependency is missing.",
+	unblock:
+		"Clear a blocked /until-done goal after the user has approved the ask-before item or resolved the blocking question. Call this immediately upon receiving approval, before resuming work.",
 	progress:
 		"Record a one-line progress note for the standing goal. Optional. Useful when a turn produced partial progress but is not yet done.",
 };
@@ -20,6 +22,7 @@ export const TOOL_LABELS = {
 	set: "Until-done set",
 	complete: "Until-done complete",
 	block: "Until-done block",
+	unblock: "Until-done unblock",
 	progress: "Until-done progress",
 };
 
@@ -34,6 +37,8 @@ export const TOOL_RESULTS = {
 		"✓ /until-done contract drafted. Pi will generate the task plan next.",
 	completeMarked: (text: string) => `✓ Goal marked complete.\n${text}`,
 	blocked: (q: string) => `? Blocked. Question for user:\n${q}`,
+	unblocked: (reason?: string) =>
+		`✓ Block cleared${reason ? `: ${reason}` : ""}. Resuming work.`,
 	progressNoted: (note: string) => `· progress noted: ${note}`,
 	progressInPhase: (phase: string, note: string) => `· [${phase}] ${note}`,
 };

@@ -14,5 +14,3 @@ export const COMPACTION_CONTEXT_CUSTOM_TYPE = "until-done.compaction-context";
 export const STATUS_KEY = "until-done";
 export const WIDGET_KEY = "until-done";
 export const TICK_INTERVAL_MS = 500;
-export const ASK_BEFORE_TIMEOUT_MS = 30_000;
-export const SETUP_CONFIRM_TIMEOUT_MS = 120_000;
