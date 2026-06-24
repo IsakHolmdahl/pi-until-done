@@ -4,7 +4,6 @@ import type {
 } from "@mariozechner/pi-coding-agent";
 import type { Static } from "typebox";
 
-import { initialState } from "../initial-state";
 import {
 	isPlannotatorInstalled,
 	type PlannotatorDecision,
@@ -61,13 +60,24 @@ const rejectPlan = (
 	store: Store,
 	ctx: ExtensionContext,
 	note: string,
-	feedback?: string,
-): PlannotatorDecision => {
-	persist(pi, store, "cancel", initialState(), note);
+): void => {
+	persist(
+		pi,
+		store,
+		"plan",
+		{
+			status: "planning",
+			tasks: [],
+			currentTaskId: undefined,
+			planComplete: false,
+			confirmedByUser: false,
+		},
+		note,
+	);
+	writeTasksYaml(ctx.cwd, store.state);
 	ctx.ui.notify(NOTIFY.planRejected, "info");
 	refreshStatus(store, ctx);
 	refreshWidget(store, ctx, true);
-	return { approved: false, feedback };
 };
 
 const tryPlannotatorApproval = async (
@@ -87,13 +97,7 @@ const tryPlannotatorApproval = async (
 		grantPlanApproval(pi, store, ctx, "plannotator approved");
 		return { approved: true };
 	}
-	return rejectPlan(
-		pi,
-		store,
-		ctx,
-		"plannotator rejected plan",
-		decision.feedback,
-	);
+	return { approved: false, feedback: decision.feedback };
 };
 
 const awaitPlanApproval = async (
@@ -120,7 +124,7 @@ const awaitPlanApproval = async (
 		grantPlanApproval(pi, store, ctx, "user approved plan");
 		return { approved: true };
 	}
-	return rejectPlan(pi, store, ctx, "user rejected plan");
+	return { approved: false };
 };
 
 const persistPlan = (
@@ -157,17 +161,24 @@ const executePlan = async (
 	const err = validateDeps(params.tasks);
 	if (err) return refused(err, "unknown_dep");
 	const first = params.tasks.find((t) => t.dependencies.length === 0);
-	persistPlan(pi, store, params.tasks, first);
-	writeTasksYaml(ctx.cwd, store.state);
 	if (s.status === "planning") {
+		store.state = {
+			...store.state,
+			tasks: params.tasks,
+			currentTaskId: first?.id,
+		};
+		writeTasksYaml(ctx.cwd, store.state);
 		const decision = await awaitPlanApproval(pi, store, ctx, signal);
 		if (!decision.approved) {
+			rejectPlan(pi, store, ctx, "plan rejected");
 			return refused(
 				decision.feedback ?? REFUSAL.planRejected,
 				"plan_rejected",
 			);
 		}
 	}
+	persistPlan(pi, store, params.tasks, first);
+	writeTasksYaml(ctx.cwd, store.state);
 	return ok(
 		TOOL_RESULTS.planAccepted(params.tasks.length, first?.id ?? "(none)"),
 		{ count: params.tasks.length, currentTaskId: first?.id },

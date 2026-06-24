@@ -98,7 +98,7 @@ describe("until_done_plan", () => {
 		);
 	});
 
-	test("when status is planning, rejection clears the goal", async () => {
+	test("when status is planning, rejection preserves contract and resets to planning", async () => {
 		rt = await createTestRuntime({
 			withUi: true,
 			uiPolicy: { confirm: () => false },
@@ -121,8 +121,9 @@ describe("until_done_plan", () => {
 		await driveToolCall(rt, "until_done_plan", {
 			tasks: [makeTask({ id: "T-001" })],
 		});
-		expect(rt.store.state.status).toBe("setup");
-		expect(rt.store.state.goal).toBe("");
+		expect(rt.store.state.status).toBe("planning");
+		expect(rt.store.state.goal).toBe("ship X");
+		expect(rt.store.state.tasks).toHaveLength(0);
 		expect(rt.store.state.confirmedByUser).toBe(false);
 	});
 
@@ -152,7 +153,7 @@ describe("until_done_plan", () => {
 		expect(rt.ui.confirms).toHaveLength(0);
 	});
 
-	test("when plannotator is installed and rejects, refusal includes feedback", async () => {
+	test("when plannotator is installed and rejects, refusal includes feedback and contract is preserved", async () => {
 		rt = await createTestRuntime({ withUi: true });
 		installFakePlannotator(rt, {
 			approved: false,
@@ -176,8 +177,8 @@ describe("until_done_plan", () => {
 		await driveToolCall(rt, "until_done_plan", {
 			tasks: [makeTask({ id: "T-001" })],
 		});
-		expect(rt.store.state.status).toBe("setup");
-		expect(rt.store.state.goal).toBe("");
+		expect(rt.store.state.status).toBe("planning");
+		expect(rt.store.state.goal).toBe("ship X");
 		expect(rt.store.state.confirmedByUser).toBe(false);
 		expect(rt.store.state.tasks).toHaveLength(0);
 	});

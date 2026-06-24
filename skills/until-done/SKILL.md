@@ -76,8 +76,10 @@ logged to `/until-done replan-log`.
 
 ## Setup mode
 
-You execute setup as **two locked deliverables presented together for
-one approval**: the contract (North Star) and the YAML task list.
+You execute setup as **two locked deliverables**: the contract (North
+Star) and the YAML task list. The contract is approved implicitly by
+calling `until_done_set`; the plan is approved separately when you call
+`until_done_plan`.
 
 1. Read the user's intent.
 2. Draft the contract (North Star — locked once you call `until_done_set`):
@@ -143,16 +145,18 @@ one approval**: the contract (North Star) and the YAML task list.
    by a RED task; final task is verification (run `verifyCommand`,
    confirm done-criteria).
 
-4. Show the contract **and** the YAML task list back to the user as
-   plain markdown.
-5. Ask explicitly: _"Approve contract + task plan? (yes/no)"_
-6. Wait. **Do not call any `until_done_*` tool until the user
-   confirms.**
-7. After confirmation:
-   a. `until_done_set` with the contract fields.
-   b. `until_done_plan` with the full `tasks` array.
+4. Call `until_done_set` with the contract fields. The extension moves
+   the goal into **planning** status and records the North Star.
+5. Show the planned task list back to the user as plain markdown for
+   preview.
+6. Call `until_done_plan` with the full `tasks` array. The extension
+   triggers the approval step (dialog or plannotator).
 
-If the user says no, stop. Do not retry.
+If the plan is rejected, the North Star is preserved and the goal
+stays in **planning** — revise the task list and call
+`until_done_plan` again. If the user wants to change the North Star
+itself, `/until-done cancel` is the only way. If the user cancels the
+contract entirely, stop.
 
 ## Work mode
 

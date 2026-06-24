@@ -85,10 +85,14 @@ on your PATH.
    (auto-wrapped with `mise exec --` if not already mise-routed),
    ask-before list, decision style, goalType, surfaces, startPhase —
    and shows it to you.
-3. You approve via the dialog (or `/until-done autopilot` to skip).
-4. Pi calls `until_done_set` + `until_done_plan` and starts working **in
-   TDD-first mode**: ANALYSIS → BOOTSTRAP → RED → GREEN → REFACTOR →
-   CLEANUP (per pi-config).
+3. Pi calls `until_done_set` to lock the contract and move to planning
+   status.
+4. Pi drafts the TDD-first task list, calls `until_done_plan`, and the
+   extension opens the approval dialog (or plannotator). On approval, Pi
+   starts working in TDD-first mode: ANALYSIS → BOOTSTRAP → RED → GREEN
+   → REFACTOR → CLEANUP (per pi-config). If the plan is rejected, the
+   North Star contract is preserved and Pi revises and resubmits the
+   plan.
 5. After every turn, Pi self-judges. If done, it calls
    `until_done_complete` with quoted output of the verifyCommand as
    evidence. If blocked, `until_done_block`. Phase transitions go

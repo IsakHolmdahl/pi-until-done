@@ -5,7 +5,8 @@ const LIFECYCLE = {
 	setupStarted: (intent: string) =>
 		`/until-done · setup started for "${intent}"`,
 	planApproved: "/until-done · plan approved. Pi will activate now.",
-	planRejected: "/until-done · plan rejected. Goal cleared.",
+	planRejected:
+		"/until-done · plan rejected. Revise and resubmit via until_done_plan.",
 	paused: "/until-done paused.",
 	resumed: (g: string) => `/until-done resumed (budget reset). Goal: ${g}`,
 	cancelled: "/until-done cancelled.",
