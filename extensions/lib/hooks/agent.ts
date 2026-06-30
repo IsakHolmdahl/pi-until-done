@@ -66,8 +66,10 @@ const onAgentEnd = (pi: ExtensionAPI, store: Store) => {
 			refreshStatus(store, ctx);
 			return;
 		}
-		store.state.turnsUsed += 1;
-		store.state.lastTurnAt = Date.now();
+		persist(pi, store, "turn", {
+			turnsUsed: store.state.turnsUsed + 1,
+			lastTurnAt: Date.now(),
+		});
 		try {
 			await handleEndTransitions(pi, store, ctx);
 		} finally {

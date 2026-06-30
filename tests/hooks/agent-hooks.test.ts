@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { fauxAssistantMessage, fauxToolCall } from "@mariozechner/pi-ai";
+import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
+import { reconstructFromSession } from "../../extensions/lib/store";
 import { makeNorthStar } from "../helpers/factories";
 import {
 	createTestRuntime,
@@ -95,6 +97,31 @@ describe("agent_start / agent_end (real runtime)", () => {
 		// turnsUsed becomes 1 in agent_end → triggers budget guard
 		expect(rt.store.state.status).toBe("paused");
 		expect(rt.store.state.pausedReason).toContain("turn budget exhausted");
+	});
+
+	test("turnsUsed is persisted in session entries and survives reconstructFromSession", async () => {
+		rt = await createTestRuntime({ withUi: true });
+		seedActive(rt);
+		rt.setLLM([
+			fauxAssistantMessage(
+				[fauxToolCall("until_done_progress", { note: "work" })],
+				{ stopReason: "toolUse" },
+			),
+			fauxAssistantMessage("done", { stopReason: "stop" }),
+		]);
+		await rt.prompt("go");
+		expect(rt.store.state.turnsUsed).toBe(1);
+		// turnsUsed must appear in at least one persisted patch so reconstruction preserves it
+		const hasTurnsPatch = rt
+			.getStateEntries()
+			.some((e) => (e.patch as { turnsUsed?: number })?.turnsUsed !== undefined);
+		expect(hasTurnsPatch).toBe(true);
+		// Simulate session_start reconstruction (e.g. pi restart mid-goal)
+		const fakeCtx = {
+			sessionManager: rt.runtimeHost.session.sessionManager,
+		} as unknown as ExtensionContext;
+		reconstructFromSession(rt.store, fakeCtx);
+		expect(rt.store.state.turnsUsed).toBe(1);
 	});
 
 	test("only registers the until-done command (no provider/skill/prompt registrations beyond the API surface)", async () => {

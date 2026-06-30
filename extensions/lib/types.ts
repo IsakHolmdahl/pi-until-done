@@ -129,6 +129,7 @@ export interface GoalState {
 }
 
 export type StateEventKind =
+	| "turn"
 	| "set"
 	| "confirm"
 	| "pause"
