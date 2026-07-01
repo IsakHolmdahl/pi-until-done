@@ -18,6 +18,7 @@ export interface Store {
 	progressSignalsThisTurn: number;
 	codeEditsThisTurn: number;
 	userMessagedThisTurn: boolean;
+	turnStartedActive: boolean;
 	autopilotEnabled: boolean;
 	judgeDefault: JudgeDefault;
 	lastTickAt: number;
@@ -30,6 +31,7 @@ export const createStore = (): Store => ({
 	progressSignalsThisTurn: 0,
 	codeEditsThisTurn: 0,
 	userMessagedThisTurn: false,
+	turnStartedActive: false,
 	autopilotEnabled: false,
 	judgeDefault: undefined,
 	lastTickAt: 0,

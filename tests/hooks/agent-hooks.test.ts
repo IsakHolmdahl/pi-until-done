@@ -124,6 +124,30 @@ describe("agent_start / agent_end (real runtime)", () => {
 		expect(rt.store.state.turnsUsed).toBe(1);
 	});
 
+	test("completing the goal in the first turn still increments turnsUsed", async () => {
+		rt = await createTestRuntime({ withUi: true });
+		seedActive(rt);
+		rt.setLLM([
+			fauxAssistantMessage(
+				[
+					fauxToolCall("until_done_complete", {
+						evidence: "all tests pass",
+						summary: "shipped",
+					}),
+				],
+				{ stopReason: "toolUse" },
+			),
+			fauxAssistantMessage(
+				JSON.stringify({ verdict: "done", reason: "tests pass" }),
+				{ stopReason: "stop" },
+			),
+			fauxAssistantMessage("done", { stopReason: "stop" }),
+		]);
+		await rt.prompt("go");
+		expect(rt.store.state.status).toBe("done");
+		expect(rt.store.state.turnsUsed).toBe(1);
+	});
+
 	test("only registers the until-done command (no provider/skill/prompt registrations beyond the API surface)", async () => {
 		rt = await createTestRuntime({ withUi: true });
 		const extensionCommands = rt.pi
