@@ -4,6 +4,7 @@ import type { GoalState, Stats } from "./types";
 export const initialState = (): GoalState => ({
 	id: "",
 	goal: "",
+	widgetTitle: "",
 	doneCriteria: "",
 	askBefore: [],
 	decisionStyle: "",

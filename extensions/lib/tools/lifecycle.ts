@@ -31,6 +31,7 @@ const buildNorthStar = (
 	resolved: { judgeModel?: NorthStar["judgeModel"]; sameModelJudge?: boolean },
 ): NorthStar => ({
 	goal: params.goal,
+	widgetTitle: params.widgetTitle,
 	doneCriteria: params.doneCriteria,
 	verifyCommand: verify,
 	askBefore: params.askBefore ?? [],
@@ -63,6 +64,7 @@ const setPatch = (
 	const verify = params.verifyCommand;
 	return {
 		goal: params.goal,
+		widgetTitle: params.widgetTitle,
 		doneCriteria: params.doneCriteria,
 		askBefore: params.askBefore ?? [],
 		decisionStyle: params.decisionStyle,

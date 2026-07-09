@@ -5,20 +5,50 @@ import { WIDGET } from "../strings";
 import type { GoalState } from "../types";
 import { phaseGlyph } from "./phase-glyph";
 
-const widgetLines = (s: GoalState): string[] => {
+const WIDGET_TITLE_MAX_LEN = 50;
+
+const truncate = (text: string, maxLen: number): string =>
+	text.length <= maxLen ? text : `${text.slice(0, maxLen - 3).trimEnd()}...`;
+
+const autoWidgetTitle = (goal: string): string => {
+	// Try to extract first sentence (up to first period or question mark)
+	const sentenceMatch = goal.match(/^[^.!?]+[.!?]/);
+	const candidate = sentenceMatch ? sentenceMatch[0].trim() : goal;
+	return truncate(candidate, WIDGET_TITLE_MAX_LEN);
+};
+
+const displayGoal = (s: GoalState): string =>
+	s.widgetTitle || autoWidgetTitle(s.goal);
+
+const headerLine = (s: GoalState): string =>
+	WIDGET.header(s.status, phaseGlyph(s.phase), s.phase);
+
+const budgetLine = (s: GoalState): string =>
+	WIDGET.budget(s.turnsUsed, s.maxTurns);
+
+const collapsedLines = (s: GoalState): string[] => [
+	headerLine(s),
+	WIDGET.goal(displayGoal(s)),
+	budgetLine(s),
+];
+
+const expandedLines = (s: GoalState): string[] => {
 	const verdict = s.lastReason
 		? WIDGET.verdict(s.lastVerdict ?? "?", s.lastReason)
 		: "";
 	return [
-		WIDGET.header(s.status, phaseGlyph(s.phase), s.phase),
-		WIDGET.goal(s.goal),
+		headerLine(s),
+		WIDGET.goal(displayGoal(s)),
 		s.doneCriteria ? WIDGET.doneWhen(s.doneCriteria) : "",
 		s.verifyCommand ? WIDGET.verify(s.verifyCommand) : "",
 		s.askBefore.length ? WIDGET.askBefore(s.askBefore) : "",
-		WIDGET.budget(s.turnsUsed, s.maxTurns),
+		budgetLine(s),
 		verdict,
 	].filter(Boolean);
 };
+
+const widgetLines = (s: GoalState, expanded: boolean): string[] =>
+	expanded ? expandedLines(s) : collapsedLines(s);
 
 const shouldSkip = (s: GoalState, force: boolean): boolean =>
 	!force && s.status === "active";
@@ -35,5 +65,7 @@ export const refreshWidget = (
 		return;
 	}
 	if (shouldSkip(s, force)) return;
-	ctx.ui.setWidget(WIDGET_KEY, widgetLines(s), { placement: "aboveEditor" });
+	ctx.ui.setWidget(WIDGET_KEY, widgetLines(s, store.widgetExpanded), {
+		placement: "aboveEditor",
+	});
 };

@@ -5,7 +5,6 @@ import type {
 import type { Static } from "typebox";
 
 import {
-	isPlannotatorInstalled,
 	type PlannotatorDecision,
 	requestPlannotatorPlanReview,
 } from "../plannotator";
@@ -86,7 +85,6 @@ const tryPlannotatorApproval = async (
 	ctx: ExtensionContext,
 	signal: AbortSignal | undefined,
 ): Promise<PlannotatorDecision | undefined> => {
-	if (!isPlannotatorInstalled(pi)) return undefined;
 	const decision = await requestPlannotatorPlanReview(
 		pi,
 		store.state.tasks,

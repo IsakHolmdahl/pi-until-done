@@ -46,6 +46,12 @@ export const CoreSetFields = {
 	goal: Type.String({
 		description: "One-line restatement of the user's intent.",
 	}),
+	widgetTitle: Type.Optional(
+		Type.String({
+			description:
+				"Short human-readable label for the status widget. If omitted, the goal is shown.",
+		}),
+	),
 	doneCriteria: Type.String({
 		description:
 			"Concrete, externally verifiable conditions that must all be true for the goal to count as done. For production-code goals: must include 'all tests in <verifyCommand> pass'.",

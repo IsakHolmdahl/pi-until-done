@@ -3,7 +3,6 @@ import type { Task } from "./types";
 
 const REQUEST_CHANNEL = "plannotator:request";
 const RESULT_CHANNEL = "plannotator:review-result";
-const PLAN_SUBMIT_TOOL = "plannotator_submit_plan";
 
 type ReviewStartResponse =
 	| { status: "handled"; result: { status: "pending"; reviewId: string } }
@@ -20,9 +19,6 @@ export type PlannotatorDecision = {
 	feedback?: string;
 };
 
-export const isPlannotatorInstalled = (pi: ExtensionAPI): boolean =>
-	pi.getAllTools().some((tool) => tool.name === PLAN_SUBMIT_TOOL);
-
 const formatTaskLine = (task: Task): string => {
 	const deps = task.dependencies.length
 		? ` (deps: ${task.dependencies.join(", ")})`
@@ -33,6 +29,8 @@ const formatTaskLine = (task: Task): string => {
 export const formatPlanForPlannotator = (tasks: Task[]): string =>
 	["# /until-done plan", "", ...tasks.map(formatTaskLine)].join("\n");
 
+const PLANNOTATOR_TIMEOUT_MS = 3000;
+
 const waitForResult = (
 	pi: ExtensionAPI,
 	reviewId: string,
@@ -40,20 +38,32 @@ const waitForResult = (
 ): Promise<PlannotatorDecision | undefined> =>
 	new Promise((resolve) => {
 		let done = false;
-		const unsubscribe = pi.events.on(RESULT_CHANNEL, (data) => {
-			const event = data as ReviewResultEvent;
-			if (event.reviewId !== reviewId) return;
-			done = true;
-			unsubscribe();
-			resolve({ approved: event.approved, feedback: event.feedback });
-		});
-		const abort = () => {
+		let unsubscribe: (() => void) | undefined;
+
+		const finish = (value: PlannotatorDecision | undefined) => {
 			if (done) return;
 			done = true;
-			unsubscribe();
-			resolve(undefined);
+			unsubscribe?.();
+			resolve(value);
 		};
-		signal?.addEventListener("abort", abort, { once: true });
+
+		const timeout = setTimeout(() => finish(undefined), PLANNOTATOR_TIMEOUT_MS);
+
+		unsubscribe = pi.events.on(RESULT_CHANNEL, (data) => {
+			const event = data as ReviewResultEvent;
+			if (event.reviewId !== reviewId) return;
+			clearTimeout(timeout);
+			finish({ approved: event.approved, feedback: event.feedback });
+		});
+
+		signal?.addEventListener(
+			"abort",
+			() => {
+				clearTimeout(timeout);
+				finish(undefined);
+			},
+			{ once: true },
+		);
 	});
 
 const emitPlanReview = (
@@ -99,9 +109,25 @@ export const requestPlannotatorPlanReview = async (
 			done = true;
 			resolve(value);
 		};
-		signal?.addEventListener("abort", () => finish(undefined), { once: true });
-		emitPlanReview(pi, planContent, (response) =>
-			handleReviewStart(response, pi, signal, finish),
+
+		// Timeout for initial plannotator response
+		const initTimeout = setTimeout(
+			() => finish(undefined),
+			PLANNOTATOR_TIMEOUT_MS,
 		);
+
+		signal?.addEventListener(
+			"abort",
+			() => {
+				clearTimeout(initTimeout);
+				finish(undefined);
+			},
+			{ once: true },
+		);
+
+		emitPlanReview(pi, planContent, (response) => {
+			clearTimeout(initTimeout);
+			handleReviewStart(response, pi, signal, finish);
+		});
 	});
 };

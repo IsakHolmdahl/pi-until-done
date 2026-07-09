@@ -22,6 +22,7 @@ export interface Store {
 	autopilotEnabled: boolean;
 	judgeDefault: JudgeDefault;
 	lastTickAt: number;
+	widgetExpanded: boolean;
 }
 
 export const createStore = (): Store => ({
@@ -35,6 +36,7 @@ export const createStore = (): Store => ({
 	autopilotEnabled: false,
 	judgeDefault: undefined,
 	lastTickAt: 0,
+	widgetExpanded: false,
 });
 
 export const persist = (

@@ -83,6 +83,7 @@ export interface JudgeModel {
 
 export interface NorthStar {
 	goal: string;
+	widgetTitle?: string;
 	doneCriteria: string;
 	verifyCommand?: string;
 	askBefore: string[];
@@ -102,6 +103,7 @@ export interface ReplanLogEntry {
 export interface GoalState {
 	id: string;
 	goal: string;
+	widgetTitle?: string;
 	doneCriteria: string;
 	askBefore: string[];
 	decisionStyle: string;

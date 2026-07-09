@@ -54,6 +54,17 @@ describe("until_done_set", () => {
 		expect(rt.store.state.verifyCommand).toBe("bun test");
 	});
 
+	test("stores widgetTitle for the compact widget display", async () => {
+		rt = await createTestRuntime();
+		seedSetup(rt);
+		await driveToolCall(rt, "until_done_set", {
+			...makeSetParams(),
+			widgetTitle: "ship the refactor",
+		});
+		expect(rt.store.state.widgetTitle).toBe("ship the refactor");
+		expect(rt.store.state.northStar?.widgetTitle).toBe("ship the refactor");
+	});
+
 	test("rejects when status is anything other than 'setup' (closes README #22 hole)", async () => {
 		rt = await createTestRuntime();
 		seedActive(rt);
