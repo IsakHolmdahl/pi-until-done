@@ -24,7 +24,7 @@ export const COMMAND_DESCRIPTION =
 export const SHORTCUT_DESCRIPTION = "/until-done · toggle status widget";
 
 export const WIDGET_TOGGLE_SHORTCUT_DESCRIPTION =
-	"/until-done · expand/shrink widget (ctrl+i)";
+	"/until-done · expand/shrink widget (ctrl+shift+i)";
 
 export const FLAG_DESCRIPTION =
 	"Set a standing goal at startup and pursue it autonomously.";

@@ -21,7 +21,7 @@ export const registerShortcut = (pi: ExtensionAPI, store: Store): void => {
 			refreshWidget(store, ctx, true);
 		},
 	});
-	pi.registerShortcut("ctrl+i", {
+	pi.registerShortcut("ctrl+shift+i", {
 		description: WIDGET_TOGGLE_SHORTCUT_DESCRIPTION,
 		handler: (ctx) => {
 			toggleWidgetExpansion(store, ctx);
