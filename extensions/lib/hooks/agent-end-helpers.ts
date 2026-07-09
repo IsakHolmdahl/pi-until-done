@@ -92,5 +92,5 @@ export const queueContinuation = (
 	).slice(0, RESPONSE_SNIPPET_CHARS);
 	pi.sendUserMessage(text, { deliverAs: "followUp" });
 	refreshStatus(store, ctx);
-	refreshWidget(store, ctx);
+	refreshWidget(store, ctx, true);
 };
