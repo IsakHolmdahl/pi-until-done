@@ -178,7 +178,7 @@ describe("end-to-end happy path: setup → set → plan → progress → complet
 		expect(rt.store.state.evidence.length).toBeGreaterThan(0);
 
 		// distilled.md landed on disk with the user's content
-		const mdPath = join(rt.cwd, ".until-done", "distilled.md");
+		const mdPath = join(rt.cwd, ".pi", "until-done", "implement-healthz-endpoint", "distilled.md");
 		expect(existsSync(mdPath)).toBe(true);
 		const md = await readFile(mdPath, "utf8");
 		expect(md).toContain("/healthz endpoint");

@@ -129,14 +129,15 @@ describe("until_done_distill", () => {
 		expect(rt.store.state.distilled).toBeUndefined();
 	});
 
-	test("writes real .until-done/distilled.md after done", async () => {
+	test("writes real .pi/until-done/distilled.md after done", async () => {
 		rt = await createTestRuntime();
 		seedActive(rt);
 		rt.store.state.status = "done";
 		await driveToolCall(rt, "until_done_distill", {
 			prdMarkdown: "# distilled\n\n- learned X\n",
 		});
-		const mdPath = join(rt.cwd, ".until-done", "distilled.md");
+		// Goal is "ship X" → slug = "ship-x"
+		const mdPath = join(rt.cwd, ".pi", "until-done", "ship-x", "distilled.md");
 		expect(existsSync(mdPath)).toBe(true);
 		const text = await readFile(mdPath, "utf8");
 		expect(text).toContain("learned X");
