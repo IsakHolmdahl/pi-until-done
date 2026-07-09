@@ -1,5 +1,5 @@
 export const TOOL_DESCRIPTIONS = {
-	plan: "Provide the comprehensive TDD-first task list for the active /until-done goal. Each task must declare dependencies, blocks, prerequisites, ordered validation steps, ci/cd commands, styleguide rules, guardrails, learnings (initially []), gotchas, and context references. Call once after `until_done_set`; this triggers the user approval dialog. The list is written to `.until-done/tasks.yaml` for human review.",
+	plan: "Provide the comprehensive TDD-first task list for the active /until-done goal. Each task must declare dependencies, blocks, prerequisites, ordered validation steps, ci/cd commands, styleguide rules, guardrails, learnings (initially []), gotchas, and context references. Call once after `until_done_plan_document` is approved; this triggers the user approval dialog. The list is written to `.pi/until-done/{goal-name}/tasks.yaml` for review.",
 	replan:
 		"Modify the task list mid-execution: insert / remove / replace / split / merge / reorder. The North Star (goal, doneCriteria, verifyCommand, askBefore) is LOCKED — call `/until-done cancel` if you need to change those. `done` tasks are immutable. Every call must include a `reason` (one short sentence) which is appended to affected tasks' learnings.",
 	taskUpdate:
@@ -15,6 +15,8 @@ export const TOOL_DESCRIPTIONS = {
 		"Record a one-line progress note for the standing goal. Optional. Useful when a turn produced partial progress but is not yet done.",
 	reviewerApprove:
 		"Signal reviewer approval or rejection of the implementation. Reviewers must call this tool to approve the implementation before the judge can be called. Reviewers should focus on code quality, security flaws, and best practices — NOT on requirements (that's the judge's job). Call with approved=true to allow judge review, or approved=false with feedback to request changes.",
+	planDocument:
+		"Submit the plan document (markdown) for review. This is the FIRST step in planning. The plan document explains the approach, architecture decisions, and implementation strategy. It is reviewed by plannotator before tasks are generated.",
 };
 
 export const TOOL_LABELS = {
@@ -27,6 +29,7 @@ export const TOOL_LABELS = {
 	unblock: "Until-done unblock",
 	progress: "Until-done progress",
 	reviewerApprove: "Until-done reviewer approve",
+	planDocument: "Until-done plan document",
 };
 
 export const TOOL_RESULTS = {
@@ -48,4 +51,8 @@ export const TOOL_RESULTS = {
 		"✓ Reviewer approved implementation for judge review.",
 	reviewerRejected: () =>
 		"✗ Reviewer rejected implementation. Address feedback before requesting judge review.",
+	planDocumentApproved: (path: string) =>
+		`✓ Plan document approved and saved to ${path}. You can now generate tasks with until_done_plan.`,
+	planDocumentRejected: () =>
+		"✗ Plan document rejected. Revise the plan document and resubmit with until_done_plan_document.",
 };

@@ -11,6 +11,19 @@ export const seedActive = (runtime: TestRuntime): void => {
 		northStar: makeNorthStar(),
 		confirmedByUser: true,
 		maxTurns: 100,
+		planningPhase: "tasks", // Assume plan document already approved for task submission
+	};
+};
+
+export const seedPlanning = (runtime: TestRuntime): void => {
+	runtime.store.state = {
+		...runtime.store.state,
+		status: "planning",
+		id: "ud-test",
+		goal: "ship X",
+		northStar: makeNorthStar(),
+		maxTurns: 100,
+		planningPhase: "document", // Ready for plan document submission
 	};
 };
 

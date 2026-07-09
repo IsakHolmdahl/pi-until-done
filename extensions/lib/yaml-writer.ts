@@ -26,3 +26,37 @@ export const writeTasksYaml = (cwd: string, s: GoalState): void => {
 		// best-effort; never fail the goal because of disk issues
 	}
 };
+
+export const writePlanDocument = (
+	cwd: string,
+	goalSlug: string,
+	planDocument: string,
+): string => {
+	try {
+		const dir = path.join(cwd, ".pi", "until-done", goalSlug);
+		fs.mkdirSync(dir, { recursive: true });
+		const planPath = path.join(dir, "plan.md");
+		fs.writeFileSync(planPath, planDocument);
+		return planPath;
+	} catch {
+		// best-effort; never fail the goal because of disk issues
+		return "";
+	}
+};
+
+export const writeTasksYamlToPiDir = (
+	cwd: string,
+	goalSlug: string,
+	s: GoalState,
+): string => {
+	try {
+		const dir = path.join(cwd, ".pi", "until-done", goalSlug);
+		fs.mkdirSync(dir, { recursive: true });
+		const tasksPath = path.join(dir, "tasks.yaml");
+		fs.writeFileSync(tasksPath, yamlStringify(buildYaml(s)));
+		return tasksPath;
+	} catch {
+		// best-effort; never fail the goal because of disk issues
+		return "";
+	}
+};

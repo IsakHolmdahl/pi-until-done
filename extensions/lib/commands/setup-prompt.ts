@@ -32,19 +32,24 @@ const PHASE_1 = [
 ];
 
 const PHASE_2 = [
-	"PHASE 2 — TASK LIST (you draft as YAML, then activate)",
-	"3. Decompose the goal into a TDD-first task list. Each task must have:",
+	"PHASE 2 — PLAN DOCUMENT (you draft as markdown, plannotator reviews)",
+	"3. Write a plan document explaining the approach, architecture decisions, and implementation strategy. This is a thinking document, NOT the task list.",
+	"   - Save it by calling `until_done_plan_document` with the markdown content.",
+	"   - Plannotator will review the plan document first.",
+	"   - If approved, you can then generate the task list.",
+	"   - If rejected, revise the plan document and resubmit.",
+	"4. After plan document is approved, decompose the goal into a TDD-first task list.",
+	"   - Each task must have:",
 	"     id (T-001, T-002, ...), title, phase, status: pending,",
 	"     dependencies, blocks, prerequisites (each {description, cleared}),",
 	"     validationSteps (ordered), ciCommands, styleguideRules,",
 	"     guardrails, learnings: [], gotchas, context: [{path|url, why}].",
-	"   - Bootstrap tasks come first.",
-	"   - Every code-changing task must be preceded by a RED task that adds a failing test.",
-	"   - For exploratory goals, the early tasks may be measurement/investigation; the plan can replan freely as findings come in.",
-	"   - Include a final CLEANUP task: strip debug prints, scratch files, and any guardrail violations the loop introduced. The diff must be production-shaped before complete.",
-	"   - The very last task is verification: run verifyCommand, confirm done-criteria, quote the output.",
-	"4. Show the contract AND the full YAML task list back to the user as plain markdown.",
-	"5. Ask: 'Approve contract + task plan? (yes/no)'.",
+	"   - Call `until_done_plan` with the full tasks array.",
+	"   - Plannotator will review the tasks YAML.",
+	"   - If approved, the goal becomes active.",
+	"   - If rejected, revise the tasks and resubmit.",
+	"5. Show the approved plan document AND the approved task list back to the user as plain markdown.",
+	"6. The system will store both in .pi/until-done/{goal-name}/ for reference.",
 ];
 
 const PHASE_3 = [

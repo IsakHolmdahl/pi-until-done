@@ -21,7 +21,7 @@ import {
 import type { Task } from "../types";
 import { refreshStatus } from "../ui/status-line";
 import { refreshWidget } from "../ui/widget";
-import { writeTasksYaml } from "../yaml-writer";
+import { writeTasksYaml, writeTasksYamlToPiDir } from "../yaml-writer";
 import { ok, refused } from "./result";
 
 type PlanInput = Static<typeof PlanParams>;
@@ -47,7 +47,7 @@ const grantPlanApproval = (
 		pi,
 		store,
 		"confirm",
-		{ confirmedByUser: true, status: "active" },
+		{ confirmedByUser: true, status: "active", planningPhase: "complete" },
 		note,
 	);
 	ctx.ui.notify(NOTIFY.planApproved, "info");
@@ -70,6 +70,7 @@ const rejectPlan = (
 			currentTaskId: undefined,
 			planComplete: false,
 			confirmedByUser: false,
+			planningPhase: "tasks", // Keep in tasks phase so agent can retry
 		},
 		note,
 	);
@@ -153,6 +154,13 @@ const executePlan = async (
 	ctx: ExtensionContext,
 ) => {
 	const s = store.state;
+	// Require plan document approval first
+	if (s.planningPhase !== "tasks") {
+		return refused(
+			"Plan document must be approved first. Call until_done_plan_document with a plan document before submitting tasks.",
+			"plan_document_required",
+		);
+	}
 	if (s.status !== "active" && s.status !== "planning") {
 		return refused(REFUSAL.planWrongStatus(s.status), "wrong_status");
 	}
@@ -165,7 +173,22 @@ const executePlan = async (
 			tasks: params.tasks,
 			currentTaskId: first?.id,
 		};
+		// Write tasks to .until-done/ directory
 		writeTasksYaml(ctx.cwd, store.state);
+		// Also write to .pi/until-done/{goal-name}/tasks.yaml
+		const goalSlug = store.state.goal
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, "-")
+			.replace(/^-+|-+$/g, "")
+			.slice(0, 50);
+		const tasksYamlPath = writeTasksYamlToPiDir(ctx.cwd, goalSlug, store.state);
+		persist(
+			pi,
+			store,
+			"plan",
+			{ tasksYamlPath },
+			`plan with ${params.tasks.length} tasks`,
+		);
 		const decision = await awaitPlanApproval(pi, store, ctx, signal);
 		if (!decision.approved) {
 			rejectPlan(pi, store, ctx, "plan rejected");
