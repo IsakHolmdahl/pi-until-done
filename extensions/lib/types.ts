@@ -128,6 +128,7 @@ export interface GoalState {
 	goalType: GoalType;
 	surfaces: Surface[];
 	distilled?: string;
+	reviewerApproved?: boolean;
 }
 
 export type StateEventKind =
@@ -146,7 +147,9 @@ export type StateEventKind =
 	| "plan"
 	| "replan"
 	| "task_update"
-	| "clean_end_nudge";
+	| "clean_end_nudge"
+	| "reviewer_approve"
+	| "reviewer_reject";
 
 export interface StateEvent {
 	kind: StateEventKind;

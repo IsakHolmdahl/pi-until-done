@@ -44,6 +44,7 @@ const seedActiveWithJudge = (runtime: TestRuntime) => {
 		northStar: { ...ns, judgeModel: makeJudgeModel() },
 		confirmedByUser: true,
 		maxTurns: 100,
+		reviewerApproved: true, // Reviewer approval required before judge
 	};
 };
 
@@ -80,6 +81,7 @@ describe("until_done_complete default behavior (judge ON, self-judge against exe
 			northStar: ns,
 			confirmedByUser: true,
 			maxTurns: 100,
+			reviewerApproved: true, // Reviewer approval required
 		};
 		// The self-judge consumes one response from the same executor faux queue.
 		rt.setLLM([
@@ -122,6 +124,7 @@ describe("until_done_complete default behavior (judge ON, self-judge against exe
 			northStar: ns,
 			confirmedByUser: true,
 			maxTurns: 100,
+			reviewerApproved: true, // Reviewer approval required
 		};
 		rt.setLLM([
 			fauxAssistantMessage(

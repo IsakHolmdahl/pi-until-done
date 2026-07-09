@@ -39,6 +39,7 @@ const seedActive = (runtime: TestRuntime): void => {
 		northStar: makeNorthStar(),
 		confirmedByUser: true,
 		maxTurns: 100,
+		reviewerApproved: true, // Reviewer approval required before judge
 	};
 };
 
@@ -201,6 +202,8 @@ describe("until_done_unblock", () => {
 			reason: "user approved deletion",
 		});
 		expect(rt.store.state.status).toBe("active");
+		// Reviewer approval required before judge
+		rt.store.state.reviewerApproved = true;
 		rt.setLLM([
 			fauxAssistantMessage(
 				[

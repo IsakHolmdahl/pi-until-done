@@ -137,6 +137,7 @@ const executeUnblock = async (
 			status: "active",
 			lastVerdict: "continue",
 			lastReason: params.reason,
+			reviewerApproved: false, // Reset reviewer approval when resuming work
 		},
 		params.reason ?? "block cleared",
 	);

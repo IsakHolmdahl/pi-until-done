@@ -6,13 +6,15 @@ export const TOOL_DESCRIPTIONS = {
 		"Patch a single task in the live plan. Use to mark status transitions, append learnings, append gotchas, add context references, refine validation steps, or update guardrails. The .until-done/tasks.yaml file is rewritten after each call.",
 	set: "Draft the /until-done goal contract. The model fills in goal, doneCriteria, askBefore[], and decisionStyle from the conversation, then calls this tool. The goal moves from 'setup' to 'planning'; approval happens after `until_done_plan`.",
 	complete:
-		"Declare the standing /until-done goal complete. Only call this after producing externally verifiable evidence the done-criteria are satisfied.",
+		"Declare the standing /until-done goal complete. Only call this after producing externally verifiable evidence the done-criteria are satisfied. REVIEWER APPROVAL REQUIRED: You must have reviewer subagents approve the implementation before calling this tool.",
 	block:
 		"Pause the /until-done loop because user input is needed. Use when ask-before is triggered, when ambiguity blocks progress, or when an external dependency is missing.",
 	unblock:
 		"Clear a blocked /until-done goal after the user has approved the ask-before item or resolved the blocking question. Call this immediately upon receiving approval, before resuming work.",
 	progress:
 		"Record a one-line progress note for the standing goal. Optional. Useful when a turn produced partial progress but is not yet done.",
+	reviewerApprove:
+		"Signal reviewer approval or rejection of the implementation. Reviewers must call this tool to approve the implementation before the judge can be called. Call with approved=true to allow judge review, or approved=false with feedback to request changes.",
 };
 
 export const TOOL_LABELS = {
@@ -24,6 +26,7 @@ export const TOOL_LABELS = {
 	block: "Until-done block",
 	unblock: "Until-done unblock",
 	progress: "Until-done progress",
+	reviewerApprove: "Until-done reviewer approve",
 };
 
 export const TOOL_RESULTS = {
@@ -41,4 +44,6 @@ export const TOOL_RESULTS = {
 		`✓ Block cleared${reason ? `: ${reason}` : ""}. Resuming work.`,
 	progressNoted: (note: string) => `· progress noted: ${note}`,
 	progressInPhase: (phase: string, note: string) => `· [${phase}] ${note}`,
+	reviewerApproved: () => "✓ Reviewer approved implementation for judge review.",
+	reviewerRejected: () => "✗ Reviewer rejected implementation. Address feedback before requesting judge review.",
 };

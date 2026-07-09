@@ -114,7 +114,9 @@ describe("agent_start / agent_end (real runtime)", () => {
 		// turnsUsed must appear in at least one persisted patch so reconstruction preserves it
 		const hasTurnsPatch = rt
 			.getStateEntries()
-			.some((e) => (e.patch as { turnsUsed?: number })?.turnsUsed !== undefined);
+			.some(
+				(e) => (e.patch as { turnsUsed?: number })?.turnsUsed !== undefined,
+			);
 		expect(hasTurnsPatch).toBe(true);
 		// Simulate session_start reconstruction (e.g. pi restart mid-goal)
 		const fakeCtx = {
@@ -127,6 +129,8 @@ describe("agent_start / agent_end (real runtime)", () => {
 	test("completing the goal in the first turn still increments turnsUsed", async () => {
 		rt = await createTestRuntime({ withUi: true });
 		seedActive(rt);
+		// Reviewer approval required before judge
+		rt.store.state.reviewerApproved = true;
 		rt.setLLM([
 			fauxAssistantMessage(
 				[
