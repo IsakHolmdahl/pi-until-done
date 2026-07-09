@@ -81,11 +81,22 @@ const executeTaskUpdate = async (
 	const next = applyTaskPatch(original, args.patch);
 	const tasks = store.state.tasks.map((t) => (t === original ? next : t));
 	const ptrs = computePointers(store, args, tasks, next);
+	
+	// Reset reviewerApproved when starting new work
+	const patch: Partial<typeof store.state> = {
+		tasks,
+		currentTaskId: ptrs.currentTaskId,
+		phase: ptrs.phase,
+	};
+	if (args.patch.status === "in_progress") {
+		patch.reviewerApproved = false;
+	}
+	
 	persist(
 		pi,
 		store,
 		"task_update",
-		{ tasks, currentTaskId: ptrs.currentTaskId, phase: ptrs.phase },
+		patch,
 		`task ${args.id} → ${args.patch.status ?? "patched"}`,
 	);
 	writeTasksYaml(ctx.cwd, store.state);

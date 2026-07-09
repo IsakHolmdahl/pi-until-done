@@ -128,6 +128,8 @@ describe("end-to-end happy path: setup → set → plan → progress → complet
 		// `judgeModel`), so a self-judge LLM call fires inside
 		// `until_done_complete` against the active executor model. Queue a
 		// JSON verdict for the judge to consume between complete and distill.
+		// Reviewer approval required before judge
+		rt.store.state.reviewerApproved = true;
 		rt.setLLM([
 			fauxAssistantMessage(
 				[

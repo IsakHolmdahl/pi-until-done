@@ -20,6 +20,8 @@ const LIFECYCLE = {
 		"/until-done · autopilot ON. Future setups will skip the plan confirmation dialog.",
 	autopilotDisabled:
 		"/until-done · autopilot OFF. Future setups will require the plan confirmation dialog.",
+	reviewerApproved: "/until-done · Reviewer approved implementation for judge review.",
+	reviewerRejected: "/until-done · Reviewer rejected implementation. Address feedback before judge review.",
 };
 
 const INSPECTION = {

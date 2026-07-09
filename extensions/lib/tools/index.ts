@@ -4,6 +4,7 @@ import { registerDistillTool } from "./distill";
 import { registerLifecycleTools } from "./lifecycle";
 import { registerPlanTool } from "./plan";
 import { registerReplanTool } from "./replan";
+import { registerReviewerApproveTool } from "./reviewer-approve";
 import { registerTaskUpdateTool } from "./task-update";
 
 export const registerTools = (pi: ExtensionAPI, store: Store): void => {
@@ -12,4 +13,5 @@ export const registerTools = (pi: ExtensionAPI, store: Store): void => {
 	registerTaskUpdateTool(pi, store);
 	registerLifecycleTools(pi, store);
 	registerDistillTool(pi, store);
+	registerReviewerApproveTool(pi, store);
 };

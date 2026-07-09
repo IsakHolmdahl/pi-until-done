@@ -106,6 +106,16 @@ export const executeComplete = async (
 	const s = store.state;
 	if (s.status !== "active")
 		return failed(REFUSAL.noActiveGoal(s.status), "no_active_goal");
+
+	// ENFORCE REVIEWER APPROVAL BEFORE JUDGE
+	if (!s.reviewerApproved) {
+		return refused(
+			"REVIEWER APPROVAL REQUIRED: You must launch reviewer subagents and have them approve the implementation before calling until_done_complete. " +
+				"Launch reviewer subagents to review the implementation, and have them call until_done_reviewer_approve with approved=true.",
+			"reviewer_approval_required",
+		);
+	}
+
 	const decision = await decideJudge(ctx, store, params);
 	if (decision.verdict === "continue") {
 		return refuseCompletion(pi, store, decision, params);
