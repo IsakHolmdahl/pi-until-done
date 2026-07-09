@@ -131,3 +131,39 @@ export const requestPlannotatorPlanReview = async (
 		});
 	});
 };
+
+export const requestPlannotatorDocumentReview = async (
+	pi: ExtensionAPI,
+	title: string,
+	document: string,
+	signal: AbortSignal | undefined,
+): Promise<PlannotatorDecision | undefined> => {
+	const planContent = `# ${title}\n\n${document}`;
+	return new Promise((resolve) => {
+		let done = false;
+		const finish = (value: PlannotatorDecision | undefined) => {
+			if (done) return;
+			done = true;
+			resolve(value);
+		};
+
+		const initTimeout = setTimeout(
+			() => finish(undefined),
+			PLANNOTATOR_TIMEOUT_MS,
+		);
+
+		signal?.addEventListener(
+			"abort",
+			() => {
+				clearTimeout(initTimeout);
+				finish(undefined);
+			},
+			{ once: true },
+		);
+
+		emitPlanReview(pi, planContent, (response) => {
+			clearTimeout(initTimeout);
+			handleReviewStart(response, pi, signal, finish);
+		});
+	});
+};
