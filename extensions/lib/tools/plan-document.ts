@@ -3,9 +3,11 @@ import type {
 	ExtensionContext,
 } from "@mariozechner/pi-coding-agent";
 import type { Static } from "typebox";
+import { requestPlannotatorDocumentReview } from "../plannotator";
 import { PlanDocumentParams } from "../schemas/plan-document";
 import { persist, type Store } from "../store";
 import {
+	DIALOGS,
 	NOTIFY,
 	TOOL_DESCRIPTIONS,
 	TOOL_LABELS,
@@ -33,22 +35,20 @@ const executePlanDocument = async (
 	pi: ExtensionAPI,
 	store: Store,
 	params: PlanDocumentInput,
+	signal: AbortSignal | undefined,
 	ctx: ExtensionContext,
 ) => {
 	const err = validatePlanDocument(store, params);
 	if (err) return refused(err, "invalid_state");
 
-	// Generate goal slug for directory name
 	const goalSlug = store.state.goal
 		.toLowerCase()
 		.replace(/[^a-z0-9]+/g, "-")
 		.replace(/^-+|-+$/g, "")
 		.slice(0, 50);
 
-	// Write plan document to .pi/until-done/{goal-name}/plan.md
 	const planPath = writePlanDocument(ctx.cwd, goalSlug, params.planDocument);
 
-	// Update state
 	persist(
 		pi,
 		store,
@@ -60,66 +60,84 @@ const executePlanDocument = async (
 		"Plan document submitted",
 	);
 
-	// Try plannotator review
-	// TODO: Implement plannotator review for plan document
-	// For now, auto-approve if no UI, otherwise show confirmation
-	if (!ctx.hasUI) {
-		persist(
-			pi,
-			store,
-			"plan_document_approved",
-			{
-				planningPhase: "tasks",
-			},
-			"Plan document auto-approved",
-		);
-		return ok(TOOL_RESULTS.planDocumentApproved(planPath), {
-			approved: true,
-			nextPhase: "tasks",
-		});
+	// Try plannotator review first
+	const decision = await requestPlannotatorDocumentReview(
+		pi,
+		"/until-done plan document",
+		params.planDocument,
+		signal,
+	);
+	if (decision) {
+		if (decision.approved) {
+			return approvePlanDocument(pi, store, ctx, planPath);
+		} else {
+			return rejectPlanDocument(pi, store, ctx, decision.feedback);
+		}
 	}
 
-	// Show confirmation dialog
+	// No plannotator — fall back to user confirmation
+	if (store.autopilotEnabled || !ctx.hasUI) {
+		return approvePlanDocument(pi, store, ctx, planPath);
+	}
+
 	const confirmed = await ctx.ui.confirm(
-		"Approve plan document?",
+		DIALOGS.approveTitle,
 		`Plan document saved to: ${planPath}\n\nDo you want to approve this plan and proceed to task generation?`,
 	);
 
 	if (confirmed) {
-		persist(
-			pi,
-			store,
-			"plan_document_approved",
-			{
-				planningPhase: "tasks",
-			},
-			"Plan document approved",
-		);
-		ctx.ui.notify(NOTIFY.planDocumentApproved, "info");
-		refreshStatus(store, ctx);
-		refreshWidget(store, ctx, true);
-		return ok(TOOL_RESULTS.planDocumentApproved(planPath), {
-			approved: true,
-			nextPhase: "tasks",
-		});
+		return approvePlanDocument(pi, store, ctx, planPath);
 	} else {
-		persist(
-			pi,
-			store,
-			"plan_document_rejected",
-			{
-				planningPhase: "document",
-			},
-			"Plan document rejected",
-		);
-		ctx.ui.notify(NOTIFY.planDocumentRejected, "warning");
-		refreshStatus(store, ctx);
-		refreshWidget(store, ctx, true);
-		return refused(
-			TOOL_RESULTS.planDocumentRejected(),
-			"plan_document_rejected",
-		);
+		return rejectPlanDocument(pi, store, ctx);
 	}
+};
+
+const approvePlanDocument = (
+	pi: ExtensionAPI,
+	store: Store,
+	ctx: ExtensionContext,
+	planPath: string,
+) => {
+	persist(
+		pi,
+		store,
+		"plan_document_approved",
+		{
+			planningPhase: "tasks",
+		},
+		"Plan document approved",
+	);
+	ctx.ui.notify(NOTIFY.planDocumentApproved, "info");
+	refreshStatus(store, ctx);
+	refreshWidget(store, ctx, true);
+	return ok(TOOL_RESULTS.planDocumentApproved(planPath), {
+		approved: true,
+		nextPhase: "tasks",
+	});
+};
+
+const rejectPlanDocument = (
+	pi: ExtensionAPI,
+	store: Store,
+	ctx: ExtensionContext,
+	feedback?: string,
+) => {
+	persist(
+		pi,
+		store,
+		"plan_document_rejected",
+		{
+			planningPhase: "document",
+		},
+		feedback ?? "Plan document rejected",
+	);
+	ctx.ui.notify(NOTIFY.planDocumentRejected, "warning");
+	refreshStatus(store, ctx);
+	refreshWidget(store, ctx, true);
+	return refused(
+		feedback ?? TOOL_RESULTS.planDocumentRejected(),
+		"plan_document_rejected",
+	);
 };
 
 export const registerPlanDocumentTool = (
@@ -131,8 +149,8 @@ export const registerPlanDocumentTool = (
 		label: TOOL_LABELS.planDocument,
 		description: TOOL_DESCRIPTIONS.planDocument,
 		parameters: PlanDocumentParams,
-		async execute(_id, params, _signal, _onUpdate, ctx) {
-			return executePlanDocument(pi, store, params, ctx);
+		async execute(_id, params, signal, _onUpdate, ctx) {
+			return executePlanDocument(pi, store, params, signal, ctx);
 		},
 	});
 };
