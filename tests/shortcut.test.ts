@@ -46,16 +46,16 @@ const buildStore = (expanded = false): Store =>
 	}) as Store;
 
 describe("registerShortcut", () => {
-	test("registers ctrl+i to toggle widget expansion", () => {
+	test("registers ctrl+shift+i to toggle widget expansion", () => {
 		const captured: CapturedShortcut[] = [];
 		const store = buildStore(false);
 		registerShortcut(buildMockPi(captured), store);
-		const toggle = captured.find((c) => c.key === "ctrl+i");
+		const toggle = captured.find((c) => c.key === "ctrl+shift+i");
 		expect(toggle).toBeDefined();
 		expect(toggle?.description).toContain("expand");
 	});
 
-	test("ctrl+i handler flips widgetExpanded and refreshes the widget", () => {
+	test("ctrl+shift+i handler flips widgetExpanded and refreshes the widget", () => {
 		const captured: CapturedShortcut[] = [];
 		const store = buildStore(false);
 		store.state = {
@@ -76,7 +76,7 @@ describe("registerShortcut", () => {
 		};
 
 		registerShortcut(buildMockPi(captured), store);
-		const toggle = captured.find((c) => c.key === "ctrl+i")?.handler;
+		const toggle = captured.find((c) => c.key === "ctrl+shift+i")?.handler;
 		expect(toggle).toBeDefined();
 
 		toggle?.(ctx as never);
