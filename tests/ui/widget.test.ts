@@ -179,8 +179,8 @@ describe("refreshWidget", () => {
 		});
 		refreshWidget(store, buildMockCtx(calls), true);
 		const titleLine = calls[0].lines?.[1] ?? "";
-		// Should be truncated to 50 chars + "..." = 53 chars max
-		expect(titleLine.length).toBeLessThanOrEqual(53 + 10); // +10 for "  goal: " prefix
+		// Should be truncated to 50 chars + "..." = 53 chars + prefix + hint suffix
+		expect(titleLine.length).toBeLessThanOrEqual(53 + 10 + 20); // +10 for "  goal: " prefix, +20 for "  → ctrl+shift+i"
 		expect(titleLine).toContain("...");
 	});
 });
