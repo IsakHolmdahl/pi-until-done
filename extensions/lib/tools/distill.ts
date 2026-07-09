@@ -13,10 +13,11 @@ type DistillInput = Static<typeof DistillParams>;
 
 const writeDistilledFile = (
 	cwd: string,
+	goalSlug: string,
 	prdMarkdown: string,
 ): string | undefined => {
 	try {
-		const dir = path.join(cwd, ".until-done");
+		const dir = path.join(cwd, ".pi", "until-done", goalSlug);
 		fs.mkdirSync(dir, { recursive: true });
 		const file = path.join(dir, "distilled.md");
 		fs.writeFileSync(file, prdMarkdown);
@@ -39,6 +40,11 @@ const executeDistill = async (
 			"not_done",
 		);
 	}
+	const goalSlug = store.state.goal
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-+|-+$/g, "")
+		.slice(0, 50);
 	persist(
 		pi,
 		store,
@@ -46,7 +52,7 @@ const executeDistill = async (
 		{ distilled: params.prdMarkdown },
 		"distilled",
 	);
-	const written = writeDistilledFile(ctx.cwd, params.prdMarkdown);
+	const written = writeDistilledFile(ctx.cwd, goalSlug, params.prdMarkdown);
 	const tail = written ? ` Wrote ${written}.` : "";
 	return ok(`✓ Distilled the journey into a PRD.${tail}`, { wrote: written });
 };
@@ -56,7 +62,7 @@ export const registerDistillTool = (pi: ExtensionAPI, store: Store): void => {
 		name: "until_done_distill",
 		label: "Until-done distill",
 		description:
-			"After until_done_complete, compile the loop's journey into a PRD-shaped summary: problem, discovered solution shape, learnings, gotchas, useful surfaces, follow-up tasks. Exploratory goals especially benefit — the scrappy branch that achieved the goal becomes a spec future builds can implement cleanly. Output is written to .until-done/distilled.md.",
+			"After until_done_complete, compile the loop's journey into a PRD-shaped summary: problem, discovered solution shape, learnings, gotchas, useful surfaces, follow-up tasks. Output is written to .pi/until-done/{goal-name}/distilled.md.",
 		parameters: DistillParams,
 		async execute(_id, params, _signal, _onUpdate, ctx) {
 			return executeDistill(pi, store, params, ctx);
