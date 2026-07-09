@@ -10,6 +10,7 @@ export const WIDGET = {
 	budget: (used: number, max: number) => `  budget: ${used}/${max}`,
 	verdict: (kind: string, reason: string) =>
 		`  last verdict: ${kind} — ${reason}`,
+	collapseHint: "  ctrl+shift+i → expand",
 };
 
 export const STATUS = {
