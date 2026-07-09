@@ -69,12 +69,13 @@ const waitForResult = (
 const emitPlanReview = (
 	pi: ExtensionAPI,
 	planContent: string,
+	planFilePath: string | undefined,
 	respond: (response: ReviewStartResponse) => void,
 ): void => {
 	pi.events.emit(REQUEST_CHANNEL, {
 		requestId: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
 		action: "plan-review",
-		payload: { planContent },
+		payload: { planContent, planFilePath },
 		respond,
 	});
 };
@@ -100,6 +101,7 @@ export const requestPlannotatorPlanReview = async (
 	pi: ExtensionAPI,
 	tasks: Task[],
 	signal: AbortSignal | undefined,
+	planFilePath?: string,
 ): Promise<PlannotatorDecision | undefined> => {
 	const planContent = formatPlanForPlannotator(tasks);
 	return new Promise((resolve) => {
@@ -125,7 +127,7 @@ export const requestPlannotatorPlanReview = async (
 			{ once: true },
 		);
 
-		emitPlanReview(pi, planContent, (response) => {
+		emitPlanReview(pi, planContent, planFilePath, (response) => {
 			clearTimeout(initTimeout);
 			handleReviewStart(response, pi, signal, finish);
 		});
@@ -136,6 +138,7 @@ export const requestPlannotatorDocumentReview = async (
 	pi: ExtensionAPI,
 	title: string,
 	document: string,
+	planFilePath: string | undefined,
 	signal: AbortSignal | undefined,
 ): Promise<PlannotatorDecision | undefined> => {
 	const planContent = `# ${title}\n\n${document}`;
@@ -161,7 +164,7 @@ export const requestPlannotatorDocumentReview = async (
 			{ once: true },
 		);
 
-		emitPlanReview(pi, planContent, (response) => {
+		emitPlanReview(pi, planContent, planFilePath, (response) => {
 			clearTimeout(initTimeout);
 			handleReviewStart(response, pi, signal, finish);
 		});

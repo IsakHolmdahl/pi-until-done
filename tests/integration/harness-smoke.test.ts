@@ -22,12 +22,12 @@ describe("runtime harness smoke", () => {
 		runtime = await createTestRuntime();
 		const tools = runtime.session.getAllTools().map((t) => t.name);
 		const required = [
-			"until_done_set",
+			"until_done_set_contract",
 			"until_done_complete",
 			"until_done_block",
 			"until_done_unblock",
 			"until_done_progress",
-			"until_done_plan",
+			"until_done_propose_plan",
 			"until_done_replan",
 			"until_done_task_update",
 			"until_done_distill",

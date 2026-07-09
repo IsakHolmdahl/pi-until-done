@@ -38,7 +38,7 @@ describe("end-to-end happy path: setup → set → plan → progress → complet
 		rt.setLLM([
 			fauxAssistantMessage(
 				[
-					fauxToolCall("until_done_set", {
+					fauxToolCall("until_done_set_contract", {
 						goal: "implement /healthz endpoint",
 						doneCriteria: "GET /healthz returns 200 with {ok:true}",
 						verifyCommand: "bun test",
@@ -67,7 +67,7 @@ describe("end-to-end happy path: setup → set → plan → progress → complet
 		rt.setLLM([
 			fauxAssistantMessage(
 				[
-					fauxToolCall("until_done_plan", {
+					fauxToolCall("until_done_propose_plan", {
 						tasks: [
 							makeTask({ id: "T-001", title: "add route", phase: "red" }),
 							makeTask({

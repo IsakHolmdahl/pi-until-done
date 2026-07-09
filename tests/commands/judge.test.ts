@@ -101,7 +101,7 @@ describe("judgeDefault feeds into until_done_set", () => {
 		// @ts-expect-error — testing the no-judge-args path explicitly
 		params.sameModelJudge = undefined;
 		rt.setLLM([
-			fauxAssistantMessage([fauxToolCall("until_done_set", params)], {
+			fauxAssistantMessage([fauxToolCall("until_done_set_contract", params)], {
 				stopReason: "toolUse",
 			}),
 			fauxAssistantMessage("done", { stopReason: "stop" }),
@@ -120,7 +120,7 @@ describe("judgeDefault feeds into until_done_set", () => {
 		// @ts-expect-error — testing fill-in
 		params.sameModelJudge = undefined;
 		rt.setLLM([
-			fauxAssistantMessage([fauxToolCall("until_done_set", params)], {
+			fauxAssistantMessage([fauxToolCall("until_done_set_contract", params)], {
 				stopReason: "toolUse",
 			}),
 			fauxAssistantMessage("done", { stopReason: "stop" }),
@@ -140,7 +140,7 @@ describe("judgeDefault feeds into until_done_set", () => {
 		rt.store.state.id = "ud-test";
 		const params = { ...makeSetParams(), sameModelJudge: true };
 		rt.setLLM([
-			fauxAssistantMessage([fauxToolCall("until_done_set", params)], {
+			fauxAssistantMessage([fauxToolCall("until_done_set_contract", params)], {
 				stopReason: "toolUse",
 			}),
 			fauxAssistantMessage("done", { stopReason: "stop" }),

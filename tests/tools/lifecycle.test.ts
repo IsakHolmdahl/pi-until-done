@@ -43,11 +43,11 @@ const seedActive = (runtime: TestRuntime): void => {
 	};
 };
 
-describe("until_done_set", () => {
+describe("until_done_set_contract", () => {
 	test("drafts the contract and moves to planning (status: setup → planning)", async () => {
 		rt = await createTestRuntime();
 		seedSetup(rt);
-		await driveToolCall(rt, "until_done_set", makeSetParams());
+		await driveToolCall(rt, "until_done_set_contract", makeSetParams());
 		expect(rt.store.state.status).toBe("planning");
 		expect(rt.store.state.northStar?.goal).toBe("ship X");
 		expect(rt.store.state.northStar?.doneCriteria).toBe("all green");
@@ -58,7 +58,7 @@ describe("until_done_set", () => {
 	test("stores widgetTitle for the compact widget display", async () => {
 		rt = await createTestRuntime();
 		seedSetup(rt);
-		await driveToolCall(rt, "until_done_set", {
+		await driveToolCall(rt, "until_done_set_contract", {
 			...makeSetParams(),
 			widgetTitle: "ship the refactor",
 		});
@@ -69,7 +69,7 @@ describe("until_done_set", () => {
 	test("rejects when status is anything other than 'setup' (closes README #22 hole)", async () => {
 		rt = await createTestRuntime();
 		seedActive(rt);
-		await driveToolCall(rt, "until_done_set", makeSetParams());
+		await driveToolCall(rt, "until_done_set_contract", makeSetParams());
 		expect(rt.store.state.status).toBe("active");
 		// Original North Star unchanged
 		expect(rt.store.state.northStar?.goal).toBe("ship X");
@@ -79,14 +79,14 @@ describe("until_done_set", () => {
 		rt = await createTestRuntime();
 		seedActive(rt);
 		rt.store.state.status = "done";
-		await driveToolCall(rt, "until_done_set", makeSetParams());
+		await driveToolCall(rt, "until_done_set_contract", makeSetParams());
 		expect(rt.store.state.status).toBe("done");
 	});
 
 	test("honors a within-range maxTurns override", async () => {
 		rt = await createTestRuntime();
 		seedSetup(rt);
-		await driveToolCall(rt, "until_done_set", {
+		await driveToolCall(rt, "until_done_set_contract", {
 			...makeSetParams(),
 			maxTurns: 250,
 		});
@@ -96,7 +96,7 @@ describe("until_done_set", () => {
 	test("schema rejects maxTurns past HARD_BUDGET_CEILING (LLM never sees the run)", async () => {
 		rt = await createTestRuntime();
 		seedSetup(rt);
-		await driveToolCall(rt, "until_done_set", {
+		await driveToolCall(rt, "until_done_set_contract", {
 			...makeSetParams(),
 			maxTurns: 99999,
 		});
