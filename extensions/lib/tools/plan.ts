@@ -51,6 +51,8 @@ const grantPlanApproval = (
 		note,
 	);
 	ctx.ui.notify(NOTIFY.planApproved, "info");
+	refreshStatus(store, ctx);
+	refreshWidget(store, ctx, true);
 	pi.sendUserMessage("Approved. Begin work on the first task.");
 };
 
