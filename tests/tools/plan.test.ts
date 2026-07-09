@@ -17,11 +17,11 @@ afterEach(async () => {
 	rt = undefined;
 });
 
-describe("until_done_plan", () => {
+describe("until_done_propose_plan", () => {
 	test("rejects unknown dependency", async () => {
 		rt = await createTestRuntime();
 		seedActive(rt);
-		await driveToolCall(rt, "until_done_plan", {
+		await driveToolCall(rt, "until_done_propose_plan", {
 			tasks: [
 				makeTask({ id: "T-001", dependencies: ["T-NOT-REAL"] }),
 				makeTask({ id: "T-002" }),
@@ -34,7 +34,7 @@ describe("until_done_plan", () => {
 	test("accepts a valid plan; first dep-free task becomes current", async () => {
 		rt = await createTestRuntime();
 		seedActive(rt);
-		await driveToolCall(rt, "until_done_plan", {
+		await driveToolCall(rt, "until_done_propose_plan", {
 			tasks: [
 				makeTask({ id: "T-001", phase: "red" }),
 				makeTask({ id: "T-002", dependencies: ["T-001"] }),
@@ -49,7 +49,7 @@ describe("until_done_plan", () => {
 	test("writes real tasks.yaml to cwd/.until-done/", async () => {
 		rt = await createTestRuntime();
 		seedActive(rt);
-		await driveToolCall(rt, "until_done_plan", {
+		await driveToolCall(rt, "until_done_propose_plan", {
 			tasks: [makeTask({ id: "T-001" })],
 		});
 		const yamlPath = join(rt.cwd, ".until-done", "tasks.yaml");
@@ -62,7 +62,7 @@ describe("until_done_plan", () => {
 		rt = await createTestRuntime();
 		seedActive(rt);
 		rt.store.state.status = "paused";
-		await driveToolCall(rt, "until_done_plan", {
+		await driveToolCall(rt, "until_done_propose_plan", {
 			tasks: [makeTask()],
 		});
 		expect(rt.store.state.tasks).toHaveLength(0);
@@ -89,7 +89,7 @@ describe("until_done_plan", () => {
 			maxTurns: 100,
 			planningPhase: "tasks",
 		};
-		await driveToolCall(rt, "until_done_plan", {
+		await driveToolCall(rt, "until_done_propose_plan", {
 			tasks: [makeTask({ id: "T-001" })],
 		});
 		expect(rt.store.state.status as string).toBe("active");
@@ -120,7 +120,7 @@ describe("until_done_plan", () => {
 			maxTurns: 100,
 			planningPhase: "tasks",
 		};
-		await driveToolCall(rt, "until_done_plan", {
+		await driveToolCall(rt, "until_done_propose_plan", {
 			tasks: [makeTask({ id: "T-001" })],
 		});
 		expect(rt.store.state.status).toBe("planning");
@@ -148,7 +148,7 @@ describe("until_done_plan", () => {
 			maxTurns: 100,
 			planningPhase: "tasks",
 		};
-		await driveToolCall(rt, "until_done_plan", {
+		await driveToolCall(rt, "until_done_propose_plan", {
 			tasks: [makeTask({ id: "T-001" })],
 		});
 		expect(rt.store.state.status).toBe("active");
@@ -178,7 +178,7 @@ describe("until_done_plan", () => {
 			maxTurns: 100,
 			planningPhase: "tasks",
 		};
-		await driveToolCall(rt, "until_done_plan", {
+		await driveToolCall(rt, "until_done_propose_plan", {
 			tasks: [makeTask({ id: "T-001" })],
 		});
 		expect(rt.store.state.status).toBe("planning");

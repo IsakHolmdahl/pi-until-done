@@ -65,6 +65,7 @@ const executePlanDocument = async (
 		pi,
 		"/until-done plan document",
 		params.planDocument,
+		planPath,
 		signal,
 	);
 	if (decision) {
@@ -145,9 +146,9 @@ export const registerPlanDocumentTool = (
 	store: Store,
 ): void => {
 	pi.registerTool({
-		name: "until_done_plan_document",
-		label: TOOL_LABELS.planDocument,
-		description: TOOL_DESCRIPTIONS.planDocument,
+		name: "until_done_draft_plan",
+		label: TOOL_LABELS.draftPlan,
+		description: TOOL_DESCRIPTIONS.draftPlan,
 		parameters: PlanDocumentParams,
 		async execute(_id, params, signal, _onUpdate, ctx) {
 			return executePlanDocument(pi, store, params, signal, ctx);

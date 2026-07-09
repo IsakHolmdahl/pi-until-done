@@ -25,7 +25,7 @@ const PHASE_1 = [
 	"   • goalType — ticket | exploratory (see PHASE 0)",
 	"   • surfaces[] — list of {kind, location, notes?} for every data source / staging access / dashboard / sandbox the user has provided",
 	"   • startPhase — analysis | bootstrap | red | green | refactor | cleanup | none",
-	"   • Judge mode — REQUIRED. Every until_done_complete is gated by an LLM judge. Pick exactly one (until_done_set will refuse with judge_unspecified if both are missing AND the user has not pre-configured /until-done judge):",
+	"   • Judge mode — REQUIRED. Every until_done_complete is gated by an LLM judge. Pick exactly one (until_done_set_contract will refuse with judge_unspecified if both are missing AND the user has not pre-configured /until-done judge):",
 	"       - judgeModel: { provider, modelId } — RECOMMENDED. A model DIFFERENT from the executor. Cross-model is the standard fix for Ralph-loop oscillation. If the user has not specified one in their intent, ASK in the contract dialog: 'Which model should judge completion? Pick one different from the executor for strongest convergence (e.g. anthropic/claude-opus-4-7 if the executor is claude-sonnet-4-6).'",
 	"       - sameModelJudge: true — fallback when no second model is available. The executor self-judges with a fresh, completion-focused context. Strictly weaker than cross-model.",
 	"     The user can also pre-configure a session default with /until-done judge <provider>/<modelId> (or /until-done judge same). If they have, the extension fills it in when you omit both fields — surface that to the user in the contract dialog so they can confirm.",
@@ -34,7 +34,7 @@ const PHASE_1 = [
 const PHASE_2 = [
 	"PHASE 2 — PLAN DOCUMENT (you draft as markdown, plannotator reviews)",
 	"3. Write a plan document explaining the approach, architecture decisions, and implementation strategy. This is a thinking document, NOT the task list.",
-	"   - Save it by calling `until_done_plan_document` with the markdown content.",
+	"   - Save it by calling `until_done_draft_plan` with the markdown content.",
 	"   - Plannotator will review the plan document first.",
 	"   - If approved, you can then generate the task list.",
 	"   - If rejected, revise the plan document and resubmit.",
@@ -44,7 +44,7 @@ const PHASE_2 = [
 	"     dependencies, blocks, prerequisites (each {description, cleared}),",
 	"     validationSteps (ordered), ciCommands, styleguideRules,",
 	"     guardrails, learnings: [], gotchas, context: [{path|url, why}].",
-	"   - Call `until_done_plan` with the full tasks array.",
+	"   - Call `until_done_propose_plan` with the full tasks array.",
 	"   - Plannotator will review the tasks YAML.",
 	"   - If approved, the goal becomes active.",
 	"   - If rejected, revise the tasks and resubmit.",
@@ -54,9 +54,10 @@ const PHASE_2 = [
 
 const PHASE_3 = [
 	"PHASE 3 — ACTIVATION",
-	"6. Call `until_done_set` with the contract fields (including goalType, surfaces, AND the judge-mode field — judgeModel or sameModelJudge — chosen in PHASE 1). This moves the goal to 'planning'.",
-	"7. Call `until_done_plan` with the full tasks array. This triggers the user approval dialog (or auto-approves if autopilot is on).",
-	"8. After the user approves, begin work on the first task with no dependencies.",
+	"6. Call `until_done_set_contract` with the contract fields (including goalType, surfaces, AND the judge-mode field — judgeModel or sameModelJudge — chosen in PHASE 1). This moves the goal to 'planning'.",
+	"7. Call `until_done_draft_plan` with a markdown plan document. This opens in plannotator for review.",
+	"8. After the plan document is approved, call `until_done_propose_plan` with the full tasks array. This opens in plannotator for review.",
+	"9. After the tasks are approved, begin work on the first task with no dependencies.",
 ];
 
 const PHASE_4 = [
@@ -96,5 +97,5 @@ export const setupPrompt = (intent: string): string =>
 		"",
 		...PHASE_4,
 		"",
-		"DO NOT call `until_done_set` or `until_done_plan` until you have drafted the contract and task plan in PHASES 1 and 2.",
+		"DO NOT call `until_done_set_contract` or `until_done_propose_plan` until you have drafted the contract and task plan in PHASES 1 and 2.",
 	].join("\n");

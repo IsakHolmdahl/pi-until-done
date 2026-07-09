@@ -30,7 +30,7 @@ export const FLAG_DESCRIPTION =
 	"Set a standing goal at startup and pursue it autonomously.";
 
 export const TOOL_PROMPT_SNIPPET =
-	"until_done_set: draft the /until-done goal contract; approval happens after until_done_plan.";
+	"until_done_set_contract: draft the /until-done North Star contract; approval happens via plannotator on until_done_draft_plan and until_done_propose_plan.";
 
 export const WORKING_MESSAGE_PREFIX = "pursuing: ";
 

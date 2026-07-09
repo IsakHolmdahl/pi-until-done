@@ -52,7 +52,7 @@ describe("until_done_set with judgeModel parameter", () => {
 	test("schema accepts judgeModel field; round-trips through executeSet → northStar", async () => {
 		rt = await createTestRuntime({ withJudge: true });
 		seedSetup(rt);
-		await driveToolCall(rt, "until_done_set", {
+		await driveToolCall(rt, "until_done_set_contract", {
 			...makeSetParams(),
 			judgeModel: makeJudgeModel(),
 		});
@@ -63,7 +63,7 @@ describe("until_done_set with judgeModel parameter", () => {
 	test("judgeModel is optional — backwards compatible", async () => {
 		rt = await createTestRuntime();
 		seedSetup(rt);
-		await driveToolCall(rt, "until_done_set", makeSetParams());
+		await driveToolCall(rt, "until_done_set_contract", makeSetParams());
 		expect(rt.store.state.status as string).toBe("planning");
 		expect(rt.store.state.northStar?.judgeModel).toBeUndefined();
 	});
@@ -157,7 +157,7 @@ describe("until_done_set requires an explicit judge mode", () => {
 		// @ts-expect-error — strip the test-default sameModelJudge to simulate
 		// a setup call with no judge mode picked
 		params.sameModelJudge = undefined;
-		await driveToolCall(rt, "until_done_set", params);
+		await driveToolCall(rt, "until_done_set_contract", params);
 		// Setup remains in `setup` (not advanced to `active`)
 		expect(rt.store.state.status).toBe("setup");
 	});
@@ -165,7 +165,7 @@ describe("until_done_set requires an explicit judge mode", () => {
 	test("sameModelJudge: true round-trips through executeSet → northStar", async () => {
 		rt = await createTestRuntime();
 		seedSetup(rt);
-		await driveToolCall(rt, "until_done_set", {
+		await driveToolCall(rt, "until_done_set_contract", {
 			...makeSetParams(),
 			sameModelJudge: true,
 		});

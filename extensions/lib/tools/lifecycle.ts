@@ -162,9 +162,9 @@ const executeProgress = async (
 
 const registerSet = (pi: ExtensionAPI, store: Store) => {
 	pi.registerTool({
-		name: "until_done_set",
-		label: TOOL_LABELS.set,
-		description: TOOL_DESCRIPTIONS.set,
+		name: "until_done_set_contract",
+		label: TOOL_LABELS.setContract,
+		description: TOOL_DESCRIPTIONS.setContract,
 		parameters: SetParams,
 		promptSnippet: TOOL_PROMPT_SNIPPET,
 		async execute(_id, params) {

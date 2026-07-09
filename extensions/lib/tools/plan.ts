@@ -90,6 +90,7 @@ const tryPlannotatorApproval = async (
 		pi,
 		store.state.tasks,
 		signal,
+		store.state.tasksYamlPath,
 	);
 	if (!decision) return undefined;
 	if (decision.approved) {
@@ -208,9 +209,9 @@ const executePlan = async (
 
 export const registerPlanTool = (pi: ExtensionAPI, store: Store): void => {
 	pi.registerTool({
-		name: "until_done_plan",
-		label: TOOL_LABELS.plan,
-		description: TOOL_DESCRIPTIONS.plan,
+		name: "until_done_propose_plan",
+		label: TOOL_LABELS.proposePlan,
+		description: TOOL_DESCRIPTIONS.proposePlan,
 		parameters: PlanParams,
 		async execute(_id, params, signal, _onUpdate, ctx) {
 			return executePlan(pi, store, params, signal, ctx);
