@@ -7,7 +7,7 @@ export interface UiTrace {
 	selectAnswers: Array<string | undefined>;
 	notifies: Array<{ message: string; type: string | undefined }>;
 	statuses: Array<{ key: string; text: string | undefined }>;
-	widgets: Array<{ key: string; hasContent: boolean }>;
+	widgets: Array<{ key: string; hasContent: boolean; lines?: string[] }>;
 	titles: string[];
 	workingMessages: Array<string | undefined>;
 }
@@ -67,7 +67,11 @@ export const buildUi = (
 	setWorkingIndicator: () => {},
 	setHiddenThinkingLabel: () => {},
 	setWidget: ((key: string, content: unknown) => {
-		trace.widgets.push({ key, hasContent: content !== undefined });
+		trace.widgets.push({
+			key,
+			hasContent: content !== undefined,
+			lines: Array.isArray(content) ? (content as string[]) : undefined,
+		});
 	}) as ExtensionUIContext["setWidget"],
 	setFooter: () => {},
 	setHeader: () => {},

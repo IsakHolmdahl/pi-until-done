@@ -1,7 +1,7 @@
 {
   "name": "pi-until-done",
   "version": "0.2.2",
-  "description": "Pi extension that brings Hermes Agent's /goal (Ralph loop with judge) to Pi as /until-done. Pi self-judges every turn, runs verifyCommand to confirm done, and routes all CI/CD through mise across 18 language profiles.",
+  "description": "Pi extension that brings Hermes Agent's /goal (Ralph loop with judge) to Pi as /until-done. Pi self-judges every turn, runs verifyCommand to confirm done, and routes CI/CD through the project's language profiles.",
   "license": "MIT",
   "author": {
     "name": "Kiren Srinivasan",
@@ -31,7 +31,6 @@
     "agent",
     "hermes",
     "tdd",
-    "mise",
     "ci-cd",
     "verifier",
     "self-judge"
@@ -47,12 +46,22 @@
     "CONTRIBUTING.md",
     "LICENSE",
     "README.md",
-    "SECURITY.md",
-    "mise.toml"
+    "SECURITY.md"
   ],
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "bunx tsc --noEmit",
+    "lint": "bunx biome check extensions tests",
+    "format": "bunx biome format extensions tests",
+    "check": "bun run typecheck && bun run lint",
+    "ci": "bun run check && bun test",
+    "release-ready": "bun run ci"
+  },
   "pi": {
     "extensions": [
-      "./extensions/until-done.ts"
+      "./extensions/until-done.ts",
+      "@plannotator/pi-extension",
+      "pi-subagents"
     ],
     "skills": [
       "./skills"
@@ -82,7 +91,9 @@
     "typescript": "*"
   },
   "dependencies": {
-    "yaml": "^2.8.4"
+    "yaml": "^2.8.4",
+    "@plannotator/pi-extension": "^0.22.0",
+    "pi-subagents": "^0.34.0"
   },
   "publishConfig": {
     "access": "public"

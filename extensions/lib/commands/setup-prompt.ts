@@ -9,6 +9,7 @@ const PHASE_0 = [
 	'     • EXPLORATORY — only the destination is known ("cut p95 by 20%", "feature parity with Mac"). Plan emerges by running.',
 	"0c. Interview the user — one or two short questions — to nail down: the verifyCommand (or measurable target), goal type, and which surfaces (logs, metrics, staging URL, flame graphs, cost data, sandbox cluster, etc.) are accessible. A goal is only as effective as the surfaces it can act on.",
 	"0d. If the goal is exploratory and the user has not yet pointed you at any surfaces, surface that gap explicitly before proceeding.",
+	"0e. USE SUBAGENTS FOR ANALYSIS: Launch `scout` subagents to map the codebase and understand existing patterns. Launch `researcher` subagents to gather external documentation or best practices. Run these in parallel for efficiency.",
 ];
 
 const PHASE_1 = [
@@ -16,6 +17,7 @@ const PHASE_1 = [
 	"1. Apply pi-config TDD discipline: ANALYSIS → BOOTSTRAP → RED → GREEN → REFACTOR → CLEANUP.",
 	"2. Draft the contract:",
 	"   • outcome — one-line restatement",
+	"   • widgetTitle — RECOMMENDED. Short human-readable label (≤50 chars) for the compact status widget. If omitted, the extension auto-derives one from the goal. Set this to a concise summary that fits in a status widget.",
 	"   • done-criteria — externally verifiable; must include 'all tests in <verifyCommand> pass' for production-code goals",
 	"   • verifyCommand — the single shell command that proves done (e.g. 'bun test'); omit for research/doc",
 	"   • ask-before — operations requiring user approval (be specific)",
@@ -55,16 +57,18 @@ const PHASE_3 = [
 const PHASE_4 = [
 	"PHASE 4 — EXECUTION",
 	"9. For each task:",
-	"   - Call `until_done_task_update` with status='in_progress' before starting.",
-	"   - Apply phase discipline: RED before GREEN, GREEN before REFACTOR, REFACTOR before CLEANUP.",
-	"   - Append learnings (`addLearning`) and gotchas (`addGotcha`) as you discover them — these feed `until_done_distill` at the end.",
-	"   - Add files/URLs you needed via `addContext`.",
-	"   - Run validationSteps and ciCommands.",
-	"   - When done, `until_done_task_update` with status='done'.",
-	"10. When ALL tasks are done AND verifyCommand passes (with quoted output), call `until_done_complete`. The cross-model judge runs inside that call: it sees only the goal, done-criteria, verifyCommand, and your cited evidence — nothing else from this conversation. Cite evidence the judge can verify literally (paste command output, reference file paths). Don't paraphrase. If the judge returns 'continue', re-read its reason, address the specific gap, then call `until_done_complete` again with stronger evidence — re-running with the same evidence will be rejected again.",
-	"11. After complete, call `until_done_distill` to compile the journey into a PRD-shaped summary the user can act on.",
-	"12. If you hit an ask-before boundary, the loop is paused until the user approves. IMMEDIATELY upon approval, call `until_done_unblock` to clear the blocked state before resuming work. Until you do this, `until_done_task_update` with status='in_progress' or status='done' will be refused.",
-	"13. If blocked for any other reason, call `until_done_block` and wait for the user.",
+	"   - USE WORKER SUBAGENT FOR IMPLEMENTATION: Launch a `worker` subagent to implement each task. The worker is the single writer for the active worktree. Give it the task details, context, validation steps, and success criteria.",
+	"   - The worker should call `until_done_task_update` with status='in_progress' before starting.",
+	"   - The worker should apply phase discipline: RED before GREEN, GREEN before REFACTOR, REFACTOR before CLEANUP.",
+	"   - The worker should append learnings (`addLearning`) and gotchas (`addGotcha`) as it discovers them.",
+	"   - The worker should add files/URLs via `addContext`.",
+	"   - The worker should run validationSteps and ciCommands.",
+	"   - When done, the worker should call `until_done_task_update` with status='done'.",
+	"10. BEFORE CALLING THE JUDGE, USE REVIEWERS: Launch `reviewer` subagents to review the implementation. Reviewers should inspect the diff, validate against done-criteria, and confirm verifyCommand passes. Only call `until_done_complete` after reviewers approve.",
+	"11. When ALL tasks are done AND reviewers approve AND verifyCommand passes (with quoted output), call `until_done_complete`. The cross-model judge runs inside that call: it sees only the goal, done-criteria, verifyCommand, and your cited evidence — nothing else from this conversation. Cite evidence the judge can verify literally (paste command output, reference file paths). Don't paraphrase. If the judge returns 'continue', re-read its reason, address the specific gap, then call `until_done_complete` again with stronger evidence — re-running with the same evidence will be rejected again.",
+	"12. After complete, call `until_done_distill` to compile the journey into a PRD-shaped summary the user can act on.",
+	"13. If you hit an ask-before boundary, the loop is paused until the user approves. IMMEDIATELY upon approval, call `until_done_unblock` to clear the blocked state before resuming work. Until you do this, `until_done_task_update` with status='in_progress' or status='done' will be refused.",
+	"14. If blocked for any other reason, call `until_done_block` and wait for the user.",
 ];
 
 export const setupPrompt = (intent: string): string =>
