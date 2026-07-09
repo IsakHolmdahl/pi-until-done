@@ -87,6 +87,7 @@ describe("until_done_plan", () => {
 				surfaces: [],
 			},
 			maxTurns: 100,
+			planningPhase: "tasks",
 		};
 		await driveToolCall(rt, "until_done_plan", {
 			tasks: [makeTask({ id: "T-001" })],
@@ -117,6 +118,7 @@ describe("until_done_plan", () => {
 				surfaces: [],
 			},
 			maxTurns: 100,
+			planningPhase: "tasks",
 		};
 		await driveToolCall(rt, "until_done_plan", {
 			tasks: [makeTask({ id: "T-001" })],
@@ -144,6 +146,7 @@ describe("until_done_plan", () => {
 				surfaces: [],
 			},
 			maxTurns: 100,
+			planningPhase: "tasks",
 		};
 		await driveToolCall(rt, "until_done_plan", {
 			tasks: [makeTask({ id: "T-001" })],
@@ -173,6 +176,7 @@ describe("until_done_plan", () => {
 				surfaces: [],
 			},
 			maxTurns: 100,
+			planningPhase: "tasks",
 		};
 		await driveToolCall(rt, "until_done_plan", {
 			tasks: [makeTask({ id: "T-001" })],

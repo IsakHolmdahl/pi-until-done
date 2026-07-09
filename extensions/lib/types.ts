@@ -129,6 +129,9 @@ export interface GoalState {
 	surfaces: Surface[];
 	distilled?: string;
 	reviewerApproved?: boolean;
+	planningPhase?: "document" | "tasks" | "complete";
+	planDocumentPath?: string;
+	tasksYamlPath?: string;
 }
 
 export type StateEventKind =
@@ -149,7 +152,10 @@ export type StateEventKind =
 	| "task_update"
 	| "clean_end_nudge"
 	| "reviewer_approve"
-	| "reviewer_reject";
+	| "reviewer_reject"
+	| "plan_document"
+	| "plan_document_approved"
+	| "plan_document_rejected";
 
 export interface StateEvent {
 	kind: StateEventKind;

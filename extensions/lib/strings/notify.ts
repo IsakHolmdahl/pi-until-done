@@ -20,8 +20,14 @@ const LIFECYCLE = {
 		"/until-done · autopilot ON. Future setups will skip the plan confirmation dialog.",
 	autopilotDisabled:
 		"/until-done · autopilot OFF. Future setups will require the plan confirmation dialog.",
-	reviewerApproved: "/until-done · Reviewer approved implementation for judge review.",
-	reviewerRejected: "/until-done · Reviewer rejected implementation. Address feedback before judge review.",
+	reviewerApproved:
+		"/until-done · Reviewer approved implementation for judge review.",
+	reviewerRejected:
+		"/until-done · Reviewer rejected implementation. Address feedback before judge review.",
+	planDocumentApproved:
+		"/until-done · Plan document approved. You can now generate tasks.",
+	planDocumentRejected:
+		"/until-done · Plan document rejected. Revise and resubmit via until_done_plan_document.",
 };
 
 const INSPECTION = {

@@ -62,7 +62,8 @@ describe("end-to-end happy path: setup → set → plan → progress → complet
 
 		// Step 3: agent calls until_done_plan with two tasks. This triggers the
 		// plan approval dialog; with confirm:true the user approves and the goal
-		// becomes active.
+		// becomes active. Set planningPhase to "tasks" to simulate plan document approval.
+		rt.store.state.planningPhase = "tasks";
 		rt.setLLM([
 			fauxAssistantMessage(
 				[
