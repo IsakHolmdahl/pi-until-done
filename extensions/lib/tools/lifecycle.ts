@@ -1,4 +1,7 @@
-import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
+import type {
+	ExtensionAPI,
+	ExtensionContext,
+} from "@mariozechner/pi-coding-agent";
 import type { Static } from "typebox";
 import { HARD_BUDGET_CEILING } from "../constants";
 import {
@@ -10,12 +13,12 @@ import {
 } from "../schemas/lifecycle";
 import { persist, type Store } from "../store";
 import {
+	NOTIFY,
 	REFUSAL,
 	TOOL_DESCRIPTIONS,
 	TOOL_LABELS,
 	TOOL_PROMPT_SNIPPET,
 	TOOL_RESULTS,
-	NOTIFY,
 } from "../strings";
 import type { GoalState, NorthStar } from "../types";
 import { refreshStatus } from "../ui/status-line";

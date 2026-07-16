@@ -28,7 +28,7 @@ const budgetLine = (s: GoalState): string =>
 
 const collapsedLines = (s: GoalState): string[] => [
 	headerLine(s),
-	WIDGET.goal(displayGoal(s)) + "  → ctrl+shift+i",
+	`${WIDGET.goal(displayGoal(s))}  → ctrl+shift+i`,
 	budgetLine(s),
 ];
 

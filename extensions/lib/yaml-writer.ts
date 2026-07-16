@@ -29,13 +29,13 @@ export const writeTasksYaml = (cwd: string, s: GoalState): void => {
 
 export const writePlanDocument = (
 	cwd: string,
-	goalSlug: string,
+	goalId: string,
 	planDocument: string,
 ): string => {
 	try {
-		const dir = path.join(cwd, ".pi", "until-done", goalSlug);
+		const dir = piUntilGoalDir(cwd, goalId);
 		fs.mkdirSync(dir, { recursive: true });
-		const planPath = path.join(dir, "plan.md");
+		const planPath = `${dir}/plan.md`;
 		fs.writeFileSync(planPath, planDocument);
 		return planPath;
 	} catch {
@@ -46,13 +46,13 @@ export const writePlanDocument = (
 
 export const writeTasksYamlToPiDir = (
 	cwd: string,
-	goalSlug: string,
+	goalId: string,
 	s: GoalState,
 ): string => {
 	try {
-		const dir = path.join(cwd, ".pi", "until-done", goalSlug);
+		const dir = piUntilGoalDir(cwd, goalId);
 		fs.mkdirSync(dir, { recursive: true });
-		const tasksPath = path.join(dir, "tasks.yaml");
+		const tasksPath = `${dir}/tasks.yaml`;
 		fs.writeFileSync(tasksPath, yamlStringify(buildYaml(s)));
 		return tasksPath;
 	} catch {

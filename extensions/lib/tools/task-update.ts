@@ -81,7 +81,7 @@ const executeTaskUpdate = async (
 	const next = applyTaskPatch(original, args.patch);
 	const tasks = store.state.tasks.map((t) => (t === original ? next : t));
 	const ptrs = computePointers(store, args, tasks, next);
-	
+
 	// Reset reviewerApproved when starting new work
 	const patch: Partial<typeof store.state> = {
 		tasks,
@@ -91,7 +91,7 @@ const executeTaskUpdate = async (
 	if (args.patch.status === "in_progress") {
 		patch.reviewerApproved = false;
 	}
-	
+
 	persist(
 		pi,
 		store,
