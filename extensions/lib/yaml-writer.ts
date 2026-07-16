@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
-import * as path from "node:path";
 import { stringify as yamlStringify } from "yaml";
+import { piUntilGoalDir } from "./paths";
 import type { GoalState } from "./types";
 
 const buildYaml = (s: GoalState) => ({
@@ -19,9 +19,9 @@ const buildYaml = (s: GoalState) => ({
 
 export const writeTasksYaml = (cwd: string, s: GoalState): void => {
 	try {
-		const dir = path.join(cwd, ".until-done");
+		const dir = piUntilGoalDir(cwd, s.id);
 		fs.mkdirSync(dir, { recursive: true });
-		fs.writeFileSync(path.join(dir, "tasks.yaml"), yamlStringify(buildYaml(s)));
+		fs.writeFileSync(`${dir}/tasks.yaml`, yamlStringify(buildYaml(s)));
 	} catch {
 		// best-effort; never fail the goal because of disk issues
 	}

@@ -1,10 +1,10 @@
 import * as fs from "node:fs";
-import * as path from "node:path";
 import type {
 	ExtensionAPI,
 	ExtensionContext,
 } from "@mariozechner/pi-coding-agent";
 import type { Static } from "typebox";
+import { piUntilGoalDir } from "../paths";
 import { DistillParams } from "../schemas/distill";
 import { persist, type Store } from "../store";
 import { failed, ok } from "./result";
@@ -13,13 +13,13 @@ type DistillInput = Static<typeof DistillParams>;
 
 const writeDistilledFile = (
 	cwd: string,
-	goalSlug: string,
+	goalId: string,
 	prdMarkdown: string,
 ): string | undefined => {
 	try {
-		const dir = path.join(cwd, ".pi", "until-done", goalSlug);
+		const dir = piUntilGoalDir(cwd, goalId);
 		fs.mkdirSync(dir, { recursive: true });
-		const file = path.join(dir, "distilled.md");
+		const file = `${dir}/distilled.md`;
 		fs.writeFileSync(file, prdMarkdown);
 		return file;
 	} catch {
@@ -40,11 +40,6 @@ const executeDistill = async (
 			"not_done",
 		);
 	}
-	const goalSlug = store.state.goal
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, "-")
-		.replace(/^-+|-+$/g, "")
-		.slice(0, 50);
 	persist(
 		pi,
 		store,
@@ -52,7 +47,7 @@ const executeDistill = async (
 		{ distilled: params.prdMarkdown },
 		"distilled",
 	);
-	const written = writeDistilledFile(ctx.cwd, goalSlug, params.prdMarkdown);
+	const written = writeDistilledFile(ctx.cwd, s.id, params.prdMarkdown);
 	const tail = written ? ` Wrote ${written}.` : "";
 	return ok(`✓ Distilled the journey into a PRD.${tail}`, { wrote: written });
 };

@@ -46,13 +46,13 @@ describe("until_done_propose_plan", () => {
 		expect(rt.store.state.phase).toBe("red");
 	});
 
-	test("writes real tasks.yaml to cwd/.until-done/", async () => {
+	test("writes real tasks.yaml to cwd/.pi/until/<goalId>/", async () => {
 		rt = await createTestRuntime();
 		seedActive(rt);
 		await driveToolCall(rt, "until_done_propose_plan", {
 			tasks: [makeTask({ id: "T-001" })],
 		});
-		const yamlPath = join(rt.cwd, ".until-done", "tasks.yaml");
+		const yamlPath = join(rt.cwd, ".pi", "until", "ud-test", "tasks.yaml");
 		expect(existsSync(yamlPath)).toBe(true);
 		const text = await readFile(yamlPath, "utf8");
 		expect(text).toContain("T-001");

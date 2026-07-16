@@ -92,7 +92,7 @@ describe("end-to-end happy path: setup → set → plan → progress → complet
 		expect(rt.store.state.planComplete).toBe(true);
 
 		// tasks.yaml landed on disk
-		const yamlPath = join(rt.cwd, ".until-done", "tasks.yaml");
+		const yamlPath = join(rt.cwd, ".pi", "until", rt.store.state.id, "tasks.yaml");
 		expect(existsSync(yamlPath)).toBe(true);
 		expect(await readFile(yamlPath, "utf8")).toContain("T-001");
 
@@ -178,7 +178,7 @@ describe("end-to-end happy path: setup → set → plan → progress → complet
 		expect(rt.store.state.evidence.length).toBeGreaterThan(0);
 
 		// distilled.md landed on disk with the user's content
-		const mdPath = join(rt.cwd, ".pi", "until-done", "implement-healthz-endpoint", "distilled.md");
+		const mdPath = join(rt.cwd, ".pi", "until", rt.store.state.id, "distilled.md");
 		expect(existsSync(mdPath)).toBe(true);
 		const md = await readFile(mdPath, "utf8");
 		expect(md).toContain("/healthz endpoint");
