@@ -1,6 +1,6 @@
 ---
 name: until-done
-description: How to drive Pi's `/until-done` autonomous goal loop — owning the contract, calling the four `until_done_*` tools, applying pi-config TDD discipline (ANALYSIS → BOOTSTRAP → RED → GREEN → REFACTOR), and respecting ask-before boundaries. Pi loads this skill on demand whenever a `/until-done` goal is active.
+description: How to drive Pi's `/until-done` autonomous goal loop — owning the contract, calling the `until_done_*` tools, applying TDD discipline (ANALYSIS → BOOTSTRAP → RED → GREEN → REFACTOR), and respecting ask-before boundaries. Pi loads this skill on demand whenever a `/until-done` goal is active.
 ---
 
 # /until-done — Pi-led autonomous goal pursuit
@@ -22,7 +22,7 @@ loop, but `until_done_complete` is gated by an LLM judge** — see the
 - The user typed `/until-done resume` → **work mode** with a fresh
   budget.
 
-## TDD-first execution model (from pi-config)
+## TDD-first execution model
 
 Every production-affecting goal MUST pass through these phases.
 Declare your phase by passing `phase` to `until_done_progress`. The
@@ -38,7 +38,7 @@ discipline at a glance.
 | **REFACTOR** | Improve structure / readability / performance without changing externally observable behavior. Run the verify command after. |
 | `none` | Goal is research-only or doc-only — no production code shipping. |
 
-Constraints from pi-config:
+Constraints:
 
 - nesting depth ≤ 3
 - construct ≤ 30 LOC
@@ -88,7 +88,7 @@ calling `until_done_set`; the plan is approved separately when you call
      production-code goals: must include _"all tests in <verifyCommand>
      pass"_.
    - **verifyCommand**: the single command that proves done (e.g.
-     `bun test`, `mise run check`, `pytest -q`). Omit for
+     `bun test`, `pytest -q`). Omit for
      research/doc.
    - **Ask before**: operations needing user approval. Be specific
      (`git push`, `rm -rf`, `npm publish`, sending mail). Empty list
@@ -249,7 +249,7 @@ fails just as hard as it would with a different model.
 - **Never** assume the loop is the only thing running. The user can
   interject any time. A normal user message arriving mid-loop is the
   new authority for that turn.
-- **Never** claim work that wasn't done. From pi-config: "avoid
+- **Never** claim work that wasn't done. "Avoid
   pretending hidden context, tests, or guarantees exist when they have
   not been verified."
 - **Never** skip RED. If you find yourself writing production code

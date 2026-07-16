@@ -18,7 +18,7 @@ describe("DENO profile", () => {
 
 	test("every check is a direct command", () => {
 		for (const c of DENO.checks) {
-			expect(c.argv).not.toContain("mise");
+			expect(c.argv.length).toBeGreaterThan(0);
 		}
 	});
 

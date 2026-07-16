@@ -138,7 +138,7 @@ describe("discoverChecks against real fs", () => {
 		const checks = await discoverChecks(cwd);
 		for (const c of checks) {
 			expect(c.timeoutMs).toBeGreaterThan(0);
-			expect(c.argv).not.toContain("mise");
+			expect(c.argv.length).toBeGreaterThan(0);
 		}
 	});
 

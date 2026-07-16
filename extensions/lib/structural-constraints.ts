@@ -1,11 +1,11 @@
 /**
- * Structural constraints from pi-config that Pi must enforce on every line of
- * code it produces while pursuing a /until-done goal — regardless of the
- * programming language. These mirror the limits the extension itself adheres
- * to: ≤3 nesting depth, ≤30 LOC per construct, ≤200 LOC per file, single
+ * Structural constraints that Pi must enforce on every line of code it
+ * produces while pursuing a /until-done goal — regardless of programming
+ * language. These mirror the limits the extension itself adheres to: ≤3
+ * nesting depth, ≤30 LOC per construct, ≤200 LOC per file, single
  * responsibility per construct.
  *
- * The values here are exported as a single shared block so:
+ * Exported as a single shared block so:
  *   • the `before_agent_start` system-prompt reminder injects them every turn,
  *   • the setup meta-prompt names them upfront,
  *   • the continuation tick repeats them so they never decay,

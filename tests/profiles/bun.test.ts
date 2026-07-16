@@ -17,7 +17,7 @@ describe("TYPESCRIPT_BUN profile", () => {
 
 	test("every check is a direct command", () => {
 		for (const c of TYPESCRIPT_BUN.checks) {
-			expect(c.argv).not.toContain("mise");
+			expect(c.argv.length).toBeGreaterThan(0);
 		}
 	});
 

@@ -14,7 +14,7 @@ const PHASE_0 = [
 
 const PHASE_1 = [
 	"PHASE 1 — CONTRACT (you draft, user approves)",
-	"1. Apply pi-config TDD discipline: ANALYSIS → BOOTSTRAP → RED → GREEN → REFACTOR → CLEANUP.",
+	"1. Apply TDD discipline: ANALYSIS → BOOTSTRAP → RED → GREEN → REFACTOR → CLEANUP.",
 	"2. Draft the contract:",
 	"   • outcome — one-line restatement",
 	"   • widgetTitle — RECOMMENDED. Short human-readable label (≤50 chars) for the compact status widget. If omitted, the extension auto-derives one from the goal. Set this to a concise summary that fits in a status widget.",
