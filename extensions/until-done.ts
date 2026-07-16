@@ -5,8 +5,8 @@
  * using every Pi primitive and deferring every judgment to Pi itself.
  *
  * This file is the thin composition root. The implementation is split across
- * `extensions/lib/**` per the operating contract: every file ≤200 LOC,
- * every construct ≤30 LOC, nesting depth ≤3.
+ * `extensions/lib/**` per the operating contract: every construct ≤30 LOC,
+ * nesting depth ≤3.
  *
  * Pi philosophy: hooks COMPOSE — every handler returns `undefined` when it
  * has no opinion so other extensions stay in charge of their own surface.

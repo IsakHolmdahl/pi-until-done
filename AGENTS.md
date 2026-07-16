@@ -16,8 +16,7 @@ on every `until_done_complete`. State lives in Pi session entries (JSONL). No
 side database, no system-prompt replacement, no silent paths past the judge.
 
 Entry point: `extensions/until-done.ts` — thin composition root.
-Implementation: `extensions/lib/**` — each file ≤ 200 LOC, each construct
-≤ 30 LOC, nesting ≤ 3.
+Implementation: `extensions/lib/**` — each construct ≤ 30 LOC, nesting ≤ 3.
 
 ---
 
@@ -46,12 +45,12 @@ These limits apply to every file you write or edit, in every language:
 
 - Nesting depth ≤ 3 (if / for / while / try / match / with / nested fn / lambda)
 - Each construct (function / method / class / module / block) ≤ 30 LOC
-- Each file ≤ 200 LOC
 - Single responsibility per construct — extract helpers when in doubt
-- If a change would push a file or construct past these limits, split it
+- If a change would push a construct past these limits, split it
 
 The extension itself follows these limits. Every file in `extensions/lib/`
 enforces them. Your changes must too.
+
 
 ---
 

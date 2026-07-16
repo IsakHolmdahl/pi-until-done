@@ -23,7 +23,6 @@ $ bun run check
 
 ## Constraint check
 
-- [ ] Every file I touched is ≤ 200 LOC
 - [ ] Every construct I touched is ≤ 30 LOC
 - [ ] Every logical nesting depth I touched is ≤ 3
 - [ ] No raw binaries — all CLI invocations use `bun run <script>`

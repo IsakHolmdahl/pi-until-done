@@ -324,8 +324,7 @@ reminder block. Sources in injection order:
 2. **TDD discipline** — `RED → GREEN → REFACTOR → CLEANUP`.
 3. **Verifiability discipline** — quote command output; treat uncertainty as
    not achieved; no proxy signals.
-4. **Structural constraints** — nesting ≤ 3, construct ≤ 30 LOC, file ≤ 200
-   LOC, single responsibility. Applied to every language Pi generates.
+4. **Structural constraints** — nesting ≤ 3, construct ≤ 30 LOC, single responsibility. Applied to every language Pi generates.
 5. **Plan management + tool flow** — when to call `until_done_replan`,
    `until_done_task_update`, `until_done_complete`, `until_done_block`.
 
@@ -435,8 +434,7 @@ turn.
   full CI run; failure blocks the goal immediately.
 - **No claims about unverified state.** The skill bans pretending tests,
   guarantees, or context exist when they haven't been verified.
-- **Structural constraints.** Nesting ≤ 3, construct ≤ 30 LOC, file ≤ 200
-  LOC, single responsibility per construct — in every language.
+- **Structural constraints.** Nesting ≤ 3, construct ≤ 30 LOC, single responsibility per construct — in every language.
 
 ---
 

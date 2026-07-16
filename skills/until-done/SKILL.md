@@ -42,7 +42,6 @@ Constraints:
 
 - nesting depth ≤ 3
 - construct ≤ 30 LOC
-- file ≤ 200 LOC
 - single responsibility per construct
 
 If the goal is a bug fix or a feature addition, the path is always

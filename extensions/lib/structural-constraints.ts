@@ -2,7 +2,7 @@
  * Structural constraints that Pi must enforce on every line of code it
  * produces while pursuing a /until-done goal — regardless of programming
  * language. These mirror the limits the extension itself adheres to: ≤3
- * nesting depth, ≤30 LOC per construct, ≤200 LOC per file, single
+ * nesting depth, ≤30 LOC per construct, single
  * responsibility per construct.
  *
  * Exported as a single shared block so:
@@ -16,7 +16,6 @@
 export const STRUCTURAL_CONSTRAINT_LIMITS = {
 	maxNestingDepth: 3,
 	maxLocPerConstruct: 30,
-	maxLocPerFile: 200,
 } as const;
 
 const universalScopeLine =
@@ -27,8 +26,6 @@ const constructLine =
 
 const nestingLine =
 	"  • Nesting depth ≤ 3 (counting any indented block: if / for / while / try / match / switch / with / nested function / lambda body / object-literal-with-logic).";
-
-const fileLine = "  • Each file ≤ 200 LOC.";
 
 const responsibilityLine =
 	"  • Single responsibility per construct. Extract helpers when in doubt.";
@@ -41,7 +38,6 @@ export const STRUCTURAL_CONSTRAINTS_BLOCK = [
 	universalScopeLine,
 	nestingLine,
 	constructLine,
-	fileLine,
 	responsibilityLine,
 	splitLine,
 ].join("\n");

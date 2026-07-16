@@ -33,6 +33,6 @@ body:
       label: Scope fit
       description: |
         Does this preserve Pi's compose-don't-replace philosophy?
-        Does it stay within the structural constraints (≤3 / ≤30 / ≤200)?
+        Does it stay within the structural constraints (≤3 / ≤30)?
     validations:
       required: true
