@@ -6,6 +6,7 @@ import type {
 } from "@mariozechner/pi-coding-agent";
 import { isToolCallEventType } from "@mariozechner/pi-coding-agent";
 
+import { isInsidePiUntil } from "../paths";
 import type { Store } from "../store";
 import { DIALOGS, REFUSAL } from "../strings";
 
@@ -15,6 +16,24 @@ const matchesAskBefore = (
 ): string | undefined => {
 	const needle = cmd.toLowerCase();
 	return askBefore.find((p) => needle.includes(p.toLowerCase()));
+};
+
+const writeGateFilePath = (event: ToolCallEvent): string | undefined => {
+	if (isToolCallEventType("edit", event)) return event.input.path;
+	if (isToolCallEventType("write", event)) return event.input.path;
+	return undefined;
+};
+
+const checkPrePlanWriteGate = (
+	store: Store,
+	event: ToolCallEvent,
+	cwd: string,
+): ToolCallEventResult | undefined => {
+	if (store.state.status !== "planning") return undefined;
+	const filePath = writeGateFilePath(event);
+	if (!filePath) return undefined;
+	if (isInsidePiUntil(cwd, filePath)) return undefined;
+	return { block: true, reason: REFUSAL.prePlanWriteBlocked(filePath) };
 };
 
 const handleBash = async (
@@ -62,6 +81,8 @@ const scoreBuiltin = (store: Store, event: ToolCallEvent): boolean => {
 
 export const registerToolHooks = (pi: ExtensionAPI, store: Store): void => {
 	pi.on("tool_call", async (event, ctx) => {
+		const gate = checkPrePlanWriteGate(store, event, ctx.cwd);
+		if (gate) return gate;
 		if (store.state.status !== "active") return undefined;
 		if (isToolCallEventType("bash", event))
 			return handleBash(store, event, ctx);

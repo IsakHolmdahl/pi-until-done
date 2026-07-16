@@ -37,6 +37,20 @@ const taskBlock = (s: GoalState): string => {
 	);
 };
 
+const PLANNING_REMINDER = [
+	"\n\n# /until-done \u2014 Planning phase (contract locked, plan pending)",
+	"Status: planning. The North Star contract is set. Your next step is to call",
+	"`until_done_plan` with the full ordered task list.",
+	"",
+	"File-write restriction (enforced): while status=planning, `edit` and `write`",
+	"tool calls are blocked for any path outside `.pi/until/<goalId>/`.",
+	"Use `.pi/until/<goalId>/` for research notes, analysis artefacts, and scratch",
+	"documents. Do NOT create files anywhere else until the plan is approved.",
+].join("\n");
+
+const buildPlanningReminder = (goalId: string): string =>
+	PLANNING_REMINDER.replace(/<goalId>/g, goalId);
+
 const STATIC_REMINDER = [
 	REMINDER.tdd,
 	VERIFIABILITY_BLOCK,
@@ -66,6 +80,11 @@ export const registerBeforeAgentStart = (
 	pi.on(
 		"before_agent_start",
 		(event): BeforeAgentStartEventResult | undefined => {
+			if (store.state.status === "planning")
+				return {
+					systemPrompt:
+						event.systemPrompt + buildPlanningReminder(store.state.id),
+				};
 			if (store.state.status !== "active") return undefined;
 			return { systemPrompt: event.systemPrompt + buildReminder(store.state) };
 		},

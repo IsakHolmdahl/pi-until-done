@@ -186,3 +186,107 @@ describe("tool execution counters", () => {
 		expect(rt.store.stats.toolEnds).toBeGreaterThan(beforeEnds);
 	});
 });
+
+const seedPlanning = (runtime: TestRuntime): void => {
+	runtime.store.state = {
+		...runtime.store.state,
+		status: "planning",
+		id: "ud-plan-test",
+		goal: "research X",
+		northStar: makeNorthStar(),
+		confirmedByUser: false,
+		maxTurns: 100,
+	};
+};
+
+describe("tool_call hook — pre-plan write gate", () => {
+	test("blocks write outside .pi/until/ during planning", async () => {
+		rt = await createTestRuntime();
+		seedPlanning(rt);
+		rt.setLLM([
+			fauxAssistantMessage(
+				[fauxToolCall("write", { path: "analysis.md", content: "notes" })],
+				{ stopReason: "toolUse" },
+			),
+			fauxAssistantMessage("done", { stopReason: "stop" }),
+		]);
+		await rt.prompt("write a file outside pi/until");
+		const branch = rt.session.sessionManager.getBranch();
+		const blocked = branch.some((e) =>
+			JSON.stringify(e).includes("planning phase"),
+		);
+		expect(blocked).toBe(true);
+	});
+
+	test("blocks edit outside .pi/until/ during planning", async () => {
+		rt = await createTestRuntime();
+		seedPlanning(rt);
+		rt.setLLM([
+			fauxAssistantMessage(
+				[
+					fauxToolCall("edit", {
+						path: "src/index.ts",
+						edits: [{ oldText: "x", newText: "y" }],
+					}),
+				],
+				{ stopReason: "toolUse" },
+			),
+			fauxAssistantMessage("done", { stopReason: "stop" }),
+		]);
+		await rt.prompt("edit a source file during planning");
+		const branch = rt.session.sessionManager.getBranch();
+		const blocked = branch.some((e) =>
+			JSON.stringify(e).includes("planning phase"),
+		);
+		expect(blocked).toBe(true);
+	});
+
+	test("allows write inside .pi/until/ during planning", async () => {
+		rt = await createTestRuntime();
+		seedPlanning(rt);
+		rt.setLLM([
+			fauxAssistantMessage(
+				[
+					fauxToolCall("write", {
+						path: ".pi/until/ud-plan-test/notes.md",
+						content: "research notes",
+					}),
+				],
+				{ stopReason: "toolUse" },
+			),
+			fauxAssistantMessage("done", { stopReason: "stop" }),
+		]);
+		await rt.prompt("write a research note");
+		const branch = rt.session.sessionManager.getBranch();
+		const blocked = branch.some((e) =>
+			JSON.stringify(e).includes("planning phase"),
+		);
+		expect(blocked).toBe(false);
+	});
+
+	test("write gate is inactive when status is active", async () => {
+		rt = await createTestRuntime();
+		rt.store.state = {
+			...rt.store.state,
+			status: "active",
+			id: "ud-active",
+			goal: "X",
+			northStar: makeNorthStar(),
+			confirmedByUser: true,
+			maxTurns: 100,
+		};
+		rt.setLLM([
+			fauxAssistantMessage(
+				[fauxToolCall("write", { path: "src/foo.ts", content: "x" })],
+				{ stopReason: "toolUse" },
+			),
+			fauxAssistantMessage("done", { stopReason: "stop" }),
+		]);
+		await rt.prompt("write outside during active");
+		const branch = rt.session.sessionManager.getBranch();
+		const blocked = branch.some((e) =>
+			JSON.stringify(e).includes("planning phase"),
+		);
+		expect(blocked).toBe(false);
+	});
+});
