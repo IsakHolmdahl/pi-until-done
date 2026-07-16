@@ -41,11 +41,6 @@ coverage/
 .copilotignore
 .github/copilot-instructions.md
 
-# Local mise overrides
-mise.local.toml
-.mise.local.toml
-.tool-versions
-
 # Environment files (always local)
 .env
 .env.*

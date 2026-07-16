@@ -1,9 +1,5 @@
 name: CI
 
-# Matching GitHub Agentic Workflow per pi-config §0.6 + §0.7.
-# Mirrors `mise run ci` so local ↔ GitHub parity holds for the current scope.
-# Read-only by default; any write would belong to a separate guarded job.
-
 on:
   push:
     branches: [main]
@@ -20,7 +16,7 @@ concurrency:
 
 jobs:
   ci:
-    name: ${{ matrix.os }} · mise run ci
+    name: ${{ matrix.os }} · bun run ci
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
@@ -33,28 +29,19 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install mise
-        uses: jdx/mise-action@v2
-        with:
-          version: 2026.5.0
-          install: true
-          cache: true
-          experimental: true
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
 
-      - name: Trust mise.toml (non-interactive)
-        run: mise trust
-        shell: bash
-
-      - name: Install bun deps
-        run: mise run install-deps
+      - name: Install deps
+        run: bun install
         shell: bash
 
       - name: Run full CI suite
-        run: mise run ci
+        run: bun run ci
         shell: bash
 
   release-ready:
-    name: ${{ matrix.os }} · mise run release-ready
+    name: ${{ matrix.os }} · bun run release-ready
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     needs: ci
@@ -69,22 +56,13 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install mise
-        uses: jdx/mise-action@v2
-        with:
-          version: 2026.5.0
-          install: true
-          cache: true
-          experimental: true
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
 
-      - name: Trust mise.toml (non-interactive)
-        run: mise trust
-        shell: bash
-
-      - name: Install bun deps
-        run: mise run install-deps
+      - name: Install deps
+        run: bun install
         shell: bash
 
       - name: Run release-readiness suite
-        run: mise run release-ready
+        run: bun run release-ready
         shell: bash

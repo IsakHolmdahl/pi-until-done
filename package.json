@@ -1,7 +1,7 @@
 {
   "name": "pi-until-done",
   "version": "0.2.2",
-  "description": "Pi extension that brings Hermes Agent's /goal (Ralph loop with judge) to Pi as /until-done. Pi self-judges every turn, runs verifyCommand to confirm done, and routes CI/CD through the project's language profiles.",
+  "description": "Pi extension that brings Hermes Agent's /goal (Ralph loop with judge) to Pi as /until-done. Pi self-judges every turn, runs verifyCommand to confirm done, and auto-runs CI after every turn with code edits across 25 language profiles.",
   "license": "MIT",
   "author": {
     "name": "Kiren Srinivasan",
@@ -73,6 +73,16 @@
   },
   "engines": {
     "bun": ">=1.2.0"
+  },
+  "scripts": {
+    "typecheck": "bunx tsc --noEmit",
+    "lint": "bunx biome check .",
+    "format": "bunx biome format --write .",
+    "check": "bun run typecheck && bun run lint",
+    "test": "bun test",
+    "build": "bun tests/build-smoke.ts",
+    "ci": "bun run check && bun test && bun tests/build-smoke.ts",
+    "release-ready": "bun run ci"
   },
   "peerDependencies": {
     "@mariozechner/pi-coding-agent": "*",

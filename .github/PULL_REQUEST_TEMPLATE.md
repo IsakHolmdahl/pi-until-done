@@ -17,7 +17,7 @@
 <!-- How did you verify this? Quote the actual command output. -->
 
 ```
-$ mise run check
+$ bun run check
 …
 ```
 
@@ -26,8 +26,7 @@ $ mise run check
 - [ ] Every file I touched is ≤ 200 LOC
 - [ ] Every construct I touched is ≤ 30 LOC
 - [ ] Every logical nesting depth I touched is ≤ 3
-- [ ] No new `package.json` `scripts` (mise.toml only)
-- [ ] No raw binaries — all CLI invocations route through `mise run` / `mise exec --`
+- [ ] No raw binaries — all CLI invocations use `bun run <script>`
 
 ## Author attribution
 

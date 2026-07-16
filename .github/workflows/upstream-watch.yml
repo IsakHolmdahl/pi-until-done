@@ -2,7 +2,7 @@ name: Upstream Pi watch
 
 # Daily check for new releases of the @mariozechner/pi-* packages this
 # extension depends on. When a newer version is available on npm, the
-# workflow refreshes the bun lockfile, runs `mise run ci` against the
+# workflow refreshes the bun lockfile, runs the full CI suite against the
 # upstream bump, and opens a PR with the diff so a human can review.
 #
 # Pinned versions live in bun.lock (package.json keeps peer/devDeps at
@@ -32,19 +32,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install mise
-        uses: jdx/mise-action@v2
-        with:
-          version: 2026.5.0
-          install: true
-          cache: true
-          experimental: true
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
 
-      - name: Trust mise.toml (non-interactive)
-        run: mise trust
-
-      - name: Install bun deps (current pinned versions)
-        run: mise run install-deps
+      - name: Install deps (current pinned versions)
+        run: bun install
 
       - name: Capture pre-bump versions
         id: pre
@@ -94,7 +86,7 @@ jobs:
         if: steps.gate.outputs.skip != 'true'
         id: ci
         continue-on-error: true
-        run: mise run ci
+        run: bun run ci
 
       - name: Open / update upstream-bump PR
         if: steps.gate.outputs.skip != 'true'
@@ -122,7 +114,7 @@ jobs:
             | `@mariozechner/pi-coding-agent` | `${{ steps.pre.outputs.agent }}` | `${{ steps.post.outputs.agent }}` |
             | `@mariozechner/pi-ai` | `${{ steps.pre.outputs.ai }}` | `${{ steps.post.outputs.ai }}` |
 
-            **In-workflow `mise run ci`**: ${{ steps.ci.outcome }}.
+            **In-workflow `bun run ci`**: ${{ steps.ci.outcome }}.
 
             **Auto-merge gate**: `.github/workflows/upstream-pi-merge-gate.yml`
             squash-merges this PR automatically once **both** of these

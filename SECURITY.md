@@ -11,7 +11,7 @@ privately rather than filing a public issue.
 
 Please include:
 
-1. The version (`pi-until-done` version + Pi version + Bun + mise).
+1. The version (`pi-until-done` version + Pi version + Bun).
 2. A reproducible example or proof of concept.
 3. The impact you observed and the impact you believe is possible.
 4. Any logs or session JSONL excerpts that help — but redact secrets.
@@ -30,10 +30,8 @@ What the extension does:
 - Persists goal state via `pi.appendEntry` (Pi session JSONL only).
 - Appends a goal reminder to the system prompt via `before_agent_start`
   (never replaces).
-- Auto-prepends `mise exec --` to `verifyCommand` so all shell calls go
-  through mise's pinned tool versions.
-- Spawns mise as a subprocess for CI checks (`mise tasks ls --json`,
-  `mise run <verb>`, `mise exec -- <cmd>`).
+- Runs CI checks via `Bun.spawn` (direct commands, no wrapper) when code
+  edits are made in a turn.
 - Optionally writes `.until-done/tasks.yaml` and `.until-done/distilled.md`
   inside the project's cwd.
 
@@ -72,8 +70,3 @@ Mitigations baked into the extension:
   proxy-signal completions and requires quoted `verifyCommand` output.
 - The spin-guard blocks the loop when a turn produces no progress
   signals — preventing models from "agreeing" to stop.
-
-## Supported versions
-
-Only the latest minor version of `pi-until-done` is supported. Update via
-`pi update pi-until-done` or `npm install -g pi-until-done@latest`.

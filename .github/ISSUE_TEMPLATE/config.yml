@@ -6,6 +6,3 @@ contact_links:
   - name: Pi documentation
     url: https://pi.dev/docs/latest/extensions
     about: Pi extension API reference.
-  - name: pi-config operating contract
-    url: https://github.com/srinitude/pi-config
-    about: The operating contract this project adopts.
