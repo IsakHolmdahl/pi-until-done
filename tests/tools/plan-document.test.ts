@@ -119,7 +119,7 @@ describe("until_done_draft_plan", () => {
 				result: { status: "pending", reviewId: "rev-slow" },
 			});
 			setTimeout(() => {
-				rt!.pi.events.emit("plannotator:review-result", {
+				rt?.pi.events.emit("plannotator:review-result", {
 					reviewId: "rev-slow",
 					approved: false,
 					feedback: "too vague",

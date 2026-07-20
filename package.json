@@ -1,105 +1,105 @@
 {
-  "name": "pi-until-done",
-  "version": "0.2.3",
-  "description": "Pi extension that brings Hermes Agent's /goal (Ralph loop with judge) to Pi as /until-done. Pi self-judges every turn, runs verifyCommand to confirm done, and auto-runs CI after every turn with code edits across 25 language profiles.",
-  "license": "MIT",
-  "author": {
-    "name": "Kiren Srinivasan",
-    "email": "kiren@fantasymetals.com",
-    "url": "https://github.com/srinitude"
-  },
-  "homepage": "https://github.com/srinitude/pi-until-done#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/srinitude/pi-until-done.git"
-  },
-  "bugs": {
-    "url": "https://github.com/srinitude/pi-until-done/issues"
-  },
-  "keywords": [
-    "pi-package",
-    "pi-extension",
-    "pi-skill",
-    "pi-prompt",
-    "pi",
-    "pi.dev",
-    "goal",
-    "goal-mode",
-    "until-done",
-    "autonomous-agent",
-    "ralph-loop",
-    "agent",
-    "hermes",
-    "tdd",
-    "ci-cd",
-    "verifier",
-    "self-judge"
-  ],
-  "files": [
-    "extensions",
-    "skills",
-    "prompts",
-    "assets",
-    "AGENTS.md",
-    "CHANGELOG.md",
-    "CODE_OF_CONDUCT.md",
-    "CONTRIBUTING.md",
-    "LICENSE",
-    "README.md",
-    "SECURITY.md"
-  ],
-  "scripts": {
-    "typecheck": "bunx tsc --noEmit",
-    "lint": "bunx biome check .",
-    "format": "bunx biome format --write .",
-    "check": "bun run typecheck && bun run lint",
-    "test": "bun test",
-    "build": "bun tests/build-smoke.ts",
-    "ci": "bun run check && bun test && bun tests/build-smoke.ts",
-    "release-ready": "bun run ci"
-  },
-  "pi": {
-    "extensions": [
-      "./extensions/until-done.ts",
-      "@plannotator/pi-extension",
-      "pi-subagents"
-    ],
-    "skills": [
-      "./skills"
-    ],
-    "prompts": [
-      "./prompts"
-    ],
-    "image": "https://raw.githubusercontent.com/srinitude/pi-until-done/main/assets/preview.png"
-  },
-  "engines": {
-    "bun": ">=1.2.0"
-  },
-  "peerDependencies": {
-    "@mariozechner/pi-coding-agent": "*",
-    "@mariozechner/pi-ai": "*",
-    "@mariozechner/pi-tui": "*",
-    "typebox": "*"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "*",
-    "@mariozechner/pi-ai": "*",
-    "@mariozechner/pi-coding-agent": "*",
-    "@mariozechner/pi-tui": "*",
-    "@types/bun": "*",
-    "opensrc": "^0.7.2",
-    "typebox": "*",
-    "typescript": "*"
-  },
-  "dependencies": {
-    "yaml": "^2.8.4",
-    "@plannotator/pi-extension": "^0.22.0",
-    "pi-subagents": "^0.34.0"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "trustedDependencies": [
-    "opensrc"
-  ]
+	"name": "pi-until-done",
+	"version": "0.2.3",
+	"description": "Pi extension that brings Hermes Agent's /goal (Ralph loop with judge) to Pi as /until-done. Pi self-judges every turn, runs verifyCommand to confirm done, and auto-runs CI after every turn with code edits across 25 language profiles.",
+	"license": "MIT",
+	"author": {
+		"name": "Kiren Srinivasan",
+		"email": "kiren@fantasymetals.com",
+		"url": "https://github.com/srinitude"
+	},
+	"homepage": "https://github.com/srinitude/pi-until-done#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/srinitude/pi-until-done.git"
+	},
+	"bugs": {
+		"url": "https://github.com/srinitude/pi-until-done/issues"
+	},
+	"keywords": [
+		"pi-package",
+		"pi-extension",
+		"pi-skill",
+		"pi-prompt",
+		"pi",
+		"pi.dev",
+		"goal",
+		"goal-mode",
+		"until-done",
+		"autonomous-agent",
+		"ralph-loop",
+		"agent",
+		"hermes",
+		"tdd",
+		"ci-cd",
+		"verifier",
+		"self-judge"
+	],
+	"files": [
+		"extensions",
+		"skills",
+		"prompts",
+		"assets",
+		"AGENTS.md",
+		"CHANGELOG.md",
+		"CODE_OF_CONDUCT.md",
+		"CONTRIBUTING.md",
+		"LICENSE",
+		"README.md",
+		"SECURITY.md"
+	],
+	"scripts": {
+		"typecheck": "bunx tsc --noEmit",
+		"lint": "bunx biome check .",
+		"format": "bunx biome format --write .",
+		"check": "bun run typecheck && bun run lint",
+		"test": "bun test",
+		"build": "bun tests/build-smoke.ts",
+		"ci": "bun run check && bun test && bun tests/build-smoke.ts",
+		"release-ready": "bun run ci"
+	},
+	"pi": {
+		"extensions": [
+			"./extensions/until-done.ts",
+			"@plannotator/pi-extension",
+			"pi-subagents"
+		],
+		"skills": [
+			"./skills"
+		],
+		"prompts": [
+			"./prompts"
+		],
+		"image": "https://raw.githubusercontent.com/srinitude/pi-until-done/main/assets/preview.png"
+	},
+	"engines": {
+		"bun": ">=1.2.0"
+	},
+	"peerDependencies": {
+		"@mariozechner/pi-coding-agent": "*",
+		"@mariozechner/pi-ai": "*",
+		"@mariozechner/pi-tui": "*",
+		"typebox": "*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "*",
+		"@mariozechner/pi-ai": "*",
+		"@mariozechner/pi-coding-agent": "*",
+		"@mariozechner/pi-tui": "*",
+		"@types/bun": "*",
+		"opensrc": "^0.7.2",
+		"typebox": "*",
+		"typescript": "*"
+	},
+	"dependencies": {
+		"yaml": "^2.8.4",
+		"@plannotator/pi-extension": "^0.22.0",
+		"pi-subagents": "^0.34.0"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"trustedDependencies": [
+		"opensrc"
+	]
 }
