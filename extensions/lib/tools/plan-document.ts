@@ -7,7 +7,6 @@ import { requestPlannotatorDocumentReview } from "../plannotator";
 import { PlanDocumentParams } from "../schemas/plan-document";
 import { persist, type Store } from "../store";
 import {
-	DIALOGS,
 	NOTIFY,
 	TOOL_DESCRIPTIONS,
 	TOOL_LABELS,
@@ -76,21 +75,8 @@ const executePlanDocument = async (
 		}
 	}
 
-	// No plannotator — fall back to user confirmation
-	if (store.autopilotEnabled || !ctx.hasUI) {
-		return approvePlanDocument(pi, store, ctx, planPath);
-	}
-
-	const confirmed = await ctx.ui.confirm(
-		DIALOGS.approveTitle,
-		`Plan document saved to: ${planPath}\n\nDo you want to approve this plan and proceed to task generation?`,
-	);
-
-	if (confirmed) {
-		return approvePlanDocument(pi, store, ctx, planPath);
-	} else {
-		return rejectPlanDocument(pi, store, ctx);
-	}
+	// No plannotator — auto-approve; the agent's submission is sufficient
+	return approvePlanDocument(pi, store, ctx, planPath);
 };
 
 const approvePlanDocument = (

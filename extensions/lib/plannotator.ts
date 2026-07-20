@@ -31,6 +31,8 @@ export const formatPlanForPlannotator = (tasks: Task[]): string =>
 
 const PLANNOTATOR_TIMEOUT_MS = 3000;
 
+// waitForResult has no timeout: once plannotator has accepted the review it
+// owns the decision. Only an abort signal (user Esc) cancels the wait.
 const waitForResult = (
 	pi: ExtensionAPI,
 	reviewId: string,
@@ -47,23 +49,13 @@ const waitForResult = (
 			resolve(value);
 		};
 
-		const timeout = setTimeout(() => finish(undefined), PLANNOTATOR_TIMEOUT_MS);
-
 		unsubscribe = pi.events.on(RESULT_CHANNEL, (data) => {
 			const event = data as ReviewResultEvent;
 			if (event.reviewId !== reviewId) return;
-			clearTimeout(timeout);
 			finish({ approved: event.approved, feedback: event.feedback });
 		});
 
-		signal?.addEventListener(
-			"abort",
-			() => {
-				clearTimeout(timeout);
-				finish(undefined);
-			},
-			{ once: true },
-		);
+		signal?.addEventListener("abort", () => finish(undefined), { once: true });
 	});
 
 const emitPlanReview = (
