@@ -113,6 +113,26 @@ describe("refreshWidget", () => {
 		expect(calls[0].lines?.length).toBeGreaterThan(3);
 	});
 
+	test("expanded view shows the full untruncated goal, not the widget title", () => {
+		const calls: MockWidgetCall[] = [];
+		const longGoal =
+			"This is a very long goal description that should be shown in full when the widget is expanded.";
+		const store = buildStore({
+			state: {
+				...initialState(),
+				status: "active",
+				goal: longGoal,
+				widgetTitle: "ship the refactor",
+				maxTurns: 100,
+				turnsUsed: 3,
+			},
+			widgetExpanded: true,
+		});
+		refreshWidget(store, buildMockCtx(calls), true);
+		const goalLine = calls[0].lines?.[1] ?? "";
+		expect(goalLine).toContain(longGoal);
+	});
+
 	test("does not render when status is active and force is false", () => {
 		const calls: MockWidgetCall[] = [];
 		const store = buildStore({

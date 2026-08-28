@@ -38,7 +38,7 @@ const expandedLines = (s: GoalState): string[] => {
 		: "";
 	return [
 		headerLine(s),
-		WIDGET.goal(displayGoal(s)),
+		WIDGET.goal(s.goal),
 		s.doneCriteria ? WIDGET.doneWhen(s.doneCriteria) : "",
 		s.verifyCommand ? WIDGET.verify(s.verifyCommand) : "",
 		s.askBefore.length ? WIDGET.askBefore(s.askBefore) : "",
