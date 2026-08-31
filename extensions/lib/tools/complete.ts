@@ -6,6 +6,7 @@ import type { Static } from "typebox";
 import type { CompleteParams } from "../schemas/lifecycle";
 import { persist, type Store } from "../store";
 import { REFUSAL, TOOL_RESULTS } from "../strings";
+import { autoDistill } from "./distill";
 import { consultJudge, consultSelfJudge, type JudgeDecision } from "./judge";
 import { failed, ok, refused } from "./result";
 
@@ -49,6 +50,7 @@ const completeWithApproval = (
 	store: Store,
 	params: CompleteInput,
 	decision: JudgeDecision | undefined,
+	ctx: ExtensionContext,
 ) => {
 	const s = store.state;
 	const augmentedEvidence = decision
@@ -60,14 +62,17 @@ const completeWithApproval = (
 		"complete",
 		{
 			status: "done",
+			phase: "manual_test",
 			lastVerdict: "done",
 			lastReason: params.summary ?? params.evidence.slice(0, 200),
 			evidence: augmentedEvidence,
 		},
 		params.summary,
 	);
+	autoDistill(pi, store, ctx);
 	return ok(TOOL_RESULTS.completeMarked(params.summary ?? params.evidence), {
 		status: "done",
+		phase: "manual_test",
 		judge: decision?.verdict,
 	});
 };
@@ -120,5 +125,5 @@ export const executeComplete = async (
 	if (decision.verdict === "continue") {
 		return refuseCompletion(pi, store, decision, params);
 	}
-	return completeWithApproval(pi, store, params, decision);
+	return completeWithApproval(pi, store, params, decision, ctx);
 };

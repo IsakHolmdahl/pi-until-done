@@ -19,6 +19,12 @@ export const TOOL_DESCRIPTIONS = {
 		"Signal reviewer approval or rejection of the implementation. Reviewers must call this tool to approve the implementation before the judge can be called. Reviewers should focus on code quality, security flaws, and best practices — NOT on requirements (that's the judge's job). Call with approved=true to allow judge review, or approved=false with feedback to request changes.",
 	draftPlan:
 		"Submit the plan document (markdown) for review. FIRST step in planning. Explains approach, architecture, and implementation strategy. Reviewed by plannotator before tasks are generated.",
+	reportBug:
+		"Report a bug found during manual_test. The user must explicitly choose major or minor; if they have not, ask them before calling this tool. Minor bugs are handed to a subagent; major bugs start a fresh until-done goal.",
+	resolveBug:
+		"Mark a minor manual-test bug resolved after a subagent fixes it. Include concrete evidence.",
+	improvement:
+		"Start a fresh until-done goal for a user improvement pitch after all manual-test bugs are resolved.",
 };
 
 export const TOOL_LABELS = {
@@ -32,6 +38,9 @@ export const TOOL_LABELS = {
 	progress: "Until-done progress",
 	reviewerApprove: "Until-done reviewer approve",
 	draftPlan: "Until-done draft plan",
+	reportBug: "Until-done report bug",
+	resolveBug: "Until-done resolve bug",
+	improvement: "Until-done improvement",
 };
 
 export const TOOL_RESULTS = {
@@ -43,7 +52,8 @@ export const TOOL_RESULTS = {
 		`✓ Task ${id} updated.${currentTail}`,
 	setActivated:
 		"✓ /until-done contract drafted. Pi will generate the task plan next.",
-	completeMarked: (text: string) => `✓ Goal marked complete.\n${text}`,
+	completeMarked: (text: string) =>
+		`✓ Goal complete. Distilled automatically. Manual test phase started.\n${text}`,
 	blocked: (q: string) => `? Blocked. Question for user:\n${q}`,
 	unblocked: (reason?: string) =>
 		`✓ Block cleared${reason ? `: ${reason}` : ""}. Resuming work.`,
@@ -57,4 +67,11 @@ export const TOOL_RESULTS = {
 		`✓ Plan document approved and saved to ${path}. You can now generate tasks with until_done_propose_plan.`,
 	planDocumentRejected: () =>
 		"✗ Plan document rejected. Revise the plan document and resubmit with until_done_draft_plan.",
+	minorBugReported: (id: string) =>
+		`⚠ Minor bug ${id} recorded as fixing. Delegate the fix to a subagent, then call until_done_resolve_bug with evidence.`,
+	majorBugStarted: (description: string) =>
+		`↻ Major bug reported. Started a fresh until-done execution to fix: ${description}`,
+	bugResolved: (id: string) => `✓ Bug ${id} resolved. Continue manual testing.`,
+	improvementStarted: (pitch: string) =>
+		`↻ Started a fresh until-done execution for improvement: ${pitch}`,
 };

@@ -21,7 +21,21 @@ export type Phase =
 	| "green"
 	| "refactor"
 	| "cleanup"
+	| "manual_test"
 	| "none";
+
+export type BugSeverity = "major" | "minor";
+export type BugStatus = "open" | "fixing" | "resolved";
+
+export interface Bug {
+	id: string;
+	description: string;
+	severity: BugSeverity;
+	status: BugStatus;
+	reportedAt: number;
+	resolvedAt?: number;
+	evidence?: string;
+}
 
 /**
  * Two distinct goal shapes (informed by Codex /goal lessons):
@@ -129,6 +143,7 @@ export interface GoalState {
 	surfaces: Surface[];
 	distilled?: string;
 	reviewerApproved?: boolean;
+	bugs: Bug[];
 	planningPhase?: "document" | "tasks" | "complete";
 	planDocumentPath?: string;
 	tasksYamlPath?: string;
@@ -155,7 +170,9 @@ export type StateEventKind =
 	| "reviewer_reject"
 	| "plan_document"
 	| "plan_document_approved"
-	| "plan_document_rejected";
+	| "plan_document_rejected"
+	| "bug_report"
+	| "bug_resolve";
 
 export interface StateEvent {
 	kind: StateEventKind;

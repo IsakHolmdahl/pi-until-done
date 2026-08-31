@@ -46,6 +46,7 @@ const handleEndTransitions = async (
 			lastReason: "user-driven turn",
 		});
 		refreshStatus(store, ctx);
+		refreshWidget(store, ctx, true);
 		return;
 	}
 	if (store.progressSignalsThisTurn === 0) {

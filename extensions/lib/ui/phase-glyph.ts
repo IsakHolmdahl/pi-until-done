@@ -7,6 +7,7 @@ const GLYPHS: Record<Phase, string> = {
 	green: "✓",
 	refactor: "↺",
 	cleanup: "⌫",
+	manual_test: "🧪",
 	none: "·",
 };
 

@@ -11,7 +11,9 @@ const truncateGoal = (goal: string): string =>
 const taskCounter = (s: GoalState): string => {
 	const total = s.tasks.length;
 	if (!total) return "";
-	const done = s.tasks.filter((x) => x.status === "done").length;
+	const done = s.tasks.filter(
+		(x) => x.status === "done" || x.status === "skipped",
+	).length;
 	return ` ${done}/${total}`;
 };
 
@@ -43,7 +45,9 @@ export const statusLine = (s: GoalState): string | undefined => {
 		case "blocked":
 			return STATUS.blocked(t, trunc);
 		case "done":
-			return STATUS.done(trunc);
+			return s.phase === "manual_test"
+				? STATUS.manualTest(trunc)
+				: STATUS.done(trunc);
 	}
 };
 

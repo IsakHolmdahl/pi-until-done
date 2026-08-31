@@ -75,6 +75,17 @@ export const cmdNorthStar = (
 	ctx.ui.notify(yamlStringify({ northStar: store.state.northStar }), "info");
 };
 
+export const cmdBugs = (store: Store, ctx: ExtensionCommandContext): void => {
+	if (!store.state.bugs.length) {
+		ctx.ui.notify(NOTIFY.noBugs, "info");
+		return;
+	}
+	const lines = store.state.bugs.map(
+		(bug) => `${bug.id} [${bug.severity}/${bug.status}] ${bug.description}`,
+	);
+	ctx.ui.notify(NOTIFY.bugs(lines.join("\n")), "info");
+};
+
 export const cmdReplanLog = (
 	store: Store,
 	ctx: ExtensionCommandContext,

@@ -7,11 +7,12 @@ import type { Static } from "typebox";
 import { piUntilGoalDir } from "../paths";
 import { DistillParams } from "../schemas/distill";
 import { persist, type Store } from "../store";
+import type { GoalState } from "../types";
 import { failed, ok } from "./result";
 
 type DistillInput = Static<typeof DistillParams>;
 
-const writeDistilledFile = (
+export const writeDistilledFile = (
 	cwd: string,
 	goalId: string,
 	prdMarkdown: string,
@@ -25,6 +26,45 @@ const writeDistilledFile = (
 	} catch {
 		return undefined;
 	}
+};
+
+const automaticMarkdown = (state: GoalState): string => {
+	const learnings = state.tasks.flatMap((task) => task.learnings);
+	const gotchas = state.tasks.flatMap((task) => task.gotchas);
+	return [
+		`# Distilled journey: ${state.goal}`,
+		"",
+		`## Done criteria\n${state.doneCriteria}`,
+		"",
+		"## Evidence",
+		...state.evidence.map((item) => `- ${item}`),
+		"",
+		"## Learnings",
+		...(learnings.length
+			? learnings.map((item) => `- ${item}`)
+			: ["- None recorded"]),
+		"",
+		"## Gotchas",
+		...(gotchas.length
+			? gotchas.map((item) => `- ${item}`)
+			: ["- None recorded"]),
+	].join("\n");
+};
+
+export const autoDistill = (
+	pi: ExtensionAPI,
+	store: Store,
+	ctx: ExtensionContext,
+): void => {
+	const markdown = automaticMarkdown(store.state);
+	persist(
+		pi,
+		store,
+		"progress",
+		{ distilled: markdown },
+		"distilled automatically",
+	);
+	writeDistilledFile(ctx.cwd, store.state.id, markdown);
 };
 
 const executeDistill = async (
@@ -57,7 +97,7 @@ export const registerDistillTool = (pi: ExtensionAPI, store: Store): void => {
 		name: "until_done_distill",
 		label: "Until-done distill",
 		description:
-			"After until_done_complete, compile the loop's journey into a PRD-shaped summary: problem, discovered solution shape, learnings, gotchas, useful surfaces, follow-up tasks. Output is written to .pi/until-done/{goal-name}/distilled.md.",
+			"Enrich the automatically generated post-completion distillation with a PRD-shaped summary: problem, solution shape, learnings, gotchas, useful surfaces, and follow-up tasks. Output is written to .pi/until-done/{goal-name}/distilled.md.",
 		parameters: DistillParams,
 		async execute(_id, params, _signal, _onUpdate, ctx) {
 			return executeDistill(pi, store, params, ctx);

@@ -38,7 +38,7 @@ const onSessionStart = (pi: ExtensionAPI, store: Store) => {
 	pi.on("session_start", async (event, ctx) => {
 		reconstructFromSession(store, ctx);
 		refreshStatus(store, ctx);
-		refreshWidget(store, ctx);
+		refreshWidget(store, ctx, true);
 		handleStartupFlag(pi, ctx, event.reason);
 		warnGoalCollision(pi, ctx);
 		return undefined;

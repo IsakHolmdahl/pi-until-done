@@ -104,10 +104,20 @@ The runtime entrypoint is `extensions/until-done.ts`.
    claim independently — only a `done` verdict lets the goal through.
    On `continue`, Pi must address the gap and try again.
 
-7. **Distill.** After the goal is done, Pi calls `until_done_distill`
-   to compile the journey into `.until-done/distilled.md`.
+7. **Manual test.** Judge approval automatically writes a baseline
+   distillation and moves the completed goal to `manual_test`. The user
+   tests the implementation and reports any bugs.
 
-8. **Budget.** Default 20 turns. When exhausted, the loop pauses and
+8. **Bug triage.** Every bug must be explicitly classified by the user as
+   `major` or `minor`. Minor bugs are delegated to subagents and resolved in
+   the manual-test goal. Major bugs start a fresh until-done execution with
+   the bug as its goal. Previous distillation and task learnings are carried
+   into the new setup context.
+
+9. **Improvement loop.** Once all bugs are resolved, `/until-done improvement <pitch>`
+   starts a fresh until-done execution with the prior context.
+
+10. **Budget.** Default 20 turns. When exhausted, the loop pauses and
    tells you exactly how to resume with `/until-done resume`.
 
 Anything you type at any point preempts the loop. For a non-preempting
@@ -127,6 +137,7 @@ The footer shows the live phase glyph while a goal is active:
 | `✓ green` | Test passes |
 | `↺ refactor` | Improving structure without changing behavior |
 | `⌫ cleanup` | Stripping debug prints / scratch files |
+| `🧪 manual_test` | User manually tests the completed implementation |
 | `· none` | Research or doc goal |
 
 ---
@@ -153,6 +164,9 @@ The footer shows the live phase glyph while a goal is active:
 | `/until-done judge <provider>/<modelId>` | Set a cross-model judge default |
 | `/until-done judge same` | Set same-model self-judge as the session default |
 | `/until-done judge clear` | Unset the session default |
+| `/until-done bug <major|minor> <description>` | Report a user-classified manual-test bug |
+| `/until-done bugs` | List bugs reported during manual testing |
+| `/until-done improvement <pitch>` | Start an improvement goal after all bugs are resolved |
 | `/until-done help` | Show this list |
 
 Plus: `--until-done "<intent>"` CLI flag and `Ctrl+Shift+G` shortcut to
@@ -160,7 +174,7 @@ redraw the contract widget.
 
 ---
 
-## Tools (9)
+## Tools (12)
 
 | Tool | Purpose |
 | --- | --- |
@@ -172,7 +186,10 @@ redraw the contract widget.
 | `until_done_complete` | Declare done — requires quoted `verifyCommand` output; gated by LLM judge |
 | `until_done_block` | Pause with a question for the user |
 | `until_done_unblock` | Clear a block programmatically (counterpart to `until_done_block`) |
-| `until_done_distill` | After done: compile the journey into `.until-done/distilled.md` |
+| `until_done_distill` | Enrich the automatically generated distillation |
+| `until_done_report_bug` | Record a user-classified major or minor manual-test bug |
+| `until_done_resolve_bug` | Mark a minor bug resolved with fix evidence |
+| `until_done_improvement` | Start a new goal from an improvement pitch after testing |
 
 ---
 

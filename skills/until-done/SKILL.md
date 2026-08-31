@@ -37,6 +37,7 @@ discipline at a glance.
 | **GREEN** | Smallest production change to pass the failing test. No preemptive generalization. No extra abstractions. |
 | **REFACTOR** | Improve structure / readability / performance without changing externally observable behavior. Run the verify command after. |
 | `none` | Goal is research-only or doc-only — no production code shipping. |
+| **MANUAL_TEST** | Judge-approved implementation is complete. Distillation is automatic; the user tests manually and reports bugs. |
 
 Constraints:
 
@@ -200,6 +201,25 @@ If you've marked all planned tasks done but haven't called
 you cannot drift indefinitely. After two such nudges in a session,
 the loop pauses and waits for the user.
 
+## Manual test phase
+
+After judge approval, the goal remains visible with `status=done` and
+`phase=manual_test`; it does not auto-continue. Ask the user to test the
+implementation. If they report a bug but do not classify it, ask explicitly:
+**"Is this bug major or minor?"** Never infer severity.
+
+Call `until_done_report_bug` only with the user's explicit `major` or `minor`
+classification:
+
+- **minor** — the tool records it as fixing and tells you to delegate the fix
+to a subagent. After the fix, call `until_done_resolve_bug` with evidence.
+- **major** — the tool starts a fresh setup whose goal is `Fix bug: ...` and
+passes the previous distillation, task learnings, and gotchas into setup context.
+
+When all bugs are resolved, an improvement pitch can be started with
+`until_done_improvement` or `/until-done improvement <pitch>`. It is refused while any
+bug is open or being fixed, and carries prior context into the new setup.
+
 ## Cross-model judge
 
 Every `until_done_complete` is gated by an LLM judge. The judge sees
@@ -272,6 +292,8 @@ fails just as hard as it would with a different model.
 | `/until-done judge <provider>/<modelId>` | Set a cross-model judge default |
 | `/until-done judge same` | Set same-model self-judge default |
 | `/until-done judge clear` | Unset; future setups must specify per goal |
+| `/until-done improvement <pitch>` | Start a new goal after manual testing has no unresolved bugs |
+| `/until-done bugs` | List bugs found during manual testing |
 
 You don't have to surface those — the extension handles them. Stay
 focused on the contract.

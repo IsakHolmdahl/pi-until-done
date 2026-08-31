@@ -72,14 +72,18 @@ const PHASE_4 = [
 	"   - When done, the worker should call `until_done_task_update` with status='done'.",
 	"10. BEFORE CALLING THE JUDGE, REVIEWERS MUST APPROVE: Launch `reviewer` subagents to review the implementation for code quality, security flaws, and best practices. Reviewers should NOT check requirements (that's the judge's job). Reviewers must call `until_done_reviewer_approve` with approved=true before you can call `until_done_complete`. If reviewers reject, address feedback and relaunch reviewers.",
 	"11. When ALL tasks are done AND reviewers have approved (reviewerApproved=true) AND verifyCommand passes (with quoted output), call `until_done_complete`. The cross-model judge runs inside that call: it sees only the goal, done-criteria, verifyCommand, and your cited evidence — nothing else from this conversation. Cite evidence the judge can verify literally (paste command output, reference file paths). Don't paraphrase. If the judge returns 'continue', re-read its reason, address the specific gap, then call `until_done_complete` again with stronger evidence — re-running with the same evidence will be rejected again.",
-	"12. After complete, call `until_done_distill` to compile the journey into a PRD-shaped summary the user can act on.",
-	"13. If you hit an ask-before boundary, the loop is paused until the user approves. IMMEDIATELY upon approval, call `until_done_unblock` to clear the blocked state before resuming work. Until you do this, `until_done_task_update` with status='in_progress' or status='done' will be refused.",
-	"14. If blocked for any other reason, call `until_done_block` and wait for the user.",
+	"12. Completion automatically distills a baseline journey and enters the `manual_test` phase. The optional `until_done_distill` tool can replace it with a richer summary.",
+	"13. In `manual_test`, ask the user to test. If they report a bug without severity, ask explicitly whether it is major or minor. Use `until_done_report_bug`; delegate minor fixes to a subagent and let major bugs start a fresh goal. When all bugs are resolved, use `until_done_improvement` for a new improvement pitch.",
+	"14. If you hit an ask-before boundary, the loop is paused until the user approves. IMMEDIATELY upon approval, call `until_done_unblock` to clear the blocked state before resuming work. Until you do this, `until_done_task_update` with status='in_progress' or status='done' will be refused.",
+	"15. If blocked for any other reason, call `until_done_block` and wait for the user.",
 ];
 
-export const setupPrompt = (intent: string): string =>
+export const setupPrompt = (intent: string, priorContext = ""): string =>
 	[
 		`/until-done setup for: ${intent}`,
+		...(priorContext
+			? ["", "Carry-forward context from the previous goal:", priorContext]
+			: []),
 		"",
 		"Read this carefully and follow it strictly.",
 		"",

@@ -67,7 +67,7 @@ describe("until_done_task_update", () => {
 	});
 
 	test("marking a task done advances cursor to next ready task; phase follows", async () => {
-		rt = await createTestRuntime();
+		rt = await createTestRuntime({ withUi: true });
 		seedActive(rt);
 		rt.store.state.tasks = [
 			makeTask({ id: "T-001", status: "in_progress", phase: "green" }),
@@ -86,6 +86,7 @@ describe("until_done_task_update", () => {
 		expect(rt.store.state.tasks[0].status).toBe("done");
 		expect(rt.store.state.currentTaskId).toBe("T-002");
 		expect(rt.store.state.phase).toBe("refactor");
+		expect(rt.ui.widgets.at(-1)?.lines).toContain("  tasks: 1/2");
 	});
 
 	test("setting in_progress on a non-current task moves the cursor", async () => {
