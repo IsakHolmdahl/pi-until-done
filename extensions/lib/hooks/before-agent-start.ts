@@ -85,6 +85,8 @@ export const registerBeforeAgentStart = (
 					systemPrompt:
 						event.systemPrompt + buildPlanningReminder(store.state.id),
 				};
+			if (store.state.status === "done" && store.state.phase === "manual_test")
+				return { systemPrompt: event.systemPrompt + REMINDER.manualTest };
 			if (store.state.status !== "active") return undefined;
 			return { systemPrompt: event.systemPrompt + buildReminder(store.state) };
 		},

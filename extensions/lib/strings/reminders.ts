@@ -31,6 +31,8 @@ export const REMINDER_HEADERS = {
 };
 
 export const REMINDER_LINES = {
+	manualTest:
+		"\n\n# /until-done — Manual test phase\nThe implementation is complete and has been distilled. Ask the user to test it. If a bug is reported, ask explicitly whether it is major or minor before calling `until_done_report_bug`. Minor bugs require a subagent fix; major bugs start a fresh until-done goal. When all bugs are resolved, offer `/until-done improvement <pitch>`.\n",
 	phaseLine: (phase: string) =>
 		`\nPhase: ${phase} (ANALYSIS → BOOTSTRAP → RED → GREEN → REFACTOR → CLEANUP)\n`,
 	budgetLine: (used: number, max: number) =>

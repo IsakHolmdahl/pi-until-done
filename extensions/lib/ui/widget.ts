@@ -21,16 +21,32 @@ const displayGoal = (s: GoalState): string =>
 	s.widgetTitle || autoWidgetTitle(s.goal);
 
 const headerLine = (s: GoalState): string =>
-	WIDGET.header(s.status, phaseGlyph(s.phase), s.phase);
+	s.status === "done"
+		? WIDGET.header(
+				s.status,
+				"✓",
+				s.phase === "manual_test" ? "done · manual_test" : "done",
+			)
+		: WIDGET.header(s.status, phaseGlyph(s.phase), s.phase);
+
+const taskLine = (s: GoalState): string => {
+	if (!s.tasks.length) return "";
+	const done = s.tasks.filter(
+		(task) => task.status === "done" || task.status === "skipped",
+	).length;
+	return WIDGET.tasks(done, s.tasks.length);
+};
 
 const budgetLine = (s: GoalState): string =>
 	WIDGET.budget(s.turnsUsed, s.maxTurns);
 
-const collapsedLines = (s: GoalState): string[] => [
-	headerLine(s),
-	`${WIDGET.goal(displayGoal(s))}  → ctrl+shift+i`,
-	budgetLine(s),
-];
+const collapsedLines = (s: GoalState): string[] =>
+	[
+		headerLine(s),
+		`${WIDGET.goal(displayGoal(s))}  → ctrl+shift+i`,
+		taskLine(s),
+		budgetLine(s),
+	].filter(Boolean);
 
 const expandedLines = (s: GoalState): string[] => {
 	const verdict = s.lastReason
@@ -39,6 +55,7 @@ const expandedLines = (s: GoalState): string[] => {
 	return [
 		headerLine(s),
 		WIDGET.goal(s.goal),
+		taskLine(s),
 		s.doneCriteria ? WIDGET.doneWhen(s.doneCriteria) : "",
 		s.verifyCommand ? WIDGET.verify(s.verifyCommand) : "",
 		s.askBefore.length ? WIDGET.askBefore(s.askBefore) : "",

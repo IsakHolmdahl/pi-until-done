@@ -28,4 +28,12 @@ export const REFUSAL = {
 		`Refused: file writes outside .pi/until/ are not allowed while the goal is in the planning phase (status=planning). Research notes and artefacts must go into .pi/until/<goalId>/. Attempted path: ${filePath}`,
 	judgeUnspecified:
 		"every until_done_complete is gated by a judge LLM call. Cross-model is the default — set `judgeModel: { provider, modelId }` to a DIFFERENT model than the executor (the standard fix for Ralph-loop oscillation). If no second model is available, set `sameModelJudge: true` to use the executor itself with a fresh, completion-focused context. One of the two is required.",
+	manualTestOnly: (status: string) =>
+		`Manual-test actions require status=done and phase=manual_test (status=${status}).`,
+	unknownBug: (id: string) =>
+		`No minor bug with id ${id} is available to resolve.`,
+	unresolvedBugs:
+		"Resolve all reported bugs before starting an improvement pitch.",
+	bugSeverityRequired:
+		"Specify bug severity explicitly as major or minor, followed by the description.",
 };

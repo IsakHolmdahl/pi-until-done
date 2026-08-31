@@ -33,6 +33,7 @@ All phases apply to this codebase too.
 | **REFACTOR** | Improve structure, readability, performance without changing behavior. Run verify after. |
 | **CLEANUP** | Strip debug prints, scratch files, temporary stubs before declaring done. |
 | `none` | Research / doc goal — no production code. |
+| **MANUAL_TEST** | Judge-approved completion; distill automatically, then wait for user testing. |
 
 **No GREEN without RED.** Never write production code without a prior failing
 test for code-shipping goals. The SKILL.md enforces this; this file repeats it.
@@ -262,7 +263,7 @@ tests/
 
 ---
 
-## The 9 tools
+## The 12 tools
 
 | Tool | When |
 | --- | --- |
@@ -274,7 +275,10 @@ tests/
 | `until_done_complete` | Declare done — requires quoted verifyCommand output; gated by LLM judge |
 | `until_done_block` | Pause with a question for the user |
 | `until_done_unblock` | Clear a block programmatically (user can also use `/until-done unblock`) |
-| `until_done_distill` | After done: compile the journey into `.until-done/distilled.md` |
+| `until_done_distill` | Enrich the automatically generated distillation |
+| `until_done_report_bug` | Record a user-classified major/minor manual-test bug |
+| `until_done_resolve_bug` | Mark a minor bug resolved with evidence |
+| `until_done_improvement` | Start a fresh goal from an improvement pitch after testing |
 
 ---
 

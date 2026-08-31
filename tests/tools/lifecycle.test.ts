@@ -114,7 +114,7 @@ describe("until_done_complete", () => {
 	});
 
 	test("appends evidence and transitions active → done (with default self-judge approving)", async () => {
-		rt = await createTestRuntime();
+		rt = await createTestRuntime({ withUi: true });
 		seedActive(rt);
 		rt.store.state.evidence = ["prior"];
 		// Judge defaults to ON; self-judge consumes one response from the
@@ -139,6 +139,7 @@ describe("until_done_complete", () => {
 		expect(rt.store.state.status).toBe("done");
 		expect(rt.store.state.evidence).toContain("tests pass: 42 / 0 fail");
 		expect(rt.store.state.lastVerdict).toBe("done");
+		expect(rt.ui.widgets.at(-1)?.lines?.[0]).toContain("✓ done");
 	});
 });
 
@@ -246,5 +247,17 @@ describe("until_done_progress", () => {
 			phase: "red",
 		});
 		expect(rt.store.state.phase).toBe("red");
+	});
+
+	test("redraws the widget after a user-driven progress update", async () => {
+		rt = await createTestRuntime({ withUi: true });
+		seedActive(rt);
+		await driveToolCall(rt, "until_done_progress", {
+			note: "first failing test landed",
+			phase: "red",
+		});
+		const widget = rt.ui.widgets.at(-1);
+		expect(widget?.hasContent).toBe(true);
+		expect(widget?.lines?.[0]).toContain("red");
 	});
 });

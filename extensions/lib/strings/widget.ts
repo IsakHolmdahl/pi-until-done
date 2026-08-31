@@ -1,12 +1,11 @@
-import type { Phase } from "../types";
-
 export const WIDGET = {
-	header: (status: string, glyph: string, phase: Phase) =>
+	header: (status: string, glyph: string, phase: string) =>
 		`/until-done · ${status} · ${glyph} ${phase}`,
 	goal: (g: string) => `  goal: ${g}`,
 	doneWhen: (c: string) => `  done when: ${c}`,
 	verify: (v: string) => `  verify: ${v}`,
 	askBefore: (list: string[]) => `  ask before: ${list.join(", ")}`,
+	tasks: (done: number, total: number) => `  tasks: ${done}/${total}`,
 	budget: (used: number, max: number) => `  budget: ${used}/${max}`,
 	verdict: (kind: string, reason: string) =>
 		`  last verdict: ${kind} — ${reason}`,
@@ -22,6 +21,7 @@ export const STATUS = {
 		`Ⅱ until-done ${turns} paused${reason}: ${g}`,
 	blocked: (turns: string, g: string) => `? until-done ${turns} blocked: ${g}`,
 	done: (g: string) => `✓ until-done done: ${g}`,
+	manualTest: (g: string) => `🧪 until-done manual test: ${g}`,
 };
 
 export const OVERLAY = {

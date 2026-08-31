@@ -9,11 +9,13 @@ import {
 	cmdAutopilot,
 	cmdBudget,
 	cmdCancel,
+	cmdImprovement,
 	cmdPause,
 	cmdResume,
 	cmdUnblock,
 } from "./control";
 import {
+	cmdBugs,
 	cmdDetail,
 	cmdHelp,
 	cmdNorthStar,
@@ -23,6 +25,7 @@ import {
 	cmdTasks,
 } from "./info";
 import { cmdJudge } from "./judge";
+import { cmdBug } from "./manual-test";
 import { cmdSetup } from "./setup";
 
 export const subcommands = [
@@ -41,6 +44,9 @@ export const subcommands = [
 	"help",
 	"autopilot",
 	"judge",
+	"improvement",
+	"bugs",
+	"bug",
 ] as const;
 
 const ZERO_ARG_SUBCOMMANDS = new Set([
@@ -55,6 +61,7 @@ const ZERO_ARG_SUBCOMMANDS = new Set([
 	"northstar",
 	"replan-log",
 	"autopilot",
+	"bugs",
 ]);
 
 const isPositiveInteger = (s: string): boolean => /^\d+$/.test(s);
@@ -82,6 +89,7 @@ const dispatch = async (
 		if (head === "resume") return cmdResume(pi, store, ctx);
 		if (head === "cancel") return cmdCancel(pi, store, ctx);
 		if (head === "detail") return cmdDetail(store, ctx);
+		if (head === "bugs") return cmdBugs(store, ctx);
 		if (head === "tasks") return cmdTasks(store, ctx);
 		if (head === "plan") return cmdPlanPath(ctx);
 		if (head === "northstar") return cmdNorthStar(store, ctx);
@@ -95,6 +103,10 @@ const dispatch = async (
 	if (head === "ask" && rest.length >= 1) {
 		return cmdAsk(pi, store, ctx, rest.join(" "));
 	}
+	if (head === "improvement" && rest.length >= 1) {
+		return cmdImprovement(pi, store, ctx, rest.join(" "));
+	}
+	if (head === "bug") return cmdBug(pi, store, ctx, rest.join(" "));
 	if (head === "judge" && looksLikeJudgeArg(rest)) {
 		return cmdJudge(pi, store, ctx, rest);
 	}

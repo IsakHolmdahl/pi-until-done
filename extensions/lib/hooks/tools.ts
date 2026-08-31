@@ -9,6 +9,8 @@ import { isToolCallEventType } from "@mariozechner/pi-coding-agent";
 import { isInsidePiUntil } from "../paths";
 import type { Store } from "../store";
 import { DIALOGS, REFUSAL } from "../strings";
+import { refreshStatus } from "../ui/status-line";
+import { refreshWidget } from "../ui/widget";
 
 const matchesAskBefore = (
 	askBefore: string[],
@@ -92,7 +94,10 @@ export const registerToolHooks = (pi: ExtensionAPI, store: Store): void => {
 		return undefined;
 	});
 
-	pi.on("tool_result", () => undefined);
+	pi.on("tool_result", (_event, ctx) => {
+		refreshStatus(store, ctx);
+		refreshWidget(store, ctx, true);
+	});
 	pi.on("tool_execution_start", () => {
 		store.stats.toolStarts++;
 	});

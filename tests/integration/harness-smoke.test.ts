@@ -18,7 +18,7 @@ describe("runtime harness smoke", () => {
 		expect(runtime.store.autopilotEnabled).toBe(false);
 	});
 
-	test("registers all 9 until_done_* tools", async () => {
+	test("registers all until_done_* tools", async () => {
 		runtime = await createTestRuntime();
 		const tools = runtime.session.getAllTools().map((t) => t.name);
 		const required = [
@@ -31,6 +31,9 @@ describe("runtime harness smoke", () => {
 			"until_done_replan",
 			"until_done_task_update",
 			"until_done_distill",
+			"until_done_report_bug",
+			"until_done_resolve_bug",
+			"until_done_improvement",
 		];
 		for (const name of required) expect(tools).toContain(name);
 	});

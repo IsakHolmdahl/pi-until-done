@@ -38,6 +38,8 @@ const INSPECTION = {
 	livePlanAt: (p: string) => `Live task list: ${p}`,
 	noNorthStar: "No active goal. Run /until-done <intent> first.",
 	noReplans: "No replans on record.",
+	noBugs: "No manual-test bugs reported.",
+	bugs: (text: string) => `Manual-test bugs:\n${text}`,
 };
 
 const BUDGET = {

@@ -1,6 +1,7 @@
 import type {
 	ExtensionAPI,
 	ExtensionCommandContext,
+	ExtensionContext,
 } from "@mariozechner/pi-coding-agent";
 import { initialState } from "../initial-state";
 import { persist, type Store } from "../store";
@@ -46,6 +47,22 @@ const initSetupState = (
 	);
 };
 
+export const beginSetup = (
+	pi: ExtensionAPI,
+	store: Store,
+	ctx: ExtensionContext,
+	intent: string,
+	priorContext = "",
+): void => {
+	initSetupState(pi, store, intent);
+	pi.sendUserMessage(setupPrompt(intent, priorContext), {
+		deliverAs: "followUp",
+	});
+	ctx.ui.notify(NOTIFY.setupStarted(intent), "info");
+	refreshStatus(store, ctx);
+	refreshWidget(store, ctx, true);
+};
+
 export const cmdSetup = async (
 	pi: ExtensionAPI,
 	store: Store,
@@ -57,9 +74,5 @@ export const cmdSetup = async (
 		if (!replace) return;
 		persist(pi, store, "cancel", initialState(), "replaced by new setup");
 	}
-	initSetupState(pi, store, intent);
-	pi.sendUserMessage(setupPrompt(intent));
-	ctx.ui.notify(NOTIFY.setupStarted(intent), "info");
-	refreshStatus(store, ctx);
-	refreshWidget(store, ctx, true);
+	beginSetup(pi, store, ctx, intent);
 };

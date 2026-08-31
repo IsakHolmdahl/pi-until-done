@@ -20,6 +20,6 @@ export const CLEAN_END = {
 	residual:
 		"2. If residual work was discovered, call `until_done_replan` with reason='residual_work_discovered' and add the new tasks. Don't keep working without a planned task.",
 	distillReminder:
-		"After until_done_complete, call until_done_distill to compile the journey into a PRD the user can act on.",
+		"Completion distills automatically and enters manual_test. The optional until_done_distill tool can enrich the baseline before the user tests.",
 	footer: "Do not invent new work outside the plan.",
 };

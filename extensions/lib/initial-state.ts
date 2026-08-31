@@ -9,6 +9,7 @@ export const initialState = (): GoalState => ({
 	askBefore: [],
 	decisionStyle: "",
 	evidence: [],
+	bugs: [],
 	status: "setup",
 	phase: "analysis",
 	turnsUsed: 0,

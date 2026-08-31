@@ -7,8 +7,13 @@ import {
 	LARGE_BUDGET_CONFIRM_THRESHOLD,
 } from "../constants";
 import { initialState } from "../initial-state";
+import {
+	beginFollowUp,
+	hasUnresolvedBugs,
+	isManualTest,
+} from "../manual-test-flow";
 import { persist, type Store } from "../store";
-import { DIALOGS, NOTIFY } from "../strings";
+import { DIALOGS, NOTIFY, REFUSAL } from "../strings";
 import { refreshStatus } from "../ui/status-line";
 import { refreshWidget } from "../ui/widget";
 
@@ -68,7 +73,7 @@ export const cmdResume = async (
 			: `Resume work on the standing /until-done goal: ${s.goal}`,
 	);
 	refreshStatus(store, ctx);
-	refreshWidget(store, ctx);
+	refreshWidget(store, ctx, true);
 };
 
 export const cmdCancel = async (
@@ -121,6 +126,23 @@ export const cmdBudget = async (
 	ctx.ui.notify(NOTIFY.budgetSet(n), "info");
 	refreshStatus(store, ctx);
 	refreshWidget(store, ctx, true);
+};
+
+export const cmdImprovement = async (
+	pi: ExtensionAPI,
+	store: Store,
+	ctx: ExtensionCommandContext,
+	pitch: string,
+): Promise<void> => {
+	if (!isManualTest(store.state)) {
+		ctx.ui.notify(REFUSAL.manualTestOnly(store.state.status), "warning");
+		return;
+	}
+	if (hasUnresolvedBugs(store.state)) {
+		ctx.ui.notify(REFUSAL.unresolvedBugs, "warning");
+		return;
+	}
+	beginFollowUp(pi, store, ctx, `Improvement: ${pitch}`);
 };
 
 export const cmdAutopilot = async (

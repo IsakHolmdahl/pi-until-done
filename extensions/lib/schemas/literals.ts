@@ -8,6 +8,7 @@ export const PhaseLiteral = Type.Union(
 		Type.Literal("green"),
 		Type.Literal("refactor"),
 		Type.Literal("cleanup"),
+		Type.Literal("manual_test"),
 		Type.Literal("none"),
 	],
 	{ description: "TDD phase" },
