@@ -169,7 +169,7 @@ The footer shows the live phase glyph while a goal is active:
 | `/until-done improvement <pitch>` | Start an improvement goal after all bugs are resolved |
 | `/until-done help` | Show this list |
 
-Plus: `--until-done "<intent>"` CLI flag and `Ctrl+Shift+G` shortcut to
+Plus: `--until-done "<intent>"` CLI flag and `Ctrl+Shift+R` shortcut to
 redraw the contract widget.
 
 ---
@@ -406,7 +406,7 @@ turn.
 | `pi.registerCommand` | `/until-done` with subcommand autocomplete |
 | `pi.registerTool` | All 9 tools |
 | `pi.registerFlag` | `--until-done <text>` |
-| `pi.registerShortcut` | `Ctrl+Shift+G` — redraw contract widget |
+| `pi.registerShortcut` | `Ctrl+Shift+R` — redraw contract widget |
 | `pi.appendEntry` | Persists `until-done.state` events |
 | `pi.sendUserMessage` | Continuation prompts + setup interview |
 | `pi.sendMessage` | Re-anchors goal context as `CustomMessageEntry` after compaction (`display: false`) |

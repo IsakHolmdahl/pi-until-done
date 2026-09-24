@@ -46,6 +46,17 @@ const buildStore = (expanded = false): Store =>
 	}) as Store;
 
 describe("registerShortcut", () => {
+	test("registers ctrl+shift+r to redraw the widget", () => {
+		const captured: CapturedShortcut[] = [];
+		registerShortcut(buildMockPi(captured), buildStore());
+		const redraw = captured.find((c) => c.key === "ctrl+shift+r");
+		expect(redraw).toBeDefined();
+		expect(captured.map((shortcut) => shortcut.key)).not.toContain(
+			"ctrl+shift+g",
+		);
+		expect(redraw?.description).toContain("toggle status");
+	});
+
 	test("registers ctrl+shift+i to toggle widget expansion", () => {
 		const captured: CapturedShortcut[] = [];
 		const store = buildStore(false);
