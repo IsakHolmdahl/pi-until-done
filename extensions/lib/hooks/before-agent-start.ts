@@ -39,8 +39,8 @@ const taskBlock = (s: GoalState): string => {
 
 const PLANNING_REMINDER = [
 	"\n\n# /until-done \u2014 Planning phase (contract locked, plan pending)",
-	"Status: planning. The North Star contract is set. Your next step is to call",
-	"`until_done_plan` with the full ordered task list.",
+	"Status: planning. The North Star contract is set. Open Plannotator next:",
+	"call `until_done_draft_plan`, then `until_done_propose_plan` after it approves.",
 	"",
 	"File-write restriction (enforced): while status=planning, `edit` and `write`",
 	"tool calls are blocked for any path outside `.pi/until/<goalId>/`.",

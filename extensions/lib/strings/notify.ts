@@ -6,7 +6,7 @@ const LIFECYCLE = {
 		`/until-done · setup started for "${intent}"`,
 	planApproved: "/until-done · plan approved. Pi will activate now.",
 	planRejected:
-		"/until-done · plan rejected. Revise and resubmit via until_done_plan.",
+		"/until-done · plan rejected. Revise and resubmit via until_done_propose_plan.",
 	paused: "/until-done paused.",
 	resumed: (g: string) => `/until-done resumed (budget reset). Goal: ${g}`,
 	cancelled: "/until-done cancelled.",
@@ -27,14 +27,15 @@ const LIFECYCLE = {
 	planDocumentApproved:
 		"/until-done · Plan document approved. You can now generate tasks.",
 	planDocumentRejected:
-		"/until-done · Plan document rejected. Revise and resubmit via until_done_plan_document.",
+		"/until-done · Plan document rejected. Revise and resubmit via until_done_draft_plan.",
 };
 
 const INSPECTION = {
 	noActiveGoal: "No active /until-done goal.",
 	noTasksYet:
-		"No tasks yet. After /until-done <intent> is set, Pi will call `until_done_plan` to generate the list.",
-	noPlanYet: "No plan written yet. Pi must call until_done_plan first.",
+		"No tasks yet. After /until-done <intent> is set, Pi will call `until_done_draft_plan`, then `until_done_propose_plan`.",
+	noPlanYet:
+		"No plan written yet. Pi must call until_done_draft_plan first. Plannotator reviews it.",
 	livePlanAt: (p: string) => `Live task list: ${p}`,
 	noNorthStar: "No active goal. Run /until-done <intent> first.",
 	noReplans: "No replans on record.",

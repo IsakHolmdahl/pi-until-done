@@ -30,6 +30,10 @@ const installFakePlannotatorForDocument = (
 			payload: { planContent: string };
 			respond: (response: unknown) => void;
 		};
+		if (request.action === "review-status") {
+			request.respond({ status: "handled", result: { status: "missing" } });
+			return;
+		}
 		if (request.action !== "plan-review") return;
 		request.respond({
 			status: "handled",
@@ -113,6 +117,10 @@ describe("until_done_draft_plan", () => {
 				action: string;
 				respond: (r: unknown) => void;
 			};
+			if (req.action === "review-status") {
+				req.respond({ status: "handled", result: { status: "missing" } });
+				return;
+			}
 			if (req.action !== "plan-review") return;
 			req.respond({
 				status: "handled",
@@ -131,6 +139,38 @@ describe("until_done_draft_plan", () => {
 			planDocument: PLAN_DOC,
 		});
 		// Choice must be honoured: plannotator said rejected
+		expect(rt.store.state.planningPhase).toBe("document");
+		expect(rt.ui.confirms).toHaveLength(0);
+	});
+
+	test("when plannotator accepts the review after 3s, the decision is still used", async () => {
+		rt = await createTestRuntime({ withUi: true });
+		rt.pi.events.on("plannotator:request", (data) => {
+			const req = data as {
+				action: string;
+				respond: (r: unknown) => void;
+			};
+			if (req.action === "review-status") {
+				req.respond({ status: "handled", result: { status: "missing" } });
+				return;
+			}
+			if (req.action !== "plan-review") return;
+			setTimeout(() => {
+				req.respond({
+					status: "handled",
+					result: { status: "pending", reviewId: "rev-slow-start" },
+				});
+				rt?.pi.events.emit("plannotator:review-result", {
+					reviewId: "rev-slow-start",
+					approved: false,
+					feedback: "slow start",
+				});
+			}, 3200);
+		});
+		seedPlanning(rt);
+		await driveToolCall(rt, "until_done_draft_plan", {
+			planDocument: PLAN_DOC,
+		});
 		expect(rt.store.state.planningPhase).toBe("document");
 		expect(rt.ui.confirms).toHaveLength(0);
 	});

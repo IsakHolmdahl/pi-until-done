@@ -29,7 +29,10 @@ const formatTaskLine = (task: Task): string => {
 export const formatPlanForPlannotator = (tasks: Task[]): string =>
 	["# /until-done plan", "", ...tasks.map(formatTaskLine)].join("\n");
 
-const PLANNOTATOR_TIMEOUT_MS = 3000;
+const PROBE_MS = 50;
+// Plannotator calls respond() only after the browser session starts.
+// A short timeout here is a false "not installed" and skips the UI.
+const START_MS = 60_000;
 
 // waitForResult has no timeout: once plannotator has accepted the review it
 // owns the decision. Only an abort signal (user Esc) cancels the wait.
@@ -89,36 +92,41 @@ const handleReviewStart = (
 	void waitForResult(pi, response.result.reviewId, signal).then(finish);
 };
 
-export const requestPlannotatorPlanReview = async (
+const listenerPresent = (pi: ExtensionAPI): Promise<boolean> =>
+	new Promise((resolve) => {
+		let done = false;
+		const finish = (value: boolean) => {
+			if (done) return;
+			done = true;
+			clearTimeout(timer);
+			resolve(value);
+		};
+		const timer = setTimeout(() => finish(false), PROBE_MS);
+		pi.events.emit(REQUEST_CHANNEL, {
+			requestId: `probe-${Date.now()}`,
+			action: "review-status",
+			payload: { reviewId: "probe" },
+			respond: () => finish(true),
+		});
+	});
+
+const requestReview = async (
 	pi: ExtensionAPI,
-	tasks: Task[],
+	planContent: string,
+	planFilePath: string | undefined,
 	signal: AbortSignal | undefined,
-	planFilePath?: string,
 ): Promise<PlannotatorDecision | undefined> => {
-	const planContent = formatPlanForPlannotator(tasks);
+	if (!(await listenerPresent(pi))) return undefined;
 	return new Promise((resolve) => {
 		let done = false;
 		const finish = (value: PlannotatorDecision | undefined) => {
 			if (done) return;
 			done = true;
+			clearTimeout(initTimeout);
 			resolve(value);
 		};
-
-		// Timeout for initial plannotator response
-		const initTimeout = setTimeout(
-			() => finish(undefined),
-			PLANNOTATOR_TIMEOUT_MS,
-		);
-
-		signal?.addEventListener(
-			"abort",
-			() => {
-				clearTimeout(initTimeout);
-				finish(undefined);
-			},
-			{ once: true },
-		);
-
+		const initTimeout = setTimeout(() => finish(undefined), START_MS);
+		signal?.addEventListener("abort", () => finish(undefined), { once: true });
 		emitPlanReview(pi, planContent, planFilePath, (response) => {
 			clearTimeout(initTimeout);
 			handleReviewStart(response, pi, signal, finish);
@@ -126,39 +134,19 @@ export const requestPlannotatorPlanReview = async (
 	});
 };
 
-export const requestPlannotatorDocumentReview = async (
+export const requestPlannotatorPlanReview = (
+	pi: ExtensionAPI,
+	tasks: Task[],
+	signal: AbortSignal | undefined,
+	planFilePath?: string,
+): Promise<PlannotatorDecision | undefined> =>
+	requestReview(pi, formatPlanForPlannotator(tasks), planFilePath, signal);
+
+export const requestPlannotatorDocumentReview = (
 	pi: ExtensionAPI,
 	title: string,
 	document: string,
 	planFilePath: string | undefined,
 	signal: AbortSignal | undefined,
-): Promise<PlannotatorDecision | undefined> => {
-	const planContent = `# ${title}\n\n${document}`;
-	return new Promise((resolve) => {
-		let done = false;
-		const finish = (value: PlannotatorDecision | undefined) => {
-			if (done) return;
-			done = true;
-			resolve(value);
-		};
-
-		const initTimeout = setTimeout(
-			() => finish(undefined),
-			PLANNOTATOR_TIMEOUT_MS,
-		);
-
-		signal?.addEventListener(
-			"abort",
-			() => {
-				clearTimeout(initTimeout);
-				finish(undefined);
-			},
-			{ once: true },
-		);
-
-		emitPlanReview(pi, planContent, planFilePath, (response) => {
-			clearTimeout(initTimeout);
-			handleReviewStart(response, pi, signal, finish);
-		});
-	});
-};
+): Promise<PlannotatorDecision | undefined> =>
+	requestReview(pi, `# ${title}\n\n${document}`, planFilePath, signal);

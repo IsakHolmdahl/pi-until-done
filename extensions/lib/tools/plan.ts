@@ -160,7 +160,7 @@ const executePlan = async (
 	// Require plan document approval first
 	if (s.planningPhase !== "tasks") {
 		return refused(
-			"Plan document must be approved first. Call until_done_plan_document with a plan document before submitting tasks.",
+			"Plan document must be approved first. Call until_done_draft_plan with a plan document before submitting tasks.",
 			"plan_document_required",
 		);
 	}

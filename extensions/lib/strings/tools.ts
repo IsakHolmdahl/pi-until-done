@@ -1,6 +1,6 @@
 export const TOOL_DESCRIPTIONS = {
 	proposePlan:
-		"Provide the comprehensive TDD-first task list for the active /until-done goal. Call once after `until_done_draft_plan` is approved; this triggers the user approval dialog.",
+		"Provide the comprehensive TDD-first task list for the active /until-done goal. Call once after `until_done_draft_plan` is approved. Opens in Plannotator for review.",
 	replan:
 		"Modify the task list mid-execution: insert / remove / replace / split / merge / reorder. The North Star (goal, doneCriteria, verifyCommand, askBefore) is LOCKED — call `/until-done cancel` if you need to change those. `done` tasks are immutable. Every call must include a `reason` (one short sentence) which is appended to affected tasks' learnings.",
 	taskUpdate:

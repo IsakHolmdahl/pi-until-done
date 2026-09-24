@@ -212,6 +212,10 @@ const installFakePlannotator = (
 			payload: { planContent: string };
 			respond: (response: unknown) => void;
 		};
+		if (request.action === "review-status") {
+			request.respond({ status: "handled", result: { status: "missing" } });
+			return;
+		}
 		if (request.action !== "plan-review") return;
 		request.respond({
 			status: "handled",

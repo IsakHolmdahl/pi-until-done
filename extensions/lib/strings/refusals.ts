@@ -5,14 +5,15 @@ export const REFUSAL = {
 		`task ${taskId} depends on unknown task ${dep}.`,
 	replanWrongStatus: (status: string) =>
 		`replan only allowed in 'active' (status=${status}).`,
-	replanNoNorthStar: "northStar not set; call until_done_set first.",
+	replanNoNorthStar: "northStar not set; call until_done_set_contract first.",
 	replanEmptyReason: "reason is required.",
 	replanCycle: (taskId: string) =>
 		`replan introduces dependency cycle through ${taskId}`,
 	taskNotFound: (id: string) => `No task with id ${id}.`,
 	goalExists: (status: string) =>
 		`a goal is already ${status}. Cancel it with /until-done cancel first.`,
-	planRejected: "plan rejected. Revise and resubmit via until_done_plan.",
+	planRejected:
+		"plan rejected. Revise and resubmit via until_done_propose_plan.",
 	noActiveGoal: (status: string) =>
 		`Refused: no active goal (status=${status}).`,
 	noActiveBlock: (status: string) =>

@@ -1,6 +1,6 @@
 ---
 name: until-done
-description: How to drive Pi's `/until-done` autonomous goal loop — owning the contract, calling the `until_done_*` tools, applying TDD discipline (ANALYSIS → BOOTSTRAP → RED → GREEN → REFACTOR), and respecting ask-before boundaries. Pi loads this skill on demand whenever a `/until-done` goal is active.
+description: How to drive Pi's `/until-done` autonomous goal loop — owning the contract, calling the `until_done_*` tools, sending every plan through Plannotator, applying TDD discipline (ANALYSIS → BOOTSTRAP → RED → GREEN → REFACTOR), and respecting ask-before boundaries. Pi loads this skill on demand whenever a `/until-done` goal is active.
 ---
 
 # /until-done — Pi-led autonomous goal pursuit
@@ -51,7 +51,7 @@ stay in `analysis` and end with a written summary.
 
 ## North Star — what's locked vs. mutable
 
-`until_done_set` locks five things into a **North Star** that **cannot
+`until_done_set_contract` locks five things into a **North Star** that **cannot
 change** for the lifetime of the goal:
 
 1. `goal` — the destination
@@ -77,12 +77,13 @@ logged to `/until-done replan-log`.
 ## Setup mode
 
 You execute setup as **two locked deliverables**: the contract (North
-Star) and the YAML task list. The contract is approved implicitly by
-calling `until_done_set`; the plan is approved separately when you call
-`until_done_plan`.
+Star) and the plan. Lock the contract with `until_done_set_contract`.
+Plannotator reviews the plan document (`until_done_draft_plan`) and then
+the task list (`until_done_propose_plan`). Do not skip Plannotator and do
+not treat a confirm dialog as approval.
 
 1. Read the user's intent.
-2. Draft the contract (North Star — locked once you call `until_done_set`):
+2. Draft the contract (North Star — locked once you call `until_done_set_contract`):
    - **Goal**: one-line restatement.
    - **Done when**: concrete, verifiable conditions. For
      production-code goals: must include _"all tests in <verifyCommand>
@@ -98,7 +99,7 @@ calling `until_done_set`; the plan is approved separately when you call
      etc.).
    - **startPhase**: `analysis` for most goals; `red` if the user's
      intent already names the failing case; `none` for non-code goals.
-   - **Judge mode** — REQUIRED. Pick exactly one (`until_done_set`
+   - **Judge mode** — REQUIRED. Pick exactly one (`until_done_set_contract`
      refuses with `judge_unspecified` if you skip both):
      - `judgeModel: { provider, modelId }` (recommended) — a model
        **different** from the executor. Cross-model is the standard
@@ -145,16 +146,17 @@ calling `until_done_set`; the plan is approved separately when you call
    by a RED task; final task is verification (run `verifyCommand`,
    confirm done-criteria).
 
-4. Call `until_done_set` with the contract fields. The extension moves
-   the goal into **planning** status and records the North Star.
-5. Show the planned task list back to the user as plain markdown for
-   preview.
-6. Call `until_done_plan` with the full `tasks` array. The extension
-   triggers the approval step (dialog or plannotator).
+4. Call `until_done_set_contract` first. The goal must be in
+   **planning** before either plan tool will open Plannotator.
+5. Call `until_done_draft_plan` with the markdown plan document. This
+   opens Plannotator. If rejected, revise and resubmit. Do not continue
+   to tasks until it approves.
+6. Call `until_done_propose_plan` with the full `tasks` array. This
+   opens Plannotator again. If rejected, revise and resubmit.
 
 If the plan is rejected, the North Star is preserved and the goal
-stays in **planning** — revise the task list and call
-`until_done_plan` again. If the user wants to change the North Star
+stays in **planning** — revise and call `until_done_draft_plan` or
+`until_done_propose_plan` again. If the user wants to change the North Star
 itself, `/until-done cancel` is the only way. If the user cancels the
 contract entirely, stop.
 
@@ -258,7 +260,7 @@ fails just as hard as it would with a different model.
 - **Never** retry `until_done_complete` after a `judge_rejected`
   refusal without addressing the judge's specific gap. Re-running
   with the same evidence will be rejected again.
-- **Never** call `until_done_set` during work mode (the contract is
+- **Never** call `until_done_set_contract` during work mode (the contract is
   locked once activated).
 - **Never** ignore the "ask before" list. If you're unsure whether a
   command matches, ask the user.

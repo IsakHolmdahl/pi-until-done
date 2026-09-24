@@ -79,7 +79,7 @@ describe("/until-done plan", () => {
 			rt.ui.notifies.some(
 				(n) =>
 					n.message ===
-					"No plan written yet. Pi must call until_done_plan first.",
+					"No plan written yet. Pi must call until_done_draft_plan first. Plannotator reviews it.",
 			),
 		).toBe(true);
 	});

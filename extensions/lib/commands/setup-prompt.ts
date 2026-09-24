@@ -34,8 +34,8 @@ const PHASE_1 = [
 const PHASE_2 = [
 	"PHASE 2 — PLAN DOCUMENT (you draft as markdown, plannotator reviews)",
 	"3. Write a plan document explaining the approach, architecture decisions, and implementation strategy. This is a thinking document, NOT the task list.",
-	"   - Save it by calling `until_done_draft_plan` with the markdown content.",
-	"   - Plannotator will review the plan document first.",
+	"   - After `until_done_set_contract`, save it by calling `until_done_draft_plan`.",
+	"   - Plannotator reviews the plan document. Do not skip this. A confirm dialog is not approval.",
 	"   - If approved, you can then generate the task list.",
 	"   - If rejected, revise the plan document and resubmit.",
 	"4. After plan document is approved, decompose the goal into a TDD-first task list.",
@@ -101,5 +101,5 @@ export const setupPrompt = (intent: string, priorContext = ""): string =>
 		"",
 		...PHASE_4,
 		"",
-		"DO NOT call `until_done_set_contract` or `until_done_propose_plan` until you have drafted the contract and task plan in PHASES 1 and 2.",
+		"Call `until_done_set_contract` before `until_done_draft_plan`. Both reviews open in Plannotator. Do not skip them.",
 	].join("\n");

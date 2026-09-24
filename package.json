@@ -60,9 +60,7 @@
   },
   "pi": {
     "extensions": [
-      "./extensions/until-done.ts",
-      "@plannotator/pi-extension",
-      "pi-subagents"
+      "./extensions/until-done.ts"
     ],
     "skills": [
       "./skills"
