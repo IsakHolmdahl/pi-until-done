@@ -67,6 +67,9 @@ jobs:
           fetch-depth: 0          # full history so git log / --generate-notes works
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
       - name: Configure git bot identity
         run: |
           git config user.name  "github-actions[bot]"
