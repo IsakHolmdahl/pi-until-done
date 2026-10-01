@@ -8,6 +8,7 @@ import { PlanDocumentParams } from "../schemas/plan-document";
 import { persist, type Store } from "../store";
 import {
 	NOTIFY,
+	REFUSAL,
 	TOOL_DESCRIPTIONS,
 	TOOL_LABELS,
 	TOOL_RESULTS,
@@ -67,16 +68,13 @@ const executePlanDocument = async (
 		planPath,
 		signal,
 	);
-	if (decision) {
-		if (decision.approved) {
-			return approvePlanDocument(pi, store, ctx, planPath);
-		} else {
-			return rejectPlanDocument(pi, store, ctx, decision.feedback);
-		}
+	if (!decision) {
+		return refused(REFUSAL.plannotatorRequired, "plannotator_required");
 	}
-
-	// No plannotator — auto-approve; the agent's submission is sufficient
-	return approvePlanDocument(pi, store, ctx, planPath);
+	if (decision.approved) {
+		return approvePlanDocument(pi, store, ctx, planPath);
+	}
+	return rejectPlanDocument(pi, store, ctx, decision.feedback);
 };
 
 const approvePlanDocument = (

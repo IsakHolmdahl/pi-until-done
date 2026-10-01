@@ -11,7 +11,6 @@ import {
 import { PlanParams } from "../schemas/plan";
 import { persist, type Store } from "../store";
 import {
-	DIALOGS,
 	NOTIFY,
 	REFUSAL,
 	TOOL_DESCRIPTIONS,
@@ -102,33 +101,6 @@ const tryPlannotatorApproval = async (
 	return { approved: false, feedback: decision.feedback };
 };
 
-const awaitPlanApproval = async (
-	pi: ExtensionAPI,
-	store: Store,
-	ctx: ExtensionContext,
-	signal: AbortSignal | undefined,
-): Promise<PlannotatorDecision> => {
-	if (store.autopilotEnabled) {
-		grantPlanApproval(pi, store, ctx, "autopilot");
-		return { approved: true };
-	}
-	if (!ctx.hasUI) {
-		grantPlanApproval(pi, store, ctx, "no ui; auto-approved");
-		return { approved: true };
-	}
-	const plannotator = await tryPlannotatorApproval(pi, store, ctx, signal);
-	if (plannotator) return plannotator;
-	const confirmed = await ctx.ui.confirm(
-		DIALOGS.approveTitle,
-		DIALOGS.approveMessage,
-	);
-	if (confirmed) {
-		grantPlanApproval(pi, store, ctx, "user approved plan");
-		return { approved: true };
-	}
-	return { approved: false };
-};
-
 const persistPlan = (
 	pi: ExtensionAPI,
 	store: Store,
@@ -192,9 +164,13 @@ const executePlan = async (
 			{ tasksYamlPath },
 			`plan with ${params.tasks.length} tasks`,
 		);
-		const decision = await awaitPlanApproval(pi, store, ctx, signal);
+		const decision = await tryPlannotatorApproval(pi, store, ctx, signal);
+		if (!decision) {
+			rejectPlan(pi, store, ctx, "plannotator required");
+			return refused(REFUSAL.plannotatorRequired, "plannotator_required");
+		}
 		if (!decision.approved) {
-			rejectPlan(pi, store, ctx, "plan rejected");
+			rejectPlan(pi, store, ctx, decision.feedback ?? "plan rejected");
 			return refused(
 				decision.feedback ?? REFUSAL.planRejected,
 				"plan_rejected",

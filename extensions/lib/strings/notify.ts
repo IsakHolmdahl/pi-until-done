@@ -17,9 +17,9 @@ const LIFECYCLE = {
 		`Nothing to unblock (status=${status}).`,
 	unblocked: "/until-done · block cleared. Resuming work.",
 	autopilotEnabled:
-		"/until-done · autopilot ON. Future setups will skip the plan confirmation dialog.",
+		"/until-done · autopilot ON. Plannotator approval is still required.",
 	autopilotDisabled:
-		"/until-done · autopilot OFF. Future setups will require the plan confirmation dialog.",
+		"/until-done · autopilot OFF. Plannotator approval is still required.",
 	reviewerApproved:
 		"/until-done · Reviewer approved implementation for judge review.",
 	reviewerRejected:

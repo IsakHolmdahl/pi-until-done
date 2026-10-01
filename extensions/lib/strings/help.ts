@@ -13,7 +13,7 @@ export const HELP_TEXT = [
 	"/until-done northstar         — print the locked goal contract",
 	"/until-done replan-log        — show every replan and its reason",
 	"/until-done ask <question>    — side question (does not preempt the loop)",
-	"/until-done autopilot         — toggle skipping the plan dialog",
+	"/until-done autopilot         — toggle autopilot; Plannotator approval remains required",
 	"/until-done unblock           — clear a blocked goal after approval",
 	"/until-done bug <major|minor> <description> — report a manual-test bug",
 	"/until-done bugs              — list manual-test bugs",

@@ -1,6 +1,6 @@
 export const TOOL_DESCRIPTIONS = {
 	proposePlan:
-		"Provide the comprehensive TDD-first task list for the active /until-done goal. Call once after `until_done_draft_plan` is approved. Opens in Plannotator for review.",
+		"Provide the comprehensive TDD-first task list for the active /until-done goal. Call once after `until_done_draft_plan` is approved. Waits for the user's Plannotator decision.",
 	replan:
 		"Modify the task list mid-execution: insert / remove / replace / split / merge / reorder. The North Star (goal, doneCriteria, verifyCommand, askBefore) is LOCKED — call `/until-done cancel` if you need to change those. `done` tasks are immutable. Every call must include a `reason` (one short sentence) which is appended to affected tasks' learnings.",
 	taskUpdate:
@@ -18,7 +18,7 @@ export const TOOL_DESCRIPTIONS = {
 	reviewerApprove:
 		"Signal reviewer approval or rejection of the implementation. Reviewers must call this tool to approve the implementation before the judge can be called. Reviewers should focus on code quality, security flaws, and best practices — NOT on requirements (that's the judge's job). Call with approved=true to allow judge review, or approved=false with feedback to request changes.",
 	draftPlan:
-		"Submit the plan document (markdown) for review. FIRST step in planning. Explains approach, architecture, and implementation strategy. Reviewed by plannotator before tasks are generated.",
+		"Submit the plan document (markdown) for review. FIRST step in planning. Explains approach, architecture, and implementation strategy. Waits for the user's Plannotator decision before tasks are generated.",
 	reportBug:
 		"Report a bug found during manual_test. The user must explicitly choose major or minor; if they have not, ask them before calling this tool. Minor bugs are handed to a subagent; major bugs start a fresh until-done goal.",
 	resolveBug:

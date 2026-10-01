@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { fauxAssistantMessage, fauxToolCall } from "@mariozechner/pi-ai";
 import { Type } from "typebox";
 import { makeTask } from "../helpers/factories";
 import {
@@ -68,11 +69,9 @@ describe("until_done_propose_plan", () => {
 		expect(rt.store.state.tasks).toHaveLength(0);
 	});
 
-	test("when status is planning, shows approval dialog and activates on approve", async () => {
-		rt = await createTestRuntime({
-			withUi: true,
-			uiPolicy: { confirm: () => true },
-		});
+	test("when status is planning without plannotator, does not activate", async () => {
+		rt = await createTestRuntime({ withUi: true });
+		rt.store.autopilotEnabled = true;
 		rt.store.state = {
 			...rt.store.state,
 			status: "planning",
@@ -92,11 +91,54 @@ describe("until_done_propose_plan", () => {
 		await driveToolCall(rt, "until_done_propose_plan", {
 			tasks: [makeTask({ id: "T-001" })],
 		});
-		expect(rt.store.state.status as string).toBe("active");
-		expect(rt.store.state.confirmedByUser).toBe(true);
-		expect(rt.ui.confirms.some((c) => c.title.includes("approve plan"))).toBe(
-			true,
-		);
+		expect(rt.store.state.status).toBe("planning");
+		expect(rt.store.state.confirmedByUser).toBe(false);
+		expect(rt.ui.confirms).toHaveLength(0);
+	});
+
+	test("waits for Plannotator's user decision before activating", async () => {
+		rt = await createTestRuntime({ withUi: true });
+		let resolveStarted!: () => void;
+		const started = new Promise<void>((resolve) => {
+			resolveStarted = resolve;
+		});
+		installFakePlannotator(rt, undefined, resolveStarted);
+		rt.store.state = {
+			...rt.store.state,
+			status: "planning",
+			id: "ud-test",
+			goal: "ship X",
+			northStar: {
+				goal: "ship X",
+				doneCriteria: "ok",
+				goalType: "ticket",
+				askBefore: [],
+				decisionStyle: "",
+				surfaces: [],
+			},
+			maxTurns: 100,
+			planningPhase: "tasks",
+		};
+		rt.setLLM([
+			fauxAssistantMessage(
+				[
+					fauxToolCall("until_done_propose_plan", {
+						tasks: [makeTask({ id: "T-001" })],
+					}),
+				],
+				{ stopReason: "toolUse" },
+			),
+			fauxAssistantMessage("done", { stopReason: "stop" }),
+		]);
+		const prompt = rt.prompt("run the tool");
+		await started;
+		expect(rt.store.state.status).toBe("planning");
+		rt.pi.events.emit("plannotator:review-result", {
+			reviewId: "rev-fake",
+			approved: true,
+		});
+		await prompt;
+		expect(rt.store.state.status).toBe("active");
 	});
 
 	test("when status is planning, rejection preserves contract and resets to planning", async () => {
@@ -190,7 +232,8 @@ describe("until_done_propose_plan", () => {
 
 const installFakePlannotator = (
 	rt: TestRuntime,
-	decision: { approved: boolean; feedback?: string },
+	decision: { approved: boolean; feedback?: string } | undefined,
+	onStarted?: () => void,
 ): void => {
 	rt.pi.registerTool({
 		name: "plannotator_submit_plan",
@@ -221,6 +264,8 @@ const installFakePlannotator = (
 			status: "handled",
 			result: { status: "pending", reviewId: "rev-fake" },
 		});
+		onStarted?.();
+		if (!decision) return;
 		setTimeout(() => {
 			rt.pi.events.emit("plannotator:review-result", {
 				reviewId: "rev-fake",

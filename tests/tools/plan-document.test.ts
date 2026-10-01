@@ -1,9 +1,10 @@
 /**
  * Tests for until_done_draft_plan — plan document submission and plannotator
- * approval gate. Plannotator is the sole external reviewer; when unavailable
- * the tool must auto-approve rather than asking the user via a confirm dialog.
+ * approval gate. Plannotator is the sole external reviewer and must provide
+ * the approval decision before the planning phase advances.
  */
 import { afterEach, describe, expect, test } from "bun:test";
+import { fauxAssistantMessage, fauxToolCall } from "@mariozechner/pi-ai";
 import {
 	createTestRuntime,
 	type TestRuntime,
@@ -21,7 +22,8 @@ const PLAN_DOC = "# Plan\n\nDo the thing.";
 
 const installFakePlannotatorForDocument = (
 	rt: TestRuntime,
-	decision: { approved: boolean; feedback?: string },
+	decision: { approved: boolean; feedback?: string } | undefined,
+	onStarted?: () => void,
 ): void => {
 	rt.pi.events.on("plannotator:request", (data) => {
 		const request = data as {
@@ -39,6 +41,8 @@ const installFakePlannotatorForDocument = (
 			status: "handled",
 			result: { status: "pending", reviewId: "rev-doc-fake" },
 		});
+		onStarted?.();
+		if (!decision) return;
 		setTimeout(() => {
 			rt.pi.events.emit("plannotator:review-result", {
 				reviewId: "rev-doc-fake",
@@ -61,16 +65,14 @@ describe("until_done_draft_plan", () => {
 		expect(events.some((e) => e.kind === "plan_document")).toBe(false);
 	});
 
-	test("when no plannotator, auto-approves without a confirm dialog", async () => {
+	test("when no plannotator is available, does not approve the document", async () => {
 		rt = await createTestRuntime({ withUi: true });
 		seedPlanning(rt);
 		await driveToolCall(rt, "until_done_draft_plan", {
 			planDocument: PLAN_DOC,
 		});
-		// plannotator is the sole reviewer — no user dialog must appear
 		expect(rt.ui.confirms).toHaveLength(0);
-		// plan should be approved, advancing to the tasks phase
-		expect(rt.store.state.planningPhase).toBe("tasks");
+		expect(rt.store.state.planningPhase).toBe("document");
 	});
 
 	test("when plannotator approves, advances to tasks phase without dialog", async () => {
@@ -82,6 +84,32 @@ describe("until_done_draft_plan", () => {
 		});
 		expect(rt.store.state.planningPhase).toBe("tasks");
 		expect(rt.ui.confirms).toHaveLength(0);
+	});
+
+	test("waits for Plannotator's user decision before approving", async () => {
+		rt = await createTestRuntime({ withUi: true });
+		let resolveStarted!: () => void;
+		const started = new Promise<void>((resolve) => {
+			resolveStarted = resolve;
+		});
+		installFakePlannotatorForDocument(rt, undefined, resolveStarted);
+		seedPlanning(rt);
+		rt.setLLM([
+			fauxAssistantMessage(
+				[fauxToolCall("until_done_draft_plan", { planDocument: PLAN_DOC })],
+				{ stopReason: "toolUse" },
+			),
+			fauxAssistantMessage("done", { stopReason: "stop" }),
+		]);
+		const prompt = rt.prompt("run the tool");
+		await started;
+		expect(rt.store.state.planningPhase).toBe("document");
+		rt.pi.events.emit("plannotator:review-result", {
+			reviewId: "rev-doc-fake",
+			approved: true,
+		});
+		await prompt;
+		expect(rt.store.state.planningPhase).toBe("tasks");
 	});
 
 	test("when plannotator rejects with feedback, stays in document phase and no dialog", async () => {

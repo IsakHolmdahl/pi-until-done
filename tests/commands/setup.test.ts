@@ -27,7 +27,7 @@ describe("/until-done <intent> setup flow", () => {
 		expect(rt.ui.confirms.some((c) => c.title.includes("approve"))).toBe(false);
 	});
 
-	test("autopilot does not affect setup; confirmation waits for plan", async () => {
+	test("autopilot does not affect setup or Plannotator approval", async () => {
 		rt = await createTestRuntime({
 			withUi: true,
 			uiPolicy: { confirm: () => false },

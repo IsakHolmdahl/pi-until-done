@@ -60,9 +60,9 @@ describe("end-to-end happy path: setup → set → plan → progress → complet
 		expect(rt.store.state.northStar?.goal).toBe("implement /healthz endpoint");
 		expect(rt.store.state.maxTurns).toBe(50);
 
-		// Step 3: agent calls until_done_plan with two tasks. This triggers the
-		// plan approval dialog; with confirm:true the user approves and the goal
-		// becomes active. Set planningPhase to "tasks" to simulate plan document approval.
+		// Step 3: agent calls until_done_plan with two tasks. Plannotator owns
+		// the approval and emits the user's decision before the goal activates.
+		installFakePlannotator(rt, true);
 		rt.store.state.planningPhase = "tasks";
 		rt.setLLM([
 			fauxAssistantMessage(
@@ -209,3 +209,27 @@ describe("end-to-end happy path: setup → set → plan → progress → complet
 		expect(setCount).toBeGreaterThanOrEqual(2);
 	});
 });
+
+const installFakePlannotator = (rt: TestRuntime, approved: boolean): void => {
+	rt.pi.events.on("plannotator:request", (data) => {
+		const request = data as {
+			action: string;
+			respond: (response: unknown) => void;
+		};
+		if (request.action === "review-status") {
+			request.respond({ status: "handled", result: { status: "missing" } });
+			return;
+		}
+		if (request.action !== "plan-review") return;
+		request.respond({
+			status: "handled",
+			result: { status: "pending", reviewId: "integration-review" },
+		});
+		setTimeout(() => {
+			rt.pi.events.emit("plannotator:review-result", {
+				reviewId: "integration-review",
+				approved,
+			});
+		}, 5);
+	});
+};

@@ -14,6 +14,8 @@ export const REFUSAL = {
 		`a goal is already ${status}. Cancel it with /until-done cancel first.`,
 	planRejected:
 		"plan rejected. Revise and resubmit via until_done_propose_plan.",
+	plannotatorRequired:
+		"Plannotator must return the user's approval or rejection before planning can continue.",
 	noActiveGoal: (status: string) =>
 		`Refused: no active goal (status=${status}).`,
 	noActiveBlock: (status: string) =>
