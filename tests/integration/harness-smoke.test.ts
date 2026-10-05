@@ -12,6 +12,16 @@ afterEach(async () => {
 });
 
 describe("runtime harness smoke", () => {
+	test("does not install Plannotator or subagents as package dependencies", async () => {
+		const manifest = await Bun.file(
+			`${import.meta.dir}/../../package.json`,
+		).json();
+		expect(manifest.dependencies).not.toHaveProperty(
+			"@plannotator/pi-extension",
+		);
+		expect(manifest.dependencies).not.toHaveProperty("pi-subagents");
+	});
+
 	test("boots with extension loaded and store available", async () => {
 		runtime = await createTestRuntime();
 		expect(runtime.store.state.status).toBe("setup");

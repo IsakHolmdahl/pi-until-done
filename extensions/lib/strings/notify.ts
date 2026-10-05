@@ -2,6 +2,10 @@ const LIFECYCLE = {
 	flagOpening: (g: string) => `/until-done flag set — opening setup for: ${g}`,
 	coexistGoal:
 		"Note: @qhn/pi-goal is also installed. /until-done and /goal coexist — pick one per session.",
+	missingPlannotator:
+		"Plannotator isn't loaded. Install it with `pi install npm:@plannotator/pi-extension`; /until-done planning requires it.",
+	missingSubagents:
+		"pi-subagents isn't loaded. Install it with `pi install npm:pi-subagents` for the required subagent workflows.",
 	setupStarted: (intent: string) =>
 		`/until-done · setup started for "${intent}"`,
 	planApproved: "/until-done · plan approved. Pi will activate now.",

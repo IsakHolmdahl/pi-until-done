@@ -7,6 +7,7 @@ import {
 	STATUS_KEY,
 	WIDGET_KEY,
 } from "../constants";
+import { isPlannotatorAvailable } from "../plannotator";
 import { persist, reconstructFromSession, type Store } from "../store";
 import { DIALOGS, NOTIFY } from "../strings";
 import { refreshStatus } from "../ui/status-line";
@@ -34,13 +35,30 @@ const warnGoalCollision = (pi: ExtensionAPI, ctx: ExtensionContext): void => {
 	ctx.ui.notify(NOTIFY.coexistGoal, "info");
 };
 
+const warnMissingExtensions = async (
+	pi: ExtensionAPI,
+	ctx: ExtensionContext,
+): Promise<void> => {
+	if (!pi.getAllTools().some((tool) => tool.name === "subagent")) {
+		ctx.ui.notify(NOTIFY.missingSubagents, "warning");
+	}
+	if (!(await isPlannotatorAvailable(pi))) {
+		ctx.ui.notify(NOTIFY.missingPlannotator, "warning");
+	}
+};
+
 const onSessionStart = (pi: ExtensionAPI, store: Store) => {
+	let companionWarningsChecked = false;
 	pi.on("session_start", async (event, ctx) => {
 		reconstructFromSession(store, ctx);
 		refreshStatus(store, ctx);
 		refreshWidget(store, ctx, true);
 		handleStartupFlag(pi, ctx, event.reason);
 		warnGoalCollision(pi, ctx);
+		if (!companionWarningsChecked) {
+			companionWarningsChecked = true;
+			await warnMissingExtensions(pi, ctx);
+		}
 		return undefined;
 	});
 };

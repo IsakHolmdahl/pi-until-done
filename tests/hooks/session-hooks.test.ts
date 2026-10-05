@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { fauxAssistantMessage } from "@mariozechner/pi-ai";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import { Type } from "typebox";
 import { makeNorthStar } from "../helpers/factories";
 import {
 	createTestRuntime,
@@ -7,6 +9,25 @@ import {
 } from "../helpers/runtime-harness";
 
 let rt: TestRuntime | undefined;
+
+const installCompanions = (pi: ExtensionAPI): void => {
+	pi.registerTool({
+		name: "subagent",
+		label: "Subagent",
+		description: "test companion tool",
+		parameters: Type.Object({}),
+		async execute() {
+			return { content: [{ type: "text", text: "ok" }], details: undefined };
+		},
+	});
+	pi.events.on("plannotator:request", (data) => {
+		const request = data as {
+			action: string;
+			respond: (response: unknown) => void;
+		};
+		if (request.action === "review-status") request.respond({});
+	});
+};
 
 afterEach(async () => {
 	await rt?.dispose();
@@ -20,6 +41,32 @@ describe("session_start (real runtime)", () => {
 		// run with our mock UI, so traces should be populated.
 		const widgetCalls = rt.ui.widgets.filter((w) => w.key === "until-done");
 		expect(widgetCalls.length).toBeGreaterThan(0);
+	});
+
+	test("warns when Plannotator and subagents are not loaded", async () => {
+		rt = await createTestRuntime({ withUi: true });
+		const warnings = rt.ui.notifies
+			.filter((n) => n.type === "warning")
+			.map((n) => n.message);
+		expect(warnings).toContainEqual(expect.stringContaining("Plannotator"));
+		expect(warnings).toContainEqual(expect.stringContaining("pi-subagents"));
+	});
+
+	test("warns when starting from a resumed session", async () => {
+		rt = await createTestRuntime({
+			withUi: true,
+			sessionStartReason: "resume",
+		});
+		const warnings = rt.ui.notifies.filter((n) => n.type === "warning");
+		expect(warnings).toHaveLength(2);
+	});
+
+	test("does not warn when both companion capabilities are loaded", async () => {
+		rt = await createTestRuntime({
+			withUi: true,
+			companionExtensions: [installCompanions],
+		});
+		expect(rt.ui.notifies.filter((n) => n.type === "warning")).toHaveLength(0);
 	});
 
 	test("--until-done flag at startup queues a /until-done <intent> turn", async () => {

@@ -92,7 +92,7 @@ const handleReviewStart = (
 	void waitForResult(pi, response.result.reviewId, signal).then(finish);
 };
 
-const listenerPresent = (pi: ExtensionAPI): Promise<boolean> =>
+export const isPlannotatorAvailable = (pi: ExtensionAPI): Promise<boolean> =>
 	new Promise((resolve) => {
 		let done = false;
 		const finish = (value: boolean) => {
@@ -116,7 +116,7 @@ const requestReview = async (
 	planFilePath: string | undefined,
 	signal: AbortSignal | undefined,
 ): Promise<PlannotatorDecision | undefined> => {
-	if (!(await listenerPresent(pi))) return undefined;
+	if (!(await isPlannotatorAvailable(pi))) return undefined;
 	return new Promise((resolve) => {
 		let done = false;
 		const finish = (value: PlannotatorDecision | undefined) => {

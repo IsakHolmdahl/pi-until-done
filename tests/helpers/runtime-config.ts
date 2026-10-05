@@ -52,12 +52,13 @@ export const buildRuntimeFactory = (
 	authStorage: AuthStorage,
 	faux: Faux,
 	factory: (pi: ExtensionAPI) => void,
+	companionExtensions: Array<(pi: ExtensionAPI) => void> = [],
 ): CreateAgentSessionRuntimeFactory => {
 	const runtimeOptions = {
 		authStorage,
 		model: faux.getModel(),
 		resourceLoaderOptions: {
-			extensionFactories: [factory],
+			extensionFactories: [factory, ...companionExtensions],
 			noSkills: true,
 			noPromptTemplates: true,
 			noThemes: true,

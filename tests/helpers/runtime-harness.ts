@@ -12,6 +12,7 @@ import {
 	createAgentSessionRuntime,
 	type ExtensionAPI,
 	SessionManager,
+	type SessionStartEvent,
 } from "@mariozechner/pi-coding-agent";
 import type { Store } from "../../extensions/lib/store";
 import untilDoneExtension from "../../extensions/until-done";
@@ -29,6 +30,8 @@ export interface CreateTestRuntimeOptions {
 	uiPolicy?: UiPolicy;
 	seedFiles?: Record<string, string>;
 	withJudge?: boolean;
+	companionExtensions?: Array<(pi: ExtensionAPI) => void>;
+	sessionStartReason?: SessionStartEvent["reason"];
 }
 
 export interface TestRuntime {
@@ -106,8 +109,20 @@ export const createTestRuntime = async (
 	};
 
 	const runtimeHost = await createAgentSessionRuntime(
-		buildRuntimeFactory(authStorage, faux, factory),
-		{ cwd, agentDir: cwd, sessionManager: SessionManager.create(cwd) },
+		buildRuntimeFactory(
+			authStorage,
+			faux,
+			factory,
+			options.companionExtensions,
+		),
+		{
+			cwd,
+			agentDir: cwd,
+			sessionManager: SessionManager.create(cwd),
+			sessionStartEvent: options.sessionStartReason
+				? { type: "session_start", reason: options.sessionStartReason }
+				: undefined,
+		},
 	);
 	await runtimeHost.session.bindExtensions(
 		options.withUi ? { uiContext: buildUi(trace, options.uiPolicy ?? {}) } : {},

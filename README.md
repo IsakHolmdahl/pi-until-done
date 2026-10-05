@@ -66,6 +66,15 @@ The runtime entrypoint is `extensions/until-done.ts`.
 
 - Pi >= 0.x (`pi --version`)
 - [Bun](https://bun.sh) >= 1.2
+- Install the companion extensions separately (no version pins):
+
+  ```bash
+  pi install npm:@plannotator/pi-extension
+  pi install npm:pi-subagents
+  ```
+
+  `/until-done` warns at startup if either extension isn't loaded. Plan approval
+  requires Plannotator; subagents are required by the workflow instructions.
 
 ---
 
@@ -89,8 +98,8 @@ The runtime entrypoint is `extensions/until-done.ts`.
    `planning` status.
 
 4. **Plan + approval.** Pi drafts the TDD-first task list and calls
-   `until_done_plan`. The extension opens the approval dialog (or
-   plannotator if installed). On approval, the goal moves to `active`.
+   `until_done_plan`. Plannotator opens the plan for approval. On approval,
+   the goal moves to `active`.
    On rejection, the North Star is preserved and Pi revises the plan.
 
 5. **Pursuit loop.** Pi works in TDD-first mode:
@@ -497,7 +506,7 @@ keys are namespaced `until-done.*` / `until_done_*` to avoid collisions.
 20. **Multiple goals attempted** → `until_done_set` refuses with `goal_exists`.
 21. **Tool called before approval** → `until_done_set` refuses with `not_confirmed`.
 22. **CI abort on user Esc** → `ctx.signal` is threaded into `Bun.spawn`; user `Esc` kills the CI subprocess and its entire descendant tree (using a process group on Unix).
-23. **Plannotator installed** → `until_done_plan` routes through the `plannotator:request` event channel for approval instead of the built-in confirm dialog.
+23. **Plannotator loaded** → `until_done_plan` routes through the `plannotator:request` event channel for approval; missing companion extensions trigger startup warnings.
 
 ---
 
