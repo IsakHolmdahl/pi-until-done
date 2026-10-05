@@ -53,6 +53,84 @@ const installFakePlannotatorForDocument = (
 	});
 };
 
+// A duplicate Plannotator install (global + project settings) leaves an
+// orphaned listener with no session context. It answers every request
+// synchronously, before the live instance has started its review server.
+const installOrphanedPlannotator = (rt: TestRuntime): void => {
+	rt.pi.events.on("plannotator:request", (data) => {
+		const request = data as {
+			action: string;
+			respond: (response: unknown) => void;
+		};
+		if (request.action === "review-status") {
+			request.respond({ status: "handled", result: { status: "missing" } });
+			return;
+		}
+		request.respond({
+			status: "unavailable",
+			error: "Plannotator context is not ready yet.",
+		});
+	});
+};
+
+const installSlowStartPlannotator = (
+	rt: TestRuntime,
+	decision: { approved: boolean },
+): void => {
+	rt.pi.events.on("plannotator:request", (data) => {
+		const request = data as {
+			action: string;
+			respond: (response: unknown) => void;
+		};
+		if (request.action === "review-status") {
+			request.respond({ status: "handled", result: { status: "missing" } });
+			return;
+		}
+		if (request.action !== "plan-review") return;
+		setTimeout(() => {
+			request.respond({
+				status: "handled",
+				result: { status: "pending", reviewId: "rev-live" },
+			});
+			rt.pi.events.emit("plannotator:review-result", {
+				reviewId: "rev-live",
+				approved: decision.approved,
+			});
+		}, 20);
+	});
+};
+
+const branchIncludes = (rt: TestRuntime, text: string): boolean =>
+	rt.session.sessionManager
+		.getBranch()
+		.some((e) => JSON.stringify(e).includes(text));
+
+describe("until_done_draft_plan with duplicate Plannotator listeners", () => {
+	test("an orphaned listener's instant failure does not pre-empt the live review", async () => {
+		rt = await createTestRuntime({ withUi: true });
+		installOrphanedPlannotator(rt);
+		installSlowStartPlannotator(rt, { approved: true });
+		seedPlanning(rt);
+		await driveToolCall(rt, "until_done_draft_plan", {
+			planDocument: PLAN_DOC,
+		});
+		expect(rt.store.state.planningPhase).toBe("tasks");
+	});
+
+	test("when every listener fails, the refusal includes Plannotator's error", async () => {
+		rt = await createTestRuntime({ withUi: true });
+		installOrphanedPlannotator(rt);
+		seedPlanning(rt);
+		await driveToolCall(rt, "until_done_draft_plan", {
+			planDocument: PLAN_DOC,
+		});
+		expect(rt.store.state.planningPhase).toBe("document");
+		expect(branchIncludes(rt, "Plannotator context is not ready yet.")).toBe(
+			true,
+		);
+	});
+});
+
 describe("until_done_draft_plan", () => {
 	test("rejects when goal is not in planning status", async () => {
 		rt = await createTestRuntime();

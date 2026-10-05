@@ -5,7 +5,7 @@ import type {
 import type { Static } from "typebox";
 
 import {
-	type PlannotatorDecision,
+	type PlannotatorOutcome,
 	requestPlannotatorPlanReview,
 } from "../plannotator";
 import { PlanParams } from "../schemas/plan";
@@ -86,19 +86,17 @@ const tryPlannotatorApproval = async (
 	store: Store,
 	ctx: ExtensionContext,
 	signal: AbortSignal | undefined,
-): Promise<PlannotatorDecision | undefined> => {
+): Promise<PlannotatorOutcome> => {
 	const decision = await requestPlannotatorPlanReview(
 		pi,
 		store.state.tasks,
 		signal,
 		store.state.tasksYamlPath,
 	);
-	if (!decision) return undefined;
-	if (decision.approved) {
+	if (decision.kind === "decided" && decision.approved) {
 		grantPlanApproval(pi, store, ctx, "plannotator approved");
-		return { approved: true };
 	}
-	return { approved: false, feedback: decision.feedback };
+	return decision;
 };
 
 const persistPlan = (
@@ -165,9 +163,12 @@ const executePlan = async (
 			`plan with ${params.tasks.length} tasks`,
 		);
 		const decision = await tryPlannotatorApproval(pi, store, ctx, signal);
-		if (!decision) {
+		if (decision.kind === "unavailable") {
 			rejectPlan(pi, store, ctx, "plannotator required");
-			return refused(REFUSAL.plannotatorRequired, "plannotator_required");
+			return refused(
+				REFUSAL.plannotatorRequired(decision.reason),
+				"plannotator_required",
+			);
 		}
 		if (!decision.approved) {
 			rejectPlan(pi, store, ctx, decision.feedback ?? "plan rejected");

@@ -14,8 +14,14 @@ export const REFUSAL = {
 		`a goal is already ${status}. Cancel it with /until-done cancel first.`,
 	planRejected:
 		"plan rejected. Revise and resubmit via until_done_propose_plan.",
-	plannotatorRequired:
-		"Plannotator must return the user's approval or rejection before planning can continue.",
+	plannotatorRequired: (reason: string) =>
+		`Plannotator must return the user's approval or rejection before planning can continue. Plannotator said: ${reason}`,
+	plannotatorNotInstalled:
+		"no Plannotator listener answered on plannotator:request. Install it with `pi install npm:@plannotator/pi-extension`.",
+	plannotatorCancelled: "the review was cancelled before a decision arrived.",
+	plannotatorStartTimeout:
+		"the review did not start in time. Check that the Plannotator browser review can open.",
+	plannotatorNoReason: "the review could not be started.",
 	noActiveGoal: (status: string) =>
 		`Refused: no active goal (status=${status}).`,
 	noActiveBlock: (status: string) =>

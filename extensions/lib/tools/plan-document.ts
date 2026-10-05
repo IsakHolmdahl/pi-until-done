@@ -68,8 +68,11 @@ const executePlanDocument = async (
 		planPath,
 		signal,
 	);
-	if (!decision) {
-		return refused(REFUSAL.plannotatorRequired, "plannotator_required");
+	if (decision.kind === "unavailable") {
+		return refused(
+			REFUSAL.plannotatorRequired(decision.reason),
+			"plannotator_required",
+		);
 	}
 	if (decision.approved) {
 		return approvePlanDocument(pi, store, ctx, planPath);
